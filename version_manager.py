@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Version management utility for LibFake package.
+Version management utility for libcrypto package.
 Use this script to update version numbers across the entire project.
 """
 
@@ -13,7 +13,7 @@ from pathlib import Path
 
 def get_current_version():
     """Get the current version from _version.py"""
-    version_file = Path(__file__).parent / "src" / "libfake" / "_version.py"
+    version_file = Path(__file__).parent / "src" / "libcrypto" / "_version.py"
 
     if not version_file.exists():
         raise FileNotFoundError(f"Version file not found: {version_file}")
@@ -69,13 +69,13 @@ def update_version(major, minor, patch, suffix=""):
 
 def validate_version_consistency():
     """Check if all files use the same version"""
-    from src.libfake._version import __version__
+    from src.libcrypto._version import __version__
 
     issues = []
 
     # Check if import works
     try:
-        from src.libfake import __version__ as init_version
+        from src.libcrypto import __version__ as init_version
 
         if __version__ != init_version:
             issues.append(
@@ -109,7 +109,7 @@ def bump_version(component, suffix=""):
 def main():
     """Main function for version management."""
     parser = argparse.ArgumentParser(
-        description="LibFake Version Management Tool",
+        description="libcrypto Version Management Tool",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
