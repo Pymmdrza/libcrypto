@@ -1,0 +1,48 @@
+# Development dependencies for LibCrypto
+# Install with: pip install -r requirements-dev.txt
+
+# Testing framework
+pytest>=7.0.0
+pytest-cov>=4.0.0          # Coverage reporting
+pytest-xdist>=3.0.0        # Parallel test execution
+pytest-benchmark>=4.0.0    # Performance benchmarking
+
+# Code formatting and linting
+black>=22.0.0               # Code formatter
+isort>=5.10.0              # Import sorter
+flake8>=5.0.0              # Linting
+flake8-docstrings>=1.6.0   # Docstring linting
+flake8-import-order>=0.18  # Import order checking
+autoflake>=1.4.0           # Remove unused imports
+
+# Type checking
+mypy>=1.0.0                # Static type checking
+types-setuptools           # Type stubs for setuptools
+
+# Documentation
+sphinx>=5.0.0              # Documentation generator
+sphinx-rtd-theme>=1.0.0    # Read the Docs theme
+sphinx-autodoc-typehints>=1.19.0  # Type hints in docs
+
+# Package building and distribution
+build>=0.8.0               # PEP 517 build tool
+twine>=4.0.0               # PyPI upload tool
+wheel>=0.37.0              # Wheel building
+
+# Security scanning
+bandit>=1.7.0              # Security linter
+safety>=2.0.0              # Dependency vulnerability scanner
+
+# Development utilities
+pre-commit>=2.20.0         # Git pre-commit hooks
+tox>=4.0.0                 # Testing across environments
+nox>=2022.8.7              # Testing automation
+
+# Performance profiling
+py-spy>=0.3.14             # Python profiler
+memory-profiler>=0.60.0    # Memory usage profiling
+
+# Debugging and development
+ipython>=8.0.0             # Interactive Python shell
+ipdb>=0.13.0               # Debugger
+rich>=12.0.0               # Rich text and beautiful formatting 

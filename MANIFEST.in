@@ -1,0 +1,47 @@
+# Include documentation files
+include README.md
+include LICENSE
+include CHANGELOG.md
+include PLANNING.md
+include TASK.md
+
+# Include configuration files
+include pyproject.toml
+include setup.py
+include build_and_publish.py
+
+# Include C source files and headers
+recursive-include src/libcrypto/Core *.c *.h
+recursive-include src/libcrypto/Core/libtom *.c *.h
+
+# Include type stubs
+include src/libcrypto/py.typed
+recursive-include src/libcrypto *.pyi
+
+# Include test files (for source distribution)
+recursive-include src/libcrypto/tests *.py
+recursive-include tests *.py
+
+# Include package data
+recursive-include src/libcrypto *.md *.txt
+
+# Exclude unwanted files
+global-exclude __pycache__/*
+global-exclude *.py[cod]
+global-exclude .git*
+global-exclude .DS_Store
+global-exclude *.egg-info/*
+global-exclude build/*
+global-exclude dist/*
+global-exclude htmlcov/*
+global-exclude .coverage
+global-exclude .pytest_cache/*
+global-exclude .mypy_cache/*
+global-exclude .vscode/*
+global-exclude .cursor/*
+
+# Exclude development files
+exclude debug_*.py
+exclude test_imports.py
+exclude test_basic.py
+exclude test_functionality.py 
