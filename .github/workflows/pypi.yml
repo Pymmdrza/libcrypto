@@ -1,0 +1,112 @@
+name: Build and Publish LibCrypto Package
+
+on:
+  workflow_dispatch:
+    inputs:
+      version_bump:
+        description: 'Version bump type (patch, minor, major) or skip for no bump'
+        required: false
+        default: 'skip'
+        type: choice
+        options:
+          - skip
+          - patch
+          - minor
+          - major
+      custom_version:
+        description: 'Custom version (e.g., 1.2.3) - overrides version_bump'
+        required: false
+        type: string
+      version_suffix:
+        description: 'Version suffix (e.g., rc1, a1, b1) - optional'
+        required: false
+        type: string
+      dry_run:
+        description: 'Dry run (build only, do not publish)'
+        required: false
+        default: false
+        type: boolean
+  push:
+    tags:
+      - 'v*'
+
+  release:
+    types: [published]
+
+jobs:
+  version-check:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.get-version.outputs.version }}
+      should_publish: ${{ steps.check-publish.outputs.should_publish }}
+    
+    steps:
+      - name: \[LIBCrypto]\ Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+      - name: check and clean dist folders
+        run: |
+           rm -rf dist/ build/ *.egg-info/
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install rich
+
+      - name: Update version if requested
+        if: ${{ github.event.inputs.version_bump != 'skip' || github.event.inputs.custom_version != '' }}
+        run: |
+          if [ "${{ github.event.inputs.custom_version }}" != "" ]; then
+            echo "Setting custom version: ${{ github.event.inputs.custom_version }}"
+            python version_manager.py --set "${{ github.event.inputs.custom_version }}" --suffix "${{ github.event.inputs.version_suffix }}"
+          elif [ "${{ github.event.inputs.version_bump }}" != "skip" ]; then
+            echo "Bumping version: ${{ github.event.inputs.version_bump }}"
+            python version_manager.py --bump "${{ github.event.inputs.version_bump }}" --suffix "${{ github.event.inputs.version_suffix }}"
+          fi
+
+      - name: Get current version
+        id: get-version
+        run: |
+          VERSION=$(python version_manager.py --show | grep "Current version:" | cut -d' ' -f3)
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Current version: $VERSION"
+
+      - name: Validate version consistency
+        run: |
+          python version_manager.py --check
+          echo "✅ Version consistency validated"
+          
+      - name: Commit version changes
+        if: ${{ github.event.inputs.version_bump != 'skip' || github.event.inputs.custom_version != '' }}
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add src/libcrypto/_version.py
+          git commit -m "🔖 Bump version to ${{ steps.get-version.outputs.version }}" || echo "No changes to commit"
+          git push origin ${{ github.ref_name }} || echo "Push failed, continuing..."
+
+
+      - name: Install build tools
+        run: |
+          python -m pip install --upgrade pip
+          pip install build twine
+
+      - name: Build the package
+        run: python -m build
+
+      - name: Publish to PyPI
+        env:
+          TWINE_USERNAME: __token__
+          TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
+        run: |
+          twine upload dist/*
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: libcrypto-distribution
+          path: dist/
