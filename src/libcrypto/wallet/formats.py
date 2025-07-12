@@ -6,12 +6,11 @@ key and address formats including Base58 encoding/decoding, WIF format, and
 various hex/bytes conversions.
 """
 
-import hashlib
 from typing import Union, Optional
 
-from Hash.SHA256 import SHA256Hash
-from Util.constants import BASE58_ALPHABET, ADDRESS_VERSIONS
-from Util.number import bytes_to_long, long_to_bytes
+from ..Hash.SHA256 import SHA256Hash
+from ..Util.constants import BASE58_ALPHABET, ADDRESS_VERSIONS
+from ..Util.number import bytes_to_long, long_to_bytes
 
 
 class InvalidFormatError(ValueError):

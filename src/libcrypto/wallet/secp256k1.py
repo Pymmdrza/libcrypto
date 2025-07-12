@@ -6,7 +6,7 @@ This is a minimal implementation for compatibility with the wallet library.
 """
 
 from typing import Tuple, Optional
-from Util.constants import (
+from ..Util.constants import (
     SECP256K1_P, SECP256K1_N, SECP256K1_GX, SECP256K1_GY, 
     SECP256K1_A, SECP256K1_B
 )
