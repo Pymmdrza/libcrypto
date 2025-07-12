@@ -9,13 +9,12 @@ This module provides comprehensive BIP39 mnemonic phrase functionality including
 - Optional passphrase support
 """
 
-import secrets
-import hashlib
 from typing import List, Optional, Union
 
-from Hash.SHA256 import SHA256Hash
-from wallet.crypto_utils import bip39_pbkdf2
-from Util.constants import (
+from .Hash.SHA256 import SHA256Hash
+from .Random import get_random_bytes
+from .wallet.crypto_utils import bip39_pbkdf2
+from .Util.constants import (
     BIP39_WORD_LIST, 
     BIP39_ENTROPY_BITS,
     BIP39_CHECKSUM_BITS,
@@ -166,9 +165,9 @@ def generate_mnemonic(word_count: int = 12) -> str:
     if word_count not in VALID_MNEMONIC_LENGTHS:
         raise ValueError(ERROR_MESSAGES['invalid_mnemonic_length'])
     
-    # Generate cryptographically secure entropy
+    # Generate cryptographically secure entropy using internal random generation
     entropy_bits = BIP39_ENTROPY_BITS[word_count]
-    entropy_bytes = secrets.token_bytes(entropy_bits // 8)
+    entropy_bytes = get_random_bytes(entropy_bits // 8)
     
     return _entropy_to_mnemonic(entropy_bytes)
 
@@ -285,7 +284,15 @@ def generate_simple_mnemonic(count: int) -> str:
     if count not in VALID_MNEMONIC_LENGTHS:
         raise ValueError("Invalid word count. Must be 12, 15, 18, 21, or 24.")
     
-    return " ".join(secrets.choice(BIP39_WORD_LIST) for _ in range(count))
+    # Generate random indices using internal random generation
+    random_bytes = get_random_bytes(count * 2)  # 2 bytes per word for 16-bit random value
+    words = []
+    for i in range(count):
+        # Get 2 bytes and convert to index in BIP39_WORD_LIST range (0-2047)
+        idx = (random_bytes[i*2] << 8 | random_bytes[i*2+1]) % len(BIP39_WORD_LIST)
+        words.append(BIP39_WORD_LIST[idx])
+    
+    return " ".join(words)
 
 
 # Main functions for easy access

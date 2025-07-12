@@ -6,11 +6,11 @@ format conversions, WIF support, and cryptographic operations.
 """
 
 from typing import Union, Optional, Tuple
-import secrets
 
 from .secp256k1 import private_key_to_public_key, public_key_to_point
 from ..Hash.SHA256 import SHA256Hash
 from ..Hash.RIPEMD160 import RIPEMD160Hash
+from ..Random import get_random_bytes
 from ..Util.constants import SECP256K1_N, MAX_PRIVATE_KEY
 from .formats import (
     private_key_to_wif, 
@@ -65,7 +65,7 @@ class PrivateKey:
     def _generate_random_key(self) -> int:
         """Generate a cryptographically secure random private key."""
         while True:
-            key_bytes = secrets.token_bytes(32)
+            key_bytes = get_random_bytes(32)
             key_int = bytes_to_int(key_bytes)
             if 1 <= key_int <= MAX_PRIVATE_KEY:
                 return key_int

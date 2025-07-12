@@ -8,11 +8,12 @@ BIP39 Standard: https://github.com/bitcoin/bips/blob/master/bip-0039.mediawiki
 """
 
 import os
-import hashlib
-import hmac
 from typing import List, Optional, Union
 
-from Util.constants import (
+from .Hash import SHA256, SHA512
+from .Protocol.KDF import PBKDF2
+from .Random import get_random_bytes
+from .Util.constants import (
     BIP39_WORD_LIST,
     BIP39_ENTROPY_BITS,
     BIP39_CHECKSUM_BITS,
@@ -30,7 +31,7 @@ class BIP39Error(ValueError):
 
 def _pbkdf2_hmac_sha512(password: bytes, salt: bytes, iterations: int, dklen: int) -> bytes:
     """
-    Simplified PBKDF2 implementation using HMAC-SHA512.
+    Internal PBKDF2 implementation using internal HMAC-SHA512.
     
     Args:
         password: Password bytes
@@ -41,8 +42,8 @@ def _pbkdf2_hmac_sha512(password: bytes, salt: bytes, iterations: int, dklen: in
     Returns:
         Derived key bytes
     """
-    # Use Python's built-in PBKDF2 implementation
-    return hashlib.pbkdf2_hmac('sha512', password, salt, iterations, dklen)
+    # Use internal PBKDF2 implementation with SHA512
+    return PBKDF2(password, salt, dklen, iterations, hmac_hash_module=SHA512)
 
 
 def _entropy_to_mnemonic(entropy: bytes) -> str:
@@ -61,8 +62,8 @@ def _entropy_to_mnemonic(entropy: bytes) -> str:
     if len(entropy) not in [16, 20, 24, 28, 32]:  # 128, 160, 192, 224, 256 bits
         raise BIP39Error(f"Invalid entropy length: {len(entropy)} bytes")
     
-    # Calculate checksum
-    checksum = hashlib.sha256(entropy).digest()
+    # Calculate checksum using internal SHA256
+    checksum = SHA256.new(entropy).digest()
     checksum_bits = len(entropy) // 4  # 1 bit per 4 bytes of entropy
     
     # Convert entropy to binary string
@@ -118,8 +119,8 @@ def _mnemonic_to_entropy(mnemonic: str) -> bytes:
     # Convert entropy binary to bytes
     entropy_bytes = bytes(int(entropy_bin[i:i+8], 2) for i in range(0, len(entropy_bin), 8))
     
-    # Verify checksum
-    expected_checksum = hashlib.sha256(entropy_bytes).digest()
+    # Verify checksum using internal SHA256
+    expected_checksum = SHA256.new(entropy_bytes).digest()
     expected_checksum_bin = ''.join(f'{byte:08b}' for byte in expected_checksum)[:checksum_bits]
     
     if checksum_bin != expected_checksum_bin:
@@ -144,10 +145,10 @@ def generate_mnemonic(word_count: int = 12) -> str:
     if word_count not in VALID_MNEMONIC_LENGTHS:
         raise BIP39Error(f"Invalid word count: {word_count}")
     
-    # Generate entropy
+    # Generate entropy using internal random generation
     entropy_bits = BIP39_ENTROPY_BITS[word_count]
     entropy_bytes = entropy_bits // 8
-    entropy = os.urandom(entropy_bytes)
+    entropy = get_random_bytes(entropy_bytes)
     
     return _entropy_to_mnemonic(entropy)
 

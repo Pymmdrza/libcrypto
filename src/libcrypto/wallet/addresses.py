@@ -9,7 +9,7 @@ like P2PKH, P2SH, P2WPKH, SegWit, and Ethereum-style addresses.
 from typing import Union, Optional
 
 from ..Hash.SHA256 import SHA256Hash
-from ..Hash.RIPEMD160 import RIPEMD160Hash, RIPEMD160
+from ..Hash.RIPEMD160 import RIPEMD160Hash
 from ..Util.constants import ADDRESS_VERSIONS, BECH32_HRP
 from ..wallet.formats import base58_check_encode, base58_check_decode, InvalidFormatError
 from ..wallet.crypto_utils import keccak256

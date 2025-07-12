@@ -46,7 +46,7 @@ common_flags = [
     '-DHAVE_X86INTRIN_H',
     '-DUSE_SSE2',
     '-DHAVE_UINT128',
-    '-DSTATIC=""'
+    '-DSTATIC=static'
 ]
 
 # Platform-specific flags
@@ -54,7 +54,7 @@ if sys.platform == 'win32':
     compile_args = ['/O2'] + [f'/D{flag[2:]}' if flag.startswith('-D') else flag for flag in common_flags]
     link_args = []
 else:
-    compile_args = ['-O3', '-Wall', '-Wno-unused-const-variable'] + common_flags
+    compile_args = ['-O3', '-Wall', '-Wno-unused-const-variable', '-msse2', '-maes'] + common_flags
     link_args = []
 
 # Define C extensions
@@ -144,13 +144,13 @@ extensions = [
         extra_compile_args=compile_args,
         extra_link_args=link_args
     ),
-    Extension(
-        'libcrypto.Hash._poly1305',
-        sources=[str(core_dir / 'poly1305.c')],
-        include_dirs=[str(core_dir)],
-        extra_compile_args=compile_args,
-        extra_link_args=link_args
-    ),
+    # Extension(
+    #     'libcrypto.Hash._poly1305',
+    #     sources=[str(core_dir / 'poly1305.c')],
+    #     include_dirs=[str(core_dir)],
+    #     extra_compile_args=compile_args,
+    #     extra_link_args=link_args
+    # ),
     # Cipher extensions
     Extension(
         'libcrypto.Cipher._raw_aes',
@@ -160,8 +160,32 @@ extensions = [
         extra_link_args=link_args
     ),
     Extension(
-        'libcrypto.Cipher._raw_aesni',
-        sources=[str(core_dir / 'AESNI.c')],
+        'libcrypto.Cipher._Salsa20',
+        sources=[str(core_dir / 'Salsa20.c')],
+        include_dirs=[str(core_dir)],
+        extra_compile_args=compile_args,
+        extra_link_args=link_args
+    ),
+    # Protocol extensions
+    Extension(
+        'libcrypto.Protocol._scrypt',
+        sources=[str(core_dir / 'scrypt.c')],
+        include_dirs=[str(core_dir)],
+        extra_compile_args=compile_args,
+        extra_link_args=link_args
+    ),
+    # Note: AESNI disabled due to compilation issues - can be re-enabled with proper CPU detection
+    # Extension(
+    #     'libcrypto.Cipher._raw_aesni',
+    #     sources=[str(core_dir / 'AESNI.c')],
+    #     include_dirs=[str(core_dir)],
+    #     extra_compile_args=compile_args,
+    #     extra_link_args=link_args
+    # ),
+    # Utility extensions
+    Extension(
+        'libcrypto.Util._strxor',
+        sources=[str(core_dir / 'strxor.c')],
         include_dirs=[str(core_dir)],
         extra_compile_args=compile_args,
         extra_link_args=link_args

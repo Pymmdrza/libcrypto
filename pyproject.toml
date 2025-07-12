@@ -7,7 +7,7 @@ name = "libcrypto"
 version = "1.0.0"
 description = "Comprehensive cryptocurrency wallet library with BIP39/BIP32 support and zero external dependencies"
 readme = "README.md"
-license = "MIT"
+license = {text = "MIT"}
 authors = [
     {name = "LibCrypto Team", email = "info@libcrypto.dev"}
 ]
