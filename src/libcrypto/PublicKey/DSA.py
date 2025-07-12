@@ -4,7 +4,7 @@
 #
 
 
-__all__ = ['generate', 'construct', 'DsaKey', 'import_key' ]
+__all__ = ['generate', 'construct', 'DsaKey', 'import_key']
 
 import binascii
 import struct
@@ -16,18 +16,19 @@ from .. import Random
 from ..IO import PKCS8, PEM
 from ..Hash import SHA256
 from ..Util.asn1 import (
-                DerObject, DerSequence,
-                DerInteger, DerObjectId,
-                DerBitString,
-                )
+    DerObject, DerSequence,
+    DerInteger, DerObjectId,
+    DerBitString,
+)
 
 from ..Math.Numbers import Integer
 from ..Math.Primality import (test_probable_prime, COMPOSITE,
-                                   PROBABLY_PRIME)
+                              PROBABLY_PRIME)
 
 from ..PublicKey import (_expand_subject_public_key_info,
-                              _create_subject_public_key_info,
-                              _extract_subject_public_key_info)
+                         _create_subject_public_key_info,
+                         _extract_subject_public_key_info)
+
 
 #   ; The following ASN.1 types are relevant for DSA
 #
@@ -84,7 +85,7 @@ class DsaKey(object):
 
     def __init__(self, key_dict):
         input_set = set(key_dict.keys())
-        public_set = set(('y' , 'g', 'p', 'q'))
+        public_set = set(('y', 'g', 'p', 'q'))
         if not public_set.issubset(input_set):
             raise ValueError("Some DSA components are missing = %s" %
                              str(public_set - input_set))
@@ -103,7 +104,7 @@ class DsaKey(object):
         x, q, p, g = [self._key[comp] for comp in ['x', 'q', 'p', 'g']]
 
         blind_factor = Integer.random_range(min_inclusive=1,
-                                           max_exclusive=q)
+                                            max_exclusive=q)
         inv_blind_k = (blind_factor * k).inverse(q)
         blind_x = x * blind_factor
 
@@ -130,7 +131,7 @@ class DsaKey(object):
     def can_encrypt(self):  # legacy
         return False
 
-    def can_sign(self):     # legacy
+    def can_sign(self):  # legacy
         return True
 
     def public_key(self):
@@ -190,7 +191,7 @@ class DsaKey(object):
             raise AttributeError(item)
 
     def export_key(self, format='PEM', pkcs8=None, passphrase=None,
-                  protection=None, randfunc=None):
+                   protection=None, randfunc=None):
         """Export this DSA key.
 
         Args:
@@ -217,7 +218,7 @@ class DsaKey(object):
             If :data:`pkcs8` takes value ``True``, this is the PKCS#8
             algorithm to use for deriving the secret and encrypting
             the private DSA key.
-            For a complete list of algorithms, see :mod:`Crypto.IO.PKCS8`.
+            For a complete list of algorithms, see :mod:`libcrypto.IO.PKCS8`.
             The default is *PBKDF2WithHMAC-SHA1AndDES-EDE3-CBC*.
 
             If :data:`pkcs8` is ``False``, the obsolete PEM encryption scheme is
@@ -229,7 +230,7 @@ class DsaKey(object):
 
           randfunc (callable):
             A function that returns random bytes.
-            By default it is :func:`Crypto.Random.get_random_bytes`.
+            By default it is :func:`libcrypto.Random.get_random_bytes`.
 
         Returns:
           byte string : the encoded key
@@ -266,8 +267,8 @@ class DsaKey(object):
             tup2 = [func(x) for x in tup1]
             keyparts = [b'ssh-dss'] + tup2
             keystring = b''.join(
-                            [struct.pack(">I", len(kp)) + kp for kp in keyparts]
-                            )
+                [struct.pack(">I", len(kp)) + kp for kp in keyparts]
+            )
             return b'ssh-dss ' + binascii.b2a_base64(keystring)[:-1]
 
         # DER format is always used, even in case of PEM, which simply
@@ -281,10 +282,10 @@ class DsaKey(object):
                     protection = 'PBKDF2WithHMAC-SHA1AndDES-EDE3-CBC'
                 private_key = DerInteger(self.x).encode()
                 binary_key = PKCS8.wrap(
-                                private_key, oid, passphrase,
-                                protection, key_params=params,
-                                randfunc=randfunc
-                                )
+                    private_key, oid, passphrase,
+                    protection, key_params=params,
+                    randfunc=randfunc
+                )
                 if passphrase:
                     key_type = 'ENCRYPTED PRIVATE'
                 else:
@@ -301,16 +302,16 @@ class DsaKey(object):
                 raise ValueError("PKCS#8 is only meaningful for private keys")
 
             binary_key = _create_subject_public_key_info(oid,
-                                DerInteger(self.y), params)
+                                                         DerInteger(self.y), params)
             key_type = "PUBLIC"
 
         if format == 'DER':
             return binary_key
         if format == 'PEM':
             pem_str = PEM.encode(
-                                binary_key, key_type + " KEY",
-                                passphrase, randfunc
-                            )
+                binary_key, key_type + " KEY",
+                passphrase, randfunc
+            )
             return tobytes(pem_str)
         raise ValueError("Unknown key format '%s'. Cannot export the DSA key." % format)
 
@@ -321,10 +322,10 @@ class DsaKey(object):
     # Methods defined in PyCrypto that we don't support anymore
 
     def sign(self, M, K):
-        raise NotImplementedError("Use module Crypto.Signature.DSS instead")
+        raise NotImplementedError("Use module libcrypto.Signature.DSS instead")
 
     def verify(self, M, signature):
-        raise NotImplementedError("Use module Crypto.Signature.DSS instead")
+        raise NotImplementedError("Use module libcrypto.Signature.DSS instead")
 
     def encrypt(self, plaintext, K):
         raise NotImplementedError
@@ -345,7 +346,7 @@ class DsaKey(object):
 def _generate_domain(L, randfunc):
     """Generate a new set of DSA domain parameters"""
 
-    N = { 1024:160, 2048:224, 3072:256 }.get(L)
+    N = {1024: 160, 2048: 224, 3072: 256}.get(L)
     if N is None:
         raise ValueError("Invalid modulus length (%d)" % L)
 
@@ -361,26 +362,26 @@ def _generate_domain(L, randfunc):
         U = Integer.from_bytes(SHA256.new(seed).digest()) & (upper_bit - 1)
         q = U | upper_bit | 1
 
-    assert(q.size_in_bits() == N)
+    assert (q.size_in_bits() == N)
 
     # Generate p (A.1.1.2)
     offset = 1
     upper_bit = 1 << (L - 1)
     while True:
-        V = [ SHA256.new(seed + Integer(offset + j).to_bytes()).digest()
-              for j in iter_range(n + 1) ]
-        V = [ Integer.from_bytes(v) for v in V ]
+        V = [SHA256.new(seed + Integer(offset + j).to_bytes()).digest()
+             for j in iter_range(n + 1)]
+        V = [Integer.from_bytes(v) for v in V]
         W = sum([V[i] * (1 << (i * outlen)) for i in iter_range(n)],
                 (V[n] & ((1 << b_) - 1)) * (1 << (n * outlen)))
 
-        X = Integer(W + upper_bit) # 2^{L-1} < X < 2^{L}
-        assert(X.size_in_bits() == L)
+        X = Integer(W + upper_bit)  # 2^{L-1} < X < 2^{L}
+        assert (X.size_in_bits() == L)
 
         c = X % (q * 2)
         p = X - (c - 1)  # 2q divides (p-1)
         if p.size_in_bits() == L and \
-           test_probable_prime(p, randfunc) == PROBABLY_PRIME:
-               break
+                test_probable_prime(p, randfunc) == PROBABLY_PRIME:
+            break
         offset += n + 1
 
     # Generate g (A.2.3, index=1)
@@ -409,7 +410,7 @@ def generate(bits, randfunc=None, domain=None):
       randfunc (callable):
         Random number generation function; it accepts a single integer N
         and return a string of random data N bytes long.
-        If not specified, :func:`Crypto.Random.get_random_bytes` is used.
+        If not specified, :func:`libcrypto.Random.get_random_bytes` is used.
 
       domain (tuple):
         The DSA domain parameters *p*, *q* and *g* as a list of 3
@@ -461,10 +462,10 @@ def generate(bits, randfunc=None, domain=None):
 
     # B.1.1
     c = Integer.random(exact_bits=N + 64, randfunc=randfunc)
-    x = c % (q - 1) + 1 # 1 <= x <= q-1
+    x = c % (q - 1) + 1  # 1 <= x <= q-1
     y = pow(g, x, p)
 
-    key_dict = { 'y':y, 'g':g, 'p':p, 'q':q, 'x':x }
+    key_dict = {'y': y, 'g': g, 'p': p, 'q': q, 'x': x}
     return DsaKey(key_dict)
 
 
@@ -535,8 +536,7 @@ def _import_openssl_private(encoded, passphrase, params):
 
 
 def _import_subjectPublicKeyInfo(encoded, passphrase, params):
-
-    algoid, encoded_key, emb_params =  _expand_subject_public_key_info(encoded)
+    algoid, encoded_key, emb_params = _expand_subject_public_key_info(encoded)
     if algoid != oid:
         raise ValueError("No DSA subjectPublicKeyInfo")
     if params and emb_params:
@@ -549,7 +549,6 @@ def _import_subjectPublicKeyInfo(encoded, passphrase, params):
 
 
 def _import_x509_cert(encoded, passphrase, params):
-
     sp_info = _extract_subject_public_key_info(encoded)
     return _import_subjectPublicKeyInfo(sp_info, None, params)
 

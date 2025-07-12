@@ -11,27 +11,26 @@ from ..Util.py3compat import bord, tobytes, _copy_bytes
 from ..Hash import BLAKE2s
 from ..Random import get_random_bytes
 from ..Util._raw_api import (load_LibCrypto_raw_lib,
-                                  VoidPointer, SmartPointer,
-                                  create_string_buffer,
-                                  get_raw_buffer, c_size_t,
-                                  c_uint8_ptr)
+                             VoidPointer, SmartPointer,
+                             create_string_buffer,
+                             get_raw_buffer, c_size_t,
+                             c_uint8_ptr)
 
-
-_raw_poly1305 = load_LibCrypto_raw_lib("Crypto.Hash._poly1305",
-                        """
-                        int poly1305_init(void **state,
-                                          const uint8_t *r,
-                                          size_t r_len,
-                                          const uint8_t *s,
-                                          size_t s_len);
-                        int poly1305_destroy(void *state);
-                        int poly1305_update(void *state,
-                                            const uint8_t *in,
-                                            size_t len);
-                        int poly1305_digest(const void *state,
-                                            uint8_t *digest,
-                                            size_t len);
-                        """)
+_raw_poly1305 = load_LibCrypto_raw_lib("libcrypto.Hash._poly1305",
+                                       """
+                                       int poly1305_init(void **state,
+                                                         const uint8_t *r,
+                                                         size_t r_len,
+                                                         const uint8_t *s,
+                                                         size_t s_len);
+                                       int poly1305_destroy(void *state);
+                                       int poly1305_update(void *state,
+                                                           const uint8_t *in,
+                                                           size_t len);
+                                       int poly1305_digest(const void *state,
+                                                           uint8_t *digest,
+                                                           size_t len);
+                                       """)
 
 
 class Poly1305_MAC(object):
@@ -98,7 +97,7 @@ class Poly1305_MAC(object):
 
         if self._mac_tag:
             return self._mac_tag
-        
+
         bfr = create_string_buffer(16)
         result = _raw_poly1305.poly1305_digest(self._state.get(),
                                                bfr,
@@ -156,17 +155,16 @@ class Poly1305_MAC(object):
         self.verify(unhexlify(tobytes(hex_mac_tag)))
 
 
-
 def new(**kwargs):
     """Create a new Poly1305 MAC object.
 
     Args:
         key (bytes/bytearray/memoryview):
             The 32-byte key for the Poly1305 object.
-        cipher (module from ``Crypto.Cipher``):
+        cipher (module from ``libcrypto.Cipher``):
             The cipher algorithm to use for deriving the Poly1305
             key pair *(r, s)*.
-            It can only be ``Crypto.Cipher.AES`` or ``Crypto.Cipher.ChaCha20``.
+            It can only be ``libcrypto.Cipher.AES`` or ``libcrypto.Cipher.ChaCha20``.
         nonce (bytes/bytearray/memoryview):
             Optional. The non-repeatable value to use for the MAC of this message.
             It must be 16 bytes long for ``AES`` and 8 or 12 bytes for ``ChaCha20``.
@@ -190,12 +188,12 @@ def new(**kwargs):
 
     nonce = kwargs.pop("nonce", None)
     data = kwargs.pop("data", None)
-    
+
     if kwargs:
         raise TypeError("Unknown parameters: " + str(kwargs))
 
     r, s, nonce = cipher._derive_Poly1305_key_pair(cipher_key, nonce)
-    
+
     new_mac = Poly1305_MAC(r, s, data)
     new_mac.nonce = _copy_bytes(None, None, nonce)  # nonce may still be just a memoryview
     return new_mac

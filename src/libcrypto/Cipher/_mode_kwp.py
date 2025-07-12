@@ -119,7 +119,7 @@ def _create_kwp_cipher(factory: ModuleType,
 
     Args:
       factory:
-        A block cipher module, taken from `Crypto.Cipher`.
+        A block cipher module, taken from `libcrypto.Cipher`.
         The cipher must have block length of 16 bytes, such as AES.
 
     Keywords:

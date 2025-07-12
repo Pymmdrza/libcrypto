@@ -12,13 +12,13 @@ __all__ = ['CfbMode']
 
 from ..Util.py3compat import _copy_bytes
 from ..Util._raw_api import (load_LibCrypto_raw_lib, VoidPointer,
-                                  create_string_buffer, get_raw_buffer,
-                                  SmartPointer, c_size_t, c_uint8_ptr,
-                                  is_writeable_buffer)
+                             create_string_buffer, get_raw_buffer,
+                             SmartPointer, c_size_t, c_uint8_ptr,
+                             is_writeable_buffer)
 
 from ..Random import get_random_bytes
 
-raw_cfb_lib = load_LibCrypto_raw_lib("Crypto.Cipher._raw_cfb","""
+raw_cfb_lib = load_LibCrypto_raw_lib("libcrypto.Cipher._raw_cfb", """
                     int CFB_start_operation(void *cipher,
                                             const uint8_t iv[],
                                             size_t iv_len,
@@ -33,7 +33,7 @@ raw_cfb_lib = load_LibCrypto_raw_lib("Crypto.Cipher._raw_cfb","""
                                     uint8_t *out,
                                     size_t data_len);
                     int CFB_stop_operation(void *state);"""
-                    )
+                                     )
 
 
 class CfbMode(object):
@@ -166,7 +166,7 @@ class CfbMode(object):
         else:
             return None
 
-    def decrypt(self, ciphertext,  output=None):
+    def decrypt(self, ciphertext, output=None):
         """Decrypt data with the key and the parameters set at initialization.
 
         A cipher object is stateful: once you have decrypted a message
@@ -233,7 +233,7 @@ def _create_cfb_cipher(factory, **kwargs):
 
     :Parameters:
       factory : module
-        The underlying block cipher, a module from ``Crypto.Cipher``.
+        The underlying block cipher, a module from ``libcrypto.Cipher``.
 
     :Keywords:
       iv : bytes/bytearray/memoryview
@@ -266,7 +266,7 @@ def _create_cfb_cipher(factory, **kwargs):
 
     if len(iv) != factory.block_size:
         raise ValueError("Incorrect IV length (it must be %d bytes long)" %
-                factory.block_size)
+                         factory.block_size)
 
     segment_size_bytes, rem = divmod(kwargs.pop("segment_size", 8), 8)
     if segment_size_bytes == 0 or rem != 0:

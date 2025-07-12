@@ -1,6 +1,6 @@
 # ===================================================================
 #
-# Copyright (c) 2014, Legrandin <helderijs@gmail.com>
+# Copyright (c) 2014, Pymmdrza <pymmdrza@gmail.com>
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -37,6 +37,7 @@ __all__ = ['OpenPgpMode']
 from ..Util.py3compat import _copy_bytes
 from ..Random import get_random_bytes
 
+
 class OpenPgpMode(object):
     """OpenPGP mode.
 
@@ -67,11 +68,11 @@ class OpenPgpMode(object):
 
         # Instantiate a temporary cipher to process the IV
         IV_cipher = factory.new(
-                        key,
-                        factory.MODE_CFB,
-                        IV=b'\x00' * self.block_size,
-                        segment_size=self.block_size * 8,
-                        **cipher_params)
+            key,
+            factory.MODE_CFB,
+            IV=b'\x00' * self.block_size,
+            segment_size=self.block_size * 8,
+            **cipher_params)
 
         iv = _copy_bytes(None, None, iv)
 
@@ -94,11 +95,11 @@ class OpenPgpMode(object):
 
         # Instantiate the cipher for the real PGP data
         self._cipher = factory.new(
-                            key,
-                            factory.MODE_CFB,
-                            IV=self._encrypted_IV[-self.block_size:],
-                            segment_size=self.block_size * 8,
-                            **cipher_params)
+            key,
+            factory.MODE_CFB,
+            IV=self._encrypted_IV[-self.block_size:],
+            segment_size=self.block_size * 8,
+            **cipher_params)
 
     def encrypt(self, plaintext):
         """Encrypt data with the key and the parameters set at initialization.

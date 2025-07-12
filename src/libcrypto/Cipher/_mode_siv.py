@@ -1,6 +1,6 @@
 # ===================================================================
 #
-# Copyright (c) 2014, Legrandin <helderijs@gmail.com>
+# Copyright (c) 2014, Pymmdrza <pymmdrza@gmail.com>
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -132,11 +132,11 @@ class SivMode(object):
         v_int = bytes_to_long(v)
         q = v_int & 0xFFFFFFFFFFFFFFFF7FFFFFFF7FFFFFFF
         return self._factory.new(
-                    self._subkey_cipher,
-                    self._factory.MODE_CTR,
-                    initial_value=q,
-                    nonce=b"",
-                    **self._cipher_params)
+            self._subkey_cipher,
+            self._factory.MODE_CTR,
+            initial_value=q,
+            nonce=b"",
+            **self._cipher_params)
 
     def update(self, component):
         """Protect one associated data component
@@ -166,7 +166,7 @@ class SivMode(object):
 
         if "update" not in self._next:
             raise TypeError("update() can only be called"
-                                " immediately after initialization")
+                            " immediately after initialization")
 
         self._next = ["update", "encrypt", "decrypt",
                       "digest", "verify"]
@@ -361,8 +361,8 @@ def _create_siv_cipher(factory, **kwargs):
     :Parameters:
 
       factory : object
-        A symmetric cipher module from `Crypto.Cipher`
-        (like `Crypto.Cipher.AES`).
+        A symmetric cipher module from `libcrypto.Cipher`
+        (like `libcrypto.Cipher.AES`).
 
     :Keywords:
 

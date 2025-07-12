@@ -5,30 +5,31 @@
 from ..Util.py3compat import bord
 
 from ..Util._raw_api import (load_LibCrypto_raw_lib,
-                                  VoidPointer, SmartPointer,
-                                  create_string_buffer,
-                                  get_raw_buffer, c_size_t,
-                                  c_uint8_ptr)
+                             VoidPointer, SmartPointer,
+                             create_string_buffer,
+                             get_raw_buffer, c_size_t,
+                             c_uint8_ptr)
 
-_raw_sha256_lib = load_LibCrypto_raw_lib("Crypto.Hash._SHA256",
-                        """
-                        int SHA256_init(void **shaState);
-                        int SHA256_destroy(void *shaState);
-                        int SHA256_update(void *hs,
-                                          const uint8_t *buf,
-                                          size_t len);
-                        int SHA256_digest(const void *shaState,
-                                          uint8_t *digest,
-                                          size_t digest_size);
-                        int SHA256_copy(const void *src, void *dst);
+_raw_sha256_lib = load_LibCrypto_raw_lib("libcrypto.Hash._SHA256",
+                                         """
+                                         int SHA256_init(void **shaState);
+                                         int SHA256_destroy(void *shaState);
+                                         int SHA256_update(void *hs,
+                                                           const uint8_t *buf,
+                                                           size_t len);
+                                         int SHA256_digest(const void *shaState,
+                                                           uint8_t *digest,
+                                                           size_t digest_size);
+                                         int SHA256_copy(const void *src, void *dst);
+                 
+                                         int SHA256_pbkdf2_hmac_assist(const void *inner,
+                                                             const void *outer,
+                                                             const uint8_t *first_digest,
+                                                             uint8_t *final_digest,
+                                                             size_t iterations,
+                                                             size_t digest_size);
+                                         """)
 
-                        int SHA256_pbkdf2_hmac_assist(const void *inner,
-                                            const void *outer,
-                                            const uint8_t *first_digest,
-                                            uint8_t *final_digest,
-                                            size_t iterations,
-                                            size_t digest_size);
-                        """)
 
 class SHA256Hash(object):
     """A SHA-256 hash object.
@@ -128,6 +129,7 @@ class SHA256Hash(object):
 
         return SHA256Hash(data)
 
+
 def new(data=None):
     """Create a new hash object.
 
@@ -156,12 +158,12 @@ def _pbkdf2_hmac_assist(inner, outer, first_digest, iterations):
 
     bfr = create_string_buffer(len(first_digest));
     result = _raw_sha256_lib.SHA256_pbkdf2_hmac_assist(
-                    inner._state.get(),
-                    outer._state.get(),
-                    first_digest,
-                    bfr,
-                    c_size_t(iterations),
-                    c_size_t(len(first_digest)))
+        inner._state.get(),
+        outer._state.get(),
+        first_digest,
+        bfr,
+        c_size_t(iterations),
+        c_size_t(len(first_digest)))
 
     if result:
         raise ValueError("Error %d with PBKDF2-HMAC assist for SHA256" % result)

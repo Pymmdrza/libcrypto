@@ -1,6 +1,6 @@
 # ===================================================================
 #
-# Copyright (c) 2014, Legrandin <helderijs@gmail.com>
+# Copyright (c) 2014, Pymmdrza <pymmdrza@gmail.com>
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -44,4 +44,5 @@ except (ImportError, OSError, AttributeError):
         from ..Math._IntegerCustom import implementation as _implementation
     except (ImportError, OSError):
         from ..Math._IntegerNative import IntegerNative as Integer
+
         _implementation = {}

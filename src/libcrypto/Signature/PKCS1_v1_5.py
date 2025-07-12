@@ -1,6 +1,6 @@
 # ===================================================================
 #
-# Copyright (c) 2014, Legrandin <helderijs@gmail.com>
+# Copyright (c) 2014, Pymmdrza <pymmdrza@gmail.com>
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -38,6 +38,7 @@ import types
 
 from ..Signature import pkcs1_15
 
+
 def _pycrypto_verify(self, hash_object, signature):
     try:
         self._verify(hash_object, signature)
@@ -45,9 +46,9 @@ def _pycrypto_verify(self, hash_object, signature):
         return False
     return True
 
+
 def new(rsa_key):
     pkcs1 = pkcs1_15.new(rsa_key)
     pkcs1._verify = pkcs1.verify
     pkcs1.verify = types.MethodType(_pycrypto_verify, pkcs1)
     return pkcs1
-

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # ===================================================================
 #
-# Copyright (c) 2016, Legrandin <helderijs@gmail.com>
+# Copyright (c) 2016, Pymmdrza <pymmdrza@gmail.com>
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -42,11 +42,11 @@ from ..Util.number import bytes_to_long
 
 from ..Math.Numbers import Integer
 from ..Math.Primality import (test_probable_prime,
-                                   generate_probable_prime, COMPOSITE)
+                              generate_probable_prime, COMPOSITE)
 
 from ..PublicKey import (_expand_subject_public_key_info,
-                              _create_subject_public_key_info,
-                              _extract_subject_public_key_info)
+                         _create_subject_public_key_info,
+                         _extract_subject_public_key_info)
 
 
 class RsaKey(object):
@@ -108,7 +108,7 @@ class RsaKey(object):
         if input_set == private_set:
             self._dp = self._d % (self._p - 1)  # = (e⁻¹) mod (p-1)
             self._dq = self._d % (self._q - 1)  # = (e⁻¹) mod (q-1)
-            self._invq = None                   # will be computed on demand
+            self._invq = None  # will be computed on demand
 
     @property
     def n(self):
@@ -199,9 +199,9 @@ class RsaKey(object):
         # Step 4: Compute m = m' * (r**(-1)) mod n
         # then encode into a big endian byte string
         result = Integer._mult_modulo_bytes(
-                    r.inverse(self._n),
-                    mp,
-                    self._n)
+            r.inverse(self._n),
+            mp,
+            self._n)
         return result
 
     def _decrypt(self, ciphertext):
@@ -217,7 +217,7 @@ class RsaKey(object):
     def can_encrypt(self):  # legacy
         return True
 
-    def can_sign(self):     # legacy
+    def can_sign(self):  # legacy
         return True
 
     def public_key(self):
@@ -327,7 +327,7 @@ class RsaKey(object):
 
           randfunc (callable):
             A function that provides random bytes. Only used for PEM encoding.
-            The default is :func:`Crypto.Random.get_random_bytes`.
+            The default is :func:`libcrypto.Random.get_random_bytes`.
 
         Returns:
           bytes: the encoded key
@@ -371,8 +371,8 @@ class RsaKey(object):
                                       self.d,
                                       self.p,
                                       self.q,
-                                      self.d % (self.p-1),
-                                      self.d % (self.q-1),
+                                      self.d % (self.p - 1),
+                                      self.d % (self.q - 1),
                                       Integer(self.q).inverse(self.p)
                                       ]).encode()
             if pkcs == 1:
@@ -427,19 +427,19 @@ class RsaKey(object):
     # Methods defined in PyCrypto that we don't support anymore
     def sign(self, M, K):
         """:meta private:"""
-        raise NotImplementedError("Use module Crypto.Signature.pkcs1_15 instead")
+        raise NotImplementedError("Use module libcrypto.Signature.pkcs1_15 instead")
 
     def verify(self, M, signature):
         """:meta private:"""
-        raise NotImplementedError("Use module Crypto.Signature.pkcs1_15 instead")
+        raise NotImplementedError("Use module libcrypto.Signature.pkcs1_15 instead")
 
     def encrypt(self, plaintext, K):
         """:meta private:"""
-        raise NotImplementedError("Use module Crypto.Cipher.PKCS1_OAEP instead")
+        raise NotImplementedError("Use module libcrypto.Cipher.PKCS1_OAEP instead")
 
     def decrypt(self, ciphertext):
         """:meta private:"""
-        raise NotImplementedError("Use module Crypto.Cipher.PKCS1_OAEP instead")
+        raise NotImplementedError("Use module libcrypto.Cipher.PKCS1_OAEP instead")
 
     def blind(self, M, B):
         """:meta private:"""
@@ -471,7 +471,7 @@ def generate(bits, randfunc=None, e=65537):
     Keyword Args:
       randfunc (callable):
         Function that returns random bytes.
-        The default is :func:`Crypto.Random.get_random_bytes`.
+        The default is :func:`libcrypto.Random.get_random_bytes`.
       e (integer):
         Public RSA exponent. It must be an odd positive integer.
         It is typically a small number with very few ones in its
@@ -710,7 +710,6 @@ def _import_pkcs1_public(encoded, *kwargs):
 
 
 def _import_subjectPublicKeyInfo(encoded, *kwargs):
-
     oids = (oid, "1.2.840.113549.1.1.10")
 
     algoid, encoded_key, params = _expand_subject_public_key_info(encoded)
@@ -720,7 +719,6 @@ def _import_subjectPublicKeyInfo(encoded, *kwargs):
 
 
 def _import_x509_cert(encoded, *kwargs):
-
     sp_info = _extract_subject_public_key_info(encoded)
     return _import_subjectPublicKeyInfo(sp_info)
 
@@ -755,7 +753,6 @@ def _import_keyDER(extern_key, passphrase):
 
 
 def _import_openssh_private_rsa(data, password):
-
     from ._openssh import (import_openssh_private_generic,
                            read_bytes, read_string, check_padding)
 

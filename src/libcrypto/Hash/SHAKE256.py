@@ -1,6 +1,6 @@
 # ===================================================================
 #
-# Copyright (c) 2015, Legrandin <helderijs@gmail.com>
+# Copyright (c) 2015, Pymmdrza <pymmdrza@gmail.com>
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -31,12 +31,13 @@
 from ..Util.py3compat import bord
 
 from ..Util._raw_api import (load_LibCrypto_raw_lib,
-                                  VoidPointer, SmartPointer,
-                                  create_string_buffer,
-                                  get_raw_buffer, c_size_t,
-                                  c_uint8_ptr, c_ubyte)
+                             VoidPointer, SmartPointer,
+                             create_string_buffer,
+                             get_raw_buffer, c_size_t,
+                             c_uint8_ptr, c_ubyte)
 
 from ..Hash.keccak import _raw_keccak_lib
+
 
 class SHAKE256_XOF(object):
     """A SHAKE256 hash object.

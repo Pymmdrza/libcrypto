@@ -8,23 +8,23 @@
 
 from ..Util.py3compat import _copy_bytes
 from ..Util._raw_api import (load_LibCrypto_raw_lib,
-                                  create_string_buffer,
-                                  get_raw_buffer, VoidPointer,
-                                  SmartPointer, c_size_t,
-                                  c_uint8_ptr, is_writeable_buffer)
+                             create_string_buffer,
+                             get_raw_buffer, VoidPointer,
+                             SmartPointer, c_size_t,
+                             c_uint8_ptr, is_writeable_buffer)
 
 from ..Random import get_random_bytes
 
-_raw_salsa20_lib = load_LibCrypto_raw_lib("Crypto.Cipher._Salsa20",
-                    """
-                    int Salsa20_stream_init(uint8_t *key, size_t keylen,
-                                            uint8_t *nonce, size_t nonce_len,
-                                            void **pSalsaState);
-                    int Salsa20_stream_destroy(void *salsaState);
-                    int Salsa20_stream_encrypt(void *salsaState,
-                                               const uint8_t in[],
-                                               uint8_t out[], size_t len);
-                    """)
+_raw_salsa20_lib = load_LibCrypto_raw_lib("libcrypto.Cipher._Salsa20",
+                                          """
+                                          int Salsa20_stream_init(uint8_t *key, size_t keylen,
+                                                                  uint8_t *nonce, size_t nonce_len,
+                                                                  void **pSalsaState);
+                                          int Salsa20_stream_destroy(void *salsaState);
+                                          int Salsa20_stream_encrypt(void *salsaState,
+                                                                     const uint8_t in[],
+                                                                     uint8_t out[], size_t len);
+                                          """)
 
 
 class Salsa20Cipher:
@@ -51,11 +51,11 @@ class Salsa20Cipher:
 
         self._state = VoidPointer()
         result = _raw_salsa20_lib.Salsa20_stream_init(
-                        c_uint8_ptr(key),
-                        c_size_t(len(key)),
-                        c_uint8_ptr(nonce),
-                        c_size_t(len(nonce)),
-                        self._state.address_of())
+            c_uint8_ptr(key),
+            c_size_t(len(key)),
+            c_uint8_ptr(nonce),
+            c_size_t(len(nonce)),
+            self._state.address_of())
         if result:
             raise ValueError("Error %d instantiating a Salsa20 cipher")
         self._state = SmartPointer(self._state.get(),
@@ -76,24 +76,24 @@ class Salsa20Cipher:
           If ``output`` is ``None``, the ciphertext is returned as ``bytes``.
           Otherwise, ``None``.
         """
-        
+
         if output is None:
             ciphertext = create_string_buffer(len(plaintext))
         else:
             ciphertext = output
-           
+
             if not is_writeable_buffer(output):
                 raise TypeError("output must be a bytearray or a writeable memoryview")
-        
+
             if len(plaintext) != len(output):
                 raise ValueError("output must have the same length as the input"
                                  "  (%d bytes)" % len(plaintext))
 
         result = _raw_salsa20_lib.Salsa20_stream_encrypt(
-                                         self._state.get(),
-                                         c_uint8_ptr(plaintext),
-                                         c_uint8_ptr(ciphertext),
-                                         c_size_t(len(plaintext)))
+            self._state.get(),
+            c_uint8_ptr(plaintext),
+            c_uint8_ptr(ciphertext),
+            c_size_t(len(plaintext)))
         if result:
             raise ValueError("Error %d while encrypting with Salsa20" % result)
 
@@ -135,7 +135,7 @@ def new(key, nonce=None):
         it back via the ``nonce`` attribute of the returned object).
     :type nonce: bytes/bytearray/memoryview
 
-    :Return: a :class:`Crypto.Cipher.Salsa20.Salsa20Cipher` object
+    :Return: a :class:`libcrypto.Cipher.Salsa20.Salsa20Cipher` object
     """
 
     if nonce is None:
@@ -143,9 +143,9 @@ def new(key, nonce=None):
 
     return Salsa20Cipher(key, nonce)
 
+
 # Size of a data block (in bytes)
 block_size = 1
 
 # Size of a key (in bytes)
 key_size = (16, 32)
-

@@ -11,7 +11,7 @@ import struct
 from functools import reduce
 
 from ..Util.py3compat import (tobytes, bord, _copy_bytes, iter_range,
-                                   tostr, bchr, bstr)
+                              tostr, bchr, bstr)
 
 from ..Hash import SHA1, SHA256, HMAC, CMAC, BLAKE2s
 from ..Util.strxor import strxor
@@ -19,23 +19,23 @@ from ..Random import get_random_bytes
 from ..Util.number import size as bit_size, long_to_bytes, bytes_to_long
 
 from ..Util._raw_api import (load_LibCrypto_raw_lib,
-                                  create_string_buffer,
-                                  get_raw_buffer, c_size_t)
+                             create_string_buffer,
+                             get_raw_buffer, c_size_t)
 
 _raw_salsa20_lib = load_LibCrypto_raw_lib(
-                    "Crypto.Cipher._Salsa20",
-                    """
-                    int Salsa20_8_core(const uint8_t *x, const uint8_t *y,
-                                       uint8_t *out);
-                    """)
+    "libcrypto.Cipher._Salsa20",
+    """
+    int Salsa20_8_core(const uint8_t *x, const uint8_t *y,
+                       uint8_t *out);
+    """)
 
 _raw_scrypt_lib = load_LibCrypto_raw_lib(
-                    "Crypto.Protocol._scrypt",
-                    """
-                    typedef int (core_t)(const uint8_t [64], const uint8_t [64], uint8_t [64]);
-                    int scryptROMix(const uint8_t *data_in, uint8_t *data_out,
-                           size_t data_len, unsigned N, core_t *core);
-                    """)
+    "libcrypto.Protocol._scrypt",
+    """
+    typedef int (core_t)(const uint8_t [64], const uint8_t [64], uint8_t [64]);
+    int scryptROMix(const uint8_t *data_in, uint8_t *data_out,
+           size_t data_len, unsigned N, core_t *core);
+    """)
 
 
 def PBKDF1(password, salt, dkLen, count=1000, hashAlgo=None):
@@ -54,14 +54,14 @@ def PBKDF1(password, salt, dkLen, count=1000, hashAlgo=None):
         chosen for each derivation.
      dkLen (integer):
         The length of the desired key. The default is 16 bytes, suitable for
-        instance for :mod:`Crypto.Cipher.AES`.
+        instance for :mod:`libcrypto.Cipher.AES`.
      count (integer):
         The number of iterations to carry out. The recommendation is 1000 or
         more.
      hashAlgo (module):
-        The hash algorithm to use, as a module or an object from the :mod:`Crypto.Hash` package.
+        The hash algorithm to use, as a module or an object from the :mod:`libcrypto.Hash` package.
         The digest length must be no shorter than ``dkLen``.
-        The default algorithm is :mod:`Crypto.Hash.SHA1`.
+        The default algorithm is :mod:`libcrypto.Hash.SHA1`.
 
     Return:
         A byte string of length ``dkLen`` that can be used as key.
@@ -70,13 +70,13 @@ def PBKDF1(password, salt, dkLen, count=1000, hashAlgo=None):
     if not hashAlgo:
         hashAlgo = SHA1
     password = tobytes(password)
-    pHash = hashAlgo.new(password+salt)
+    pHash = hashAlgo.new(password + salt)
     digest = pHash.digest_size
     if dkLen > digest:
         raise TypeError("Selected hash algorithm has a too short digest (%d bytes)." % digest)
     if len(salt) != 8:
         raise ValueError("Salt is not 8 bytes long (%d bytes instead)." % len(salt))
-    for i in iter_range(count-1):
+    for i in iter_range(count - 1):
         pHash = pHash.new(pHash.digest())
     return pHash.digest()[:dkLen]
 
@@ -120,7 +120,7 @@ def PBKDF2(password, salt, dkLen=16, count=1000, prf=None, hmac_hash_module=None
         The slower the algorithm, the more secure the derivation function.
         If not specified, **HMAC-SHA1** is used.
      hmac_hash_module (module):
-        A module from ``Crypto.Hash`` implementing a Merkle-Damgard cryptographic
+        A module from ``libcrypto.Hash`` implementing a Merkle-Damgard cryptographic
         hash, which PBKDF2 must use in combination with HMAC.
         This parameter is mutually exclusive with ``prf``.
 
@@ -185,7 +185,7 @@ class _S2V(object):
             A secret that can be used as key for CMACs
             based on ciphers from ``ciphermod``.
           ciphermod : module
-            A block cipher module from `Crypto.Cipher`.
+            A block cipher module from `libcrypto.Cipher`.
           cipher_params : dictionary
             A set of extra parameters to use to create a cipher instance.
         """
@@ -211,7 +211,7 @@ class _S2V(object):
             A secret that can be used as key for CMACs
             based on ciphers from ``ciphermod``.
           ciphermod : module
-            A block cipher module from `Crypto.Cipher`.
+            A block cipher module from `libcrypto.Cipher`.
         """
         return _S2V(key, ciphermod)
 
@@ -299,8 +299,8 @@ def HKDF(master, key_len, salt, hashmod, num_keys=1, context=None):
         Ideally, it is as long as the digest size of the chosen hash.
         If empty, a string of zeroes in used.
      hashmod (module):
-        A cryptographic hash algorithm from :mod:`Crypto.Hash`.
-        :mod:`Crypto.Hash.SHA512` is a good choice.
+        A cryptographic hash algorithm from :mod:`libcrypto.Hash`.
+        :mod:`libcrypto.Hash.SHA512` is a good choice.
      num_keys (integer):
         The number of keys to derive. Every key is :data:`key_len` bytes long.
         The maximum cumulative length of all keys is
@@ -421,7 +421,7 @@ def _bcrypt_encode(data):
         bits.append(bstr(bits_c))
     bits = b"".join(bits)
 
-    bits6 = [bits[idx:idx+6] for idx in range(0, len(bits), 6)]
+    bits6 = [bits[idx:idx + 6] for idx in range(0, len(bits), 6)]
 
     result = []
     for g in bits6[:-1]:
@@ -454,7 +454,7 @@ def _bcrypt_decode(data):
     elif modulo4 == 3:
         bits = bits[:-2]
 
-    bits8 = [bits[idx:idx+8] for idx in range(0, len(bits), 8)]
+    bits8 = [bits[idx:idx + 8] for idx in range(0, len(bits), 8)]
 
     result = []
     for g in bits8:
@@ -523,7 +523,7 @@ def bcrypt(password, cost, salt=None):
 
     cost_enc = b"$" + bstr(str(cost).zfill(2))
     salt_enc = b"$" + _bcrypt_encode(salt)
-    hash_enc = _bcrypt_encode(ctext[:-1])     # only use 23 bytes, not 24
+    hash_enc = _bcrypt_encode(ctext[:-1])  # only use 23 bytes, not 24
     return b"$2a" + cost_enc + salt_enc + hash_enc
 
 

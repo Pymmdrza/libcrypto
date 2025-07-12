@@ -10,6 +10,15 @@ This module provides comprehensive cryptocurrency wallet functionality including
 
 from .bip32 import HDWallet, HDNode
 from .keys import PrivateKey, PublicKey
+from .mnemonic import (
+    generate_mnemonic,
+    validate_mnemonic,
+    mnemonic_to_seed,
+    mnemonic_to_entropy,
+    entropy_to_mnemonic,
+    InvalidMnemonicError,
+    InvalidEntropyError
+)
 from .addresses import AddressGenerator
 from .formats import (
     private_key_to_wif,
@@ -24,19 +33,28 @@ __all__ = [
     # HD Wallet
     'HDWallet',
     'HDNode',
-    
+
     # Key classes
-    'PrivateKey', 
+    'PrivateKey',
     'PublicKey',
-    
+
     # Address generation
     'AddressGenerator',
-    
+
     # Format conversions
     'private_key_to_wif',
-    'wif_to_private_key', 
+    'wif_to_private_key',
     'base58_encode',
     'base58_decode',
     'bytes_to_hex',
-    'hex_to_bytes'
-] 
+    'hex_to_bytes',
+
+    # Mnemonic functions
+    'generate_mnemonic',
+    'validate_mnemonic',
+    'mnemonic_to_seed',
+    'mnemonic_to_entropy',
+    'entropy_to_mnemonic',
+    'InvalidMnemonicError',
+    'InvalidEntropyError'
+]

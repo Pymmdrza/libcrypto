@@ -249,7 +249,7 @@ def _create_cbc_cipher(factory, **kwargs):
 
     :Parameters:
       factory : module
-        The underlying block cipher, a module from ``Crypto.Cipher``.
+        The underlying block cipher, a module from ``libcrypto.Cipher``.
 
     :Keywords:
       iv : bytes/bytearray/memoryview

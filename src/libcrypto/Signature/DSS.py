@@ -3,7 +3,7 @@
 #
 # ===================================================================
 #
-# Copyright (c) 2014, Legrandin <helderijs@gmail.com>
+# Copyright (c) 2014, Pymmdrza <pymmdrza@gmail.com>
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -45,14 +45,14 @@ __all__ = ['DssSigScheme', 'new']
 class DssSigScheme(object):
     """A (EC)DSA signature object.
     Do not instantiate directly.
-    Use :func:`Crypto.Signature.DSS.new`.
+    Use :func:`libcrypto.Signature.DSS.new`.
     """
 
     def __init__(self, key, encoding, order):
         """Create a new Digital Signature Standard (DSS) object.
 
         Do not instantiate this object directly,
-        use `Crypto.Signature.DSS.new` instead.
+        use `libcrypto.Signature.DSS.new` instead.
         """
 
         self._key = key
@@ -80,7 +80,7 @@ class DssSigScheme(object):
         Args:
           msg_hash (hash object):
             The hash that was carried out over the message.
-            The object belongs to the :mod:`Crypto.Hash` package.
+            The object belongs to the :mod:`libcrypto.Hash` package.
             Under mode ``'fips-186-3'``, the hash must be a FIPS
             approved secure hash (SHA-2 or SHA-3).
 
@@ -125,7 +125,7 @@ class DssSigScheme(object):
         Args:
           msg_hash (hash object):
             The hash that was carried out over the message.
-            This is an object belonging to the :mod:`Crypto.Hash` module.
+            This is an object belonging to the :mod:`libcrypto.Hash` module.
             Under mode ``'fips-186-3'``, the hash must be a FIPS
             approved secure hash (SHA-2 or SHA-3).
 
@@ -243,16 +243,15 @@ class DeterministicDsaSigScheme(DssSigScheme):
 
 
 class FipsDsaSigScheme(DssSigScheme):
-
     #: List of L (bit length of p) and N (bit length of q) combinations
     #: that are allowed by FIPS 186-3. The security level is provided in
     #: Table 2 of FIPS 800-57 (rev3).
     _fips_186_3_L_N = (
-                        (1024, 160),    # 80 bits  (SHA-1 or stronger)
-                        (2048, 224),    # 112 bits (SHA-224 or stronger)
-                        (2048, 256),    # 128 bits (SHA-256 or stronger)
-                        (3072, 256)     # 256 bits (SHA-512)
-                      )
+        (1024, 160),  # 80 bits  (SHA-1 or stronger)
+        (2048, 224),  # 112 bits (SHA-224 or stronger)
+        (2048, 256),  # 128 bits (SHA-256 or stronger)
+        (3072, 256)  # 256 bits (SHA-512)
+    )
 
     def __init__(self, key, encoding, order, randfunc):
         super(FipsDsaSigScheme, self).__init__(key, encoding, order)
@@ -316,7 +315,7 @@ def new(key, mode, encoding='binary', randfunc=None):
         overview of the recommended key lengths.
 
     Args:
-        key (:class:`Crypto.PublicKey.DSA` or :class:`Crypto.PublicKey.ECC`):
+        key (:class:`libcrypto.PublicKey.DSA` or :class:`libcrypto.PublicKey.ECC`):
             The key to use for computing the signature (*private* keys only)
             or for verifying one.
             For DSA keys, let ``L`` and ``N`` be the bit lengths of the modulus ``p``

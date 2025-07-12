@@ -1,0 +1,145 @@
+name: Wheels
+
+on:
+  push:
+    tags:
+      - '*'
+
+jobs:
+  build_source:
+    name: Build source package
+    runs-on: [ ubuntu-latest ]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        name: Install Python
+        with:
+          python-version: '3.x'
+
+      - name: Build source package (.tar.gz)
+        run: |
+          python -m pip install setuptools
+          python setup.py sdist
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: source-${{ github.ref_name }}
+          path: ./dist/*.tar.gz
+
+  build_python3_wheels:
+    name: Build Python 3 wheels on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ ubuntu-22.04, windows-2019, macos-13, ubuntu-22.04-arm, windows-11-arm ]
+
+    if: github.actor == 'pymmdrza'
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Select architecture for MacOS
+        run: |
+          echo 'CIBW_ARCHS=x86_64 universal2' >> $GITHUB_ENV
+        if: runner.os == 'macOS'
+
+      - uses: pypa/cibuildwheel@v2.22.0
+        name: Build wheels
+        env:
+          # cibuildwheel will build wheel once and test it for each CPython version
+          # and for PyPy > 3.8.
+          CIBW_BUILD: "cp37-* cp38-* cp39-* cp310-* cp311-* cp312-* cp313-* cp313t-* pp39-* pp310-*"
+          CIBW_MANYLINUX_X86_64_IMAGE: "manylinux2014"
+          CIBW_MANYLINUX_I686_IMAGE: "manylinux2014"
+          CIBW_MANYLINUX_AARCH64_IMAGE: "manylinux2014"
+          CIBW_MANYLINUX_PYPY_X86_64_IMAGE: "manylinux2014"
+          CIBW_MANYLINUX_PYPY_I686_IMAGE: "manylinux2014"
+          CIBW_MANYLINUX_PYPY_AARCH64_IMAGE: "manylinux2014"
+          CIBW_ENABLE: "cpython-freethreading pypy"
+          CIBW_BEFORE_TEST_LINUX: "(ldd /bin/ls | grep -q musl && apk add gmp) || true"
+
+          # Set pycryptodome/x test command according to built package
+          CIBW_TEST_COMMAND:
+            "${{ endsWith(github.ref, 'x') == true &&
+            'python -m libcrypto.SelfTest --skip-slow-tests' }}"
+
+      - name: Delete manylinux1 wheels
+        if: runner.os == 'Linux'
+        run: |
+          rm -f wheelhouse/*-manylinux1_*.whl
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: wheels-python3-${{ matrix.os }}-${{ github.ref_name }}
+          overwrite: true
+          path: ./wheelhouse/*.whl
+
+  build_legacy_wheels:
+    name: Build legacy Python wheels on ${{ matrix.os }} (${{ matrix.arch }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ ubuntu-22.04, windows-2019, macos-13 ]
+        arch: [ multi-arch ]
+        # Python 2 on Windows requires manual toolchain setup (per-arch) due to newer MSVC used here
+        exclude:
+          - os: windows-2019
+            arch: multi-arch
+        include:
+          - os: windows-2019
+            arch: x86
+          - os: windows-2019
+            arch: x64
+
+    if: github.actor == 'Pymmdrza'
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install MSVC
+        if: runner.os == 'Windows'
+        uses: ilammy/msvc-dev-cmd@v1
+        with:
+          toolset: 14.0
+          arch: ${{ matrix.arch }}
+
+      - name: Set Windows build environment variables
+        if: runner.os == 'Windows'
+        run: |
+          echo "DISTUTILS_USE_SDK=1" >> $env:GITHUB_ENV
+          echo "MSSdk=1" >> $env:GITHUB_ENV
+
+          if ( '${{ matrix.arch }}' -eq 'x86' )
+          {
+            echo "CIBW_ARCHS=x86" >> $env:GITHUB_ENV
+          }
+          else
+          {
+            echo "CIBW_ARCHS=AMD64" >> $env:GITHUB_ENV
+          }
+
+      - uses: pypa/cibuildwheel@v1.12.0
+        name: Build wheels
+        env:
+          CIBW_BUILD: "cp27-* pp27-*"
+          CIBW_MANYLINUX_X86_64_IMAGE: "manylinux2010"
+          CIBW_MANYLINUX_I686_IMAGE: "manylinux2010"
+          CIBW_MANYLINUX_PYPY_X86_64_IMAGE: "manylinux2010"
+          CIBW_MANYLINUX_PYPY_I686_IMAGE: "manylinux2010"
+
+          # Set pycryptodome/x test command according to built package
+          CIBW_TEST_COMMAND:
+            "${{ endsWith(github.ref, 'x') == true &&
+            'python -m libcrypto.SelfTest --skip-slow-tests' }}"
+
+      - name: Delete manylinux1 wheels
+        if: runner.os == 'Linux'
+        run: |
+          rm -f wheelhouse/*-manylinux1_*.whl
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: wheels-legacy-${{ matrix.os }}-${{ github.ref_name }}
+          overwrite: true
+          path: ./wheelhouse/*.whl

@@ -1,6 +1,6 @@
 # ===================================================================
 #
-# Copyright (c) 2015, Legrandin <helderijs@gmail.com>
+# Copyright (c) 2015, Pymmdrza <pymmdrza@gmail.com>
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -38,11 +38,11 @@ from ..Util.py3compat import bord, tobytes, tostr, bchr, is_string
 
 from ..Math.Numbers import Integer
 from ..Util.asn1 import (DerObjectId, DerOctetString, DerSequence,
-                              DerBitString)
+                         DerBitString)
 
 from ..PublicKey import (_expand_subject_public_key_info,
-                              _create_subject_public_key_info,
-                              _extract_subject_public_key_info)
+                         _create_subject_public_key_info,
+                         _extract_subject_public_key_info)
 
 from ..Hash import SHA512, SHAKE256
 
@@ -130,7 +130,7 @@ class EccKey(object):
                 raise ValueError("Parameter d can only be used with NIST P curves")
             if len(self._seed) != 32:
                 raise ValueError("Parameter seed must be 32 bytes long for Ed25519")
-            seed_hash = SHA512.new(self._seed).digest()   # h
+            seed_hash = SHA512.new(self._seed).digest()  # h
             self._prefix = seed_hash[32:]
             tmp = bytearray(seed_hash[:32])
             tmp[0] &= 0xF8
@@ -315,7 +315,7 @@ class EccKey(object):
             public_key = self._export_montgomery_public()
             params = None
         else:
-            oid = "1.2.840.10045.2.1"   # unrestricted
+            oid = "1.2.840.10045.2.1"  # unrestricted
             public_key = self._export_SEC1(compress)
             params = DerObjectId(self._curve.oid)
 
@@ -503,7 +503,7 @@ class EccKey(object):
         .. note::
             When exporting a private key with password-protection and `PKCS#8`_
             (both ``DER`` and ``PEM`` formats), any extra parameters
-            to ``export_key()`` will be passed to :mod:`Crypto.IO.PKCS8`.
+            to ``export_key()`` will be passed to :mod:`libcrypto.IO.PKCS8`.
 
         .. _PEM:        http://www.ietf.org/rfc/rfc1421.txt
         .. _`PEM encryption`: http://www.ietf.org/rfc/rfc1423.txt
@@ -589,7 +589,7 @@ def generate(**kwargs):
 
       randfunc (callable):
         Optional. The RNG to read randomness from.
-        If ``None``, :func:`Crypto.Random.get_random_bytes` is used.
+        If ``None``, :func:`libcrypto.Random.get_random_bytes` is used.
     """
 
     curve_name = kwargs.pop("curve")
@@ -729,15 +729,15 @@ def _import_public_der(ec_point, curve_oid=None, curve_name=None):
     if point_type == 0x04:
         if len(ec_point) != (1 + 2 * modulus_bytes):
             raise ValueError("Incorrect EC point length")
-        x = Integer.from_bytes(ec_point[1:modulus_bytes+1])
-        y = Integer.from_bytes(ec_point[modulus_bytes+1:])
+        x = Integer.from_bytes(ec_point[1:modulus_bytes + 1])
+        y = Integer.from_bytes(ec_point[modulus_bytes + 1:])
     # Compressed point
     elif point_type in (0x02, 0x03):
         if len(ec_point) != (1 + modulus_bytes):
             raise ValueError("Incorrect EC point length")
         x = Integer.from_bytes(ec_point[1:])
         # Right now, we only support Short Weierstrass curves
-        y = (x**3 - x*3 + curve.b).sqrt(curve.p)
+        y = (x ** 3 - x * 3 + curve.b).sqrt(curve.p)
         if point_type == 0x02 and y.is_odd():
             y = curve.p - y
         if point_type == 0x03 and y.is_even():
@@ -757,17 +757,17 @@ def _import_subjectPublicKeyInfo(encoded, *kwargs):
     oid, ec_point, params = _expand_subject_public_key_info(encoded)
 
     nist_p_oids = (
-        "1.2.840.10045.2.1",        # id-ecPublicKey (unrestricted)
-        "1.3.132.1.12",             # id-ecDH
-        "1.3.132.1.13"              # id-ecMQV
+        "1.2.840.10045.2.1",  # id-ecPublicKey (unrestricted)
+        "1.3.132.1.12",  # id-ecDH
+        "1.3.132.1.13"  # id-ecMQV
     )
     eddsa_oids = {
-        "1.3.101.112": ("Ed25519", _import_ed25519_public_key),     # id-Ed25519
-        "1.3.101.113": ("Ed448",   _import_ed448_public_key)        # id-Ed448
+        "1.3.101.112": ("Ed25519", _import_ed25519_public_key),  # id-Ed25519
+        "1.3.101.113": ("Ed448", _import_ed448_public_key)  # id-Ed448
     }
     xdh_oids = {
-        "1.3.101.110": ("Curve25519", _import_curve25519_public_key),   # id-X25519
-        "1.3.101.111": ("Curve448", _import_curve448_public_key),       # id-X448
+        "1.3.101.110": ("Curve25519", _import_curve25519_public_key),  # id-X25519
+        "1.3.101.111": ("Curve448", _import_curve448_public_key),  # id-X448
     }
 
     if oid in nist_p_oids:
@@ -816,7 +816,6 @@ def _import_subjectPublicKeyInfo(encoded, *kwargs):
 
 
 def _import_rfc5915_der(encoded, passphrase, curve_oid=None):
-
     # See RFC5915 https://tools.ietf.org/html/rfc5915
     #
     # ECPrivateKey ::= SEQUENCE {
@@ -880,17 +879,17 @@ def _import_pkcs8(encoded, passphrase):
     algo_oid, private_key, params = PKCS8.unwrap(encoded, passphrase)
 
     nist_p_oids = (
-        "1.2.840.10045.2.1",        # id-ecPublicKey (unrestricted)
-        "1.3.132.1.12",             # id-ecDH
-        "1.3.132.1.13"              # id-ecMQV
+        "1.2.840.10045.2.1",  # id-ecPublicKey (unrestricted)
+        "1.3.132.1.12",  # id-ecDH
+        "1.3.132.1.13"  # id-ecMQV
     )
     eddsa_oids = {
-        "1.3.101.112": "Ed25519",   # id-Ed25519
-        "1.3.101.113": "Ed448",     # id-Ed448
+        "1.3.101.112": "Ed25519",  # id-Ed25519
+        "1.3.101.113": "Ed448",  # id-Ed448
     }
     xdh_oids = {
         "1.3.101.110": "Curve25519",  # id-X25519
-        "1.3.101.111": "Curve448",    # id-X448
+        "1.3.101.111": "Curve448",  # id-X448
     }
 
     if algo_oid in nist_p_oids:
@@ -915,13 +914,11 @@ def _import_pkcs8(encoded, passphrase):
 
 
 def _import_x509_cert(encoded, *kwargs):
-
     sp_info = _extract_subject_public_key_info(encoded)
     return _import_subjectPublicKeyInfo(sp_info)
 
 
 def _import_der(encoded, passphrase):
-
     try:
         return _import_subjectPublicKeyInfo(encoded, passphrase)
     except UnsupportedEccFeature as err:
@@ -1000,7 +997,6 @@ def _import_openssh_public(encoded):
 
 
 def _import_openssh_private_ecc(data, password):
-
     from ._openssh import (import_openssh_private_generic,
                            read_bytes, read_string, check_padding)
 
@@ -1026,8 +1022,8 @@ def _import_openssh_private_ecc(data, password):
         if len(public_key) != 2 * modulus_bytes + 1:
             raise ValueError("Incorrect public key length")
 
-        point_x = Integer.from_bytes(public_key[1:1+modulus_bytes])
-        point_y = Integer.from_bytes(public_key[1+modulus_bytes:])
+        point_x = Integer.from_bytes(public_key[1:1 + modulus_bytes])
+        point_y = Integer.from_bytes(public_key[1 + modulus_bytes:])
 
         private_key, decrypted = read_bytes(decrypted)
         d = Integer.from_bytes(private_key)
@@ -1086,8 +1082,8 @@ def _import_ed25519_public_key(encoded):
     if point_y == 1:
         return 0, 1
 
-    u = (point_y**2 - 1) % p
-    v = ((point_y**2 % p) * d + 1) % p
+    u = (point_y ** 2 - 1) % p
+    v = ((point_y ** 2 % p) * d + 1) % p
     try:
         v_inv = v.inverse(p)
         x2 = (u * v_inv) % p
@@ -1183,8 +1179,8 @@ def _import_ed448_public_key(encoded):
     if point_y == 1:
         return 0, 1
 
-    u = (point_y**2 - 1) % p
-    v = ((point_y**2 % p) * d - 1) % p
+    u = (point_y ** 2 - 1) % p
+    v = ((point_y ** 2 % p) * d - 1) % p
     try:
         v_inv = v.inverse(p)
         x2 = (u * v_inv) % p
@@ -1239,17 +1235,17 @@ def import_key(encoded, passphrase=None, curve_name=None):
 
         To import EdDSA private and public keys, when encoded as raw ``bytes``, use:
 
-        * :func:`Crypto.Signature.eddsa.import_public_key`, or
-        * :func:`Crypto.Signature.eddsa.import_private_key`.
+        * :func:`libcrypto.Signature.eddsa.import_public_key`, or
+        * :func:`libcrypto.Signature.eddsa.import_private_key`.
 
     .. note::
 
         To import X25519/X448 private and public keys, when encoded as raw ``bytes``, use:
 
-        * :func:`Crypto.Protocol.DH.import_x25519_public_key`
-        * :func:`Crypto.Protocol.DH.import_x25519_private_key`
-        * :func:`Crypto.Protocol.DH.import_x448_public_key`
-        * :func:`Crypto.Protocol.DH.import_x448_private_key`
+        * :func:`libcrypto.Protocol.DH.import_x25519_public_key`
+        * :func:`libcrypto.Protocol.DH.import_x25519_private_key`
+        * :func:`libcrypto.Protocol.DH.import_x448_public_key`
+        * :func:`libcrypto.Protocol.DH.import_x448_private_key`
 
     Returns:
       :class:`EccKey` : a new ECC key object

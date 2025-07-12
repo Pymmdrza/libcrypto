@@ -12,8 +12,8 @@ def libcrypto_filename(dir_comps, filename):
         The filename (inclusing extension) in the target directory.
     """
 
-    if dir_comps[0] != "Crypto":
-        raise ValueError("Only available for modules under 'Crypto'")
+    if dir_comps[0] != "libcrypto":
+        raise ValueError("Only available for modules under 'libcrypto'")
 
     dir_comps = list(dir_comps[1:]) + [filename]
 

@@ -1,6 +1,6 @@
 # ===================================================================
 #
-# Copyright (c) 2014, Legrandin <helderijs@gmail.com>
+# Copyright (c) 2014, Pymmdrza <pymmdrza@gmail.com>
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -93,9 +93,9 @@ def miller_rabin_test(candidate, iterations, randfunc=None):
         base = 1
         while base in (one, minus_one):
             base = Integer.random_range(min_inclusive=2,
-                    max_inclusive=candidate - 2,
-                    randfunc=randfunc)
-            assert(2 <= base <= candidate - 2)
+                                        max_inclusive=candidate - 2,
+                                        randfunc=randfunc)
+            assert (2 <= base <= candidate - 2)
 
         # Step 4.3-4.4
         z = pow(base, m, candidate)
@@ -214,6 +214,7 @@ def lucas_test(candidate):
 
 
 from ..Util.number import sieve_base as _sieve_base_large
+
 ## The optimal number of small primes to use for the sieve
 ## is probably dependent on the platform and the candidate size
 _sieve_base = set(_sieve_base_large[:100])

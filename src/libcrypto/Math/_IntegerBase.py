@@ -1,6 +1,6 @@
 # ===================================================================
 #
-# Copyright (c) 2018, Helder Eijs <helderijs@gmail.com>
+# Copyright (c) 2025, Mmdrza <pymmdrza@gmail.com>
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -87,6 +87,7 @@ class IntegerBase(ABC):
     @abc.abstractmethod
     def __nonzero__(self):
         pass
+
     __bool__ = __nonzero__
 
     @abc.abstractmethod
@@ -279,14 +280,14 @@ class IntegerBase(ABC):
 
         while t != 1:
             for i in iter_range(0, m):
-                if pow(t, 2**i, p) == 1:
+                if pow(t, 2 ** i, p) == 1:
                     break
             if i == m:
                 raise ValueError("Cannot compute square root of %d mod %d" % (n, p))
-            b = pow(c, 2**(m - i - 1), p)
+            b = pow(c, 2 ** (m - i - 1), p)
             m = i
-            c = b**2 % p
-            t = (t * b**2) % p
+            c = b ** 2 % p
+            t = (t * b ** 2) % p
             r = (r * b) % p
 
         if pow(r, 2, p) != n:
@@ -370,7 +371,7 @@ class IntegerBase(ABC):
             raise ValueError("Unknown keywords: " + str(kwargs.keys))
         if None not in (max_inclusive, max_exclusive):
             raise ValueError("max_inclusive and max_exclusive cannot be both"
-                         " specified")
+                             " specified")
         if max_exclusive is not None:
             max_inclusive = max_exclusive - 1
         if None in (min_inclusive, max_inclusive):
@@ -385,9 +386,9 @@ class IntegerBase(ABC):
         norm_candidate = -1
         while not 0 <= norm_candidate <= norm_maximum:
             norm_candidate = cls.random(
-                                    max_bits=bits_needed,
-                                    randfunc=randfunc
-                                    )
+                max_bits=bits_needed,
+                randfunc=randfunc
+            )
         return norm_candidate + min_inclusive
 
     @staticmethod

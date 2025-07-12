@@ -1,6 +1,6 @@
 # ===================================================================
 #
-# Copyright (c) 2022, Legrandin <helderijs@gmail.com>
+# Copyright (c) 2022, Pymmdrza <pymmdrza@gmail.com>
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -33,9 +33,9 @@ from ..Math.Numbers import Integer
 from ..Hash import SHA512, SHAKE256
 from ..Util.py3compat import bchr, is_bytes
 from ..PublicKey.ECC import (EccKey,
-                                  construct,
-                                  _import_ed25519_public_key,
-                                  _import_ed448_public_key)
+                             construct,
+                             _import_ed25519_public_key,
+                             _import_ed448_public_key)
 
 
 def import_public_key(encoded):
@@ -49,7 +49,7 @@ def import_public_key(encoded):
         It must be 32 bytes for Ed25519, and 57 bytes for Ed448.
 
     Returns:
-      :class:`Crypto.PublicKey.EccKey` : a new ECC key object.
+      :class:`libcrypto.PublicKey.EccKey` : a new ECC key object.
 
     Raises:
       ValueError: when the given key cannot be parsed.
@@ -77,7 +77,7 @@ def import_private_key(encoded):
         It must be 32 bytes for Ed25519, and 57 bytes for Ed448.
 
     Returns:
-      :class:`Crypto.PublicKey.EccKey` : a new ECC key object.
+      :class:`libcrypto.PublicKey.EccKey` : a new ECC key object.
 
     Raises:
       ValueError: when the given key cannot be parsed.
@@ -99,14 +99,14 @@ def import_private_key(encoded):
 class EdDSASigScheme(object):
     """An EdDSA signature object.
     Do not instantiate directly.
-    Use :func:`Crypto.Signature.eddsa.new`.
+    Use :func:`libcrypto.Signature.eddsa.new`.
     """
 
     def __init__(self, key, context):
         """Create a new EdDSA object.
 
         Do not instantiate this object directly,
-        use `Crypto.Signature.DSS.new` instead.
+        use `libcrypto.Signature.DSS.new` instead.
         """
 
         self._key = key
@@ -128,8 +128,8 @@ class EdDSASigScheme(object):
             The message to sign (``bytes``, in case of *PureEdDSA*) or
             the hash that was carried out over the message (hash object, for *HashEdDSA*).
 
-            The hash object must be :class:`Crypto.Hash.SHA512` for Ed25519,
-            and :class:`Crypto.Hash.SHAKE256` object for Ed448.
+            The hash object must be :class:`libcrypto.Hash.SHA512` for Ed25519,
+            and :class:`libcrypto.Hash.SHAKE256` object for Ed448.
 
         :return: The signature as ``bytes``. It is always 64 bytes for Ed25519, and 114 bytes for Ed448.
         :raise TypeError: if the EdDSA key has no private half
@@ -214,8 +214,8 @@ class EdDSASigScheme(object):
             The message to verify (``bytes``, in case of *PureEdDSA*) or
             the hash that was carried out over the message (hash object, for *HashEdDSA*).
 
-            The hash object must be :class:`Crypto.Hash.SHA512` object for Ed25519,
-            and :class:`Crypto.Hash.SHAKE256` for Ed448.
+            The hash object must be :class:`libcrypto.Hash.SHA512` object for Ed25519,
+            and :class:`libcrypto.Hash.SHAKE256` for Ed448.
 
           signature (``bytes``):
             The signature that needs to be validated.
@@ -315,7 +315,7 @@ def new(key, mode, context=None):
     can perform or verify an EdDSA signature.
 
     Args:
-        key (:class:`Crypto.PublicKey.ECC` object):
+        key (:class:`libcrypto.PublicKey.ECC` object):
             The key to use for computing the signature (*private* keys only)
             or for verifying one.
             The key must be on the curve ``Ed25519`` or ``Ed448``.

@@ -1,6 +1,6 @@
 # ===================================================================
 #
-# Copyright (c) 2014, Legrandin <helderijs@gmail.com>
+# Copyright (c) 2014, Pymmdrza <pymmdrza@gmail.com>
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -46,23 +46,23 @@ This algorithm is insecure. Do not use it for new designs.
 from ..Util.py3compat import bord
 
 from ..Util._raw_api import (load_LibCrypto_raw_lib,
-                                  VoidPointer, SmartPointer,
-                                  create_string_buffer,
-                                  get_raw_buffer, c_size_t,
-                                  c_uint8_ptr)
+                             VoidPointer, SmartPointer,
+                             create_string_buffer,
+                             get_raw_buffer, c_size_t,
+                             c_uint8_ptr)
 
 _raw_md4_lib = load_LibCrypto_raw_lib(
-                        "Crypto.Hash._MD4",
-                        """
-                        int md4_init(void **shaState);
-                        int md4_destroy(void *shaState);
-                        int md4_update(void *hs,
-                                          const uint8_t *buf,
-                                          size_t len);
-                        int md4_digest(const void *shaState,
-                                          uint8_t digest[20]);
-                        int md4_copy(const void *src, void *dst);
-                        """)
+    "libcrypto.Hash._MD4",
+    """
+    int md4_init(void **shaState);
+    int md4_destroy(void *shaState);
+    int md4_update(void *hs,
+                      const uint8_t *buf,
+                      size_t len);
+    int md4_digest(const void *shaState,
+                      uint8_t digest[20]);
+    int md4_copy(const void *src, void *dst);
+    """)
 
 
 class MD4Hash(object):
@@ -177,6 +177,7 @@ def new(data=None):
     :Return: A `MD4Hash` object
     """
     return MD4Hash().new(data)
+
 
 #: The size of the resulting hash in bytes.
 digest_size = MD4Hash.digest_size

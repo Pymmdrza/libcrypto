@@ -1,18 +1,22 @@
 [build-system]
-requires = ["setuptools>=61.0", "wheel"]
+requires = ["setuptools"]
 build-backend = "setuptools.build_meta"
+
+[[tool.mypy.overrides]]
+module = ["pycryptodome_test_vectors.*"]
+follow_untyped_imports = true
 
 [project]
 name = "libcrypto"
 version = "1.0.0"
 description = "Comprehensive cryptocurrency wallet library with BIP39/BIP32 support and zero external dependencies"
 readme = "README.md"
-license = {text = "MIT"}
+license = { text = "MIT" }
 authors = [
-    {name = "LibCrypto Team", email = "info@libcrypto.dev"}
+    { name = "Mmdrza", email = "pymmdrza@gmail.com" }
 ]
 maintainers = [
-    {name = "LibCrypto Team", email = "info@libcrypto.dev"}
+    { name = "libCrypto (mmdrza)", email = "first@programmer.net" }
 ]
 keywords = [
     "cryptocurrency", "bitcoin", "ethereum", "wallet", "bip39", "bip32", "bip44",
@@ -52,14 +56,14 @@ test = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/libcrypto-dev/libcrypto"
+Homepage = "https://github.com/pymmdrza/libcrypto"
 Documentation = "https://libcrypto.readthedocs.io"
-Repository = "https://github.com/libcrypto-dev/libcrypto.git"
-Issues = "https://github.com/libcrypto-dev/libcrypto/issues"
+Repository = "https://github.com/pymmdrza/libcrypto.git"
+Issues = "https://github.com/pymmdrza/libcrypto/issues"
 PyPI = "https://pypi.org/project/libcrypto/"
 
 [tool.setuptools]
-package-dir = {"" = "src"}
+package-dir = { "" = "src" }
 zip-safe = false
 
 [tool.setuptools.packages.find]

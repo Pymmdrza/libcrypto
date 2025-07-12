@@ -5,10 +5,10 @@
 
 
 from ..Signature.pss import MGF1
-import Crypto.Hash.SHA1
+import libcrypto.Hash.SHA1
 
 from ..Util.py3compat import _copy_bytes
-import Crypto.Util.number
+import libcrypto.Util.number
 from ..Util.number import ceil_div, bytes_to_long, long_to_bytes
 from ..Util.strxor import strxor
 from .. import Random
@@ -27,9 +27,9 @@ class PKCS1OAEP_Cipher:
                 If a private half is given, both encryption and decryption are possible.
                 If a public half is given, only encryption is possible.
          hashAlgo : hash object
-                The hash function to use. This can be a module under `Crypto.Hash`
+                The hash function to use. This can be a module under `libcrypto.Hash`
                 or an existing hash object created from any of such modules. If not specified,
-                `Crypto.Hash.SHA1` is used.
+                `libcrypto.Hash.SHA1` is used.
          mgfunc : callable
                 A mask generation function that accepts two parameters: a string to
                 use as seed, and the lenth of the mask to generate, in bytes.
@@ -49,7 +49,7 @@ class PKCS1OAEP_Cipher:
         if hashAlgo:
             self._hashObj = hashAlgo
         else:
-            self._hashObj = Crypto.Hash.SHA1
+            self._hashObj = libcrypto.Hash.SHA1
 
         if mgfunc:
             self._mgf = mgfunc
@@ -90,8 +90,8 @@ class PKCS1OAEP_Cipher:
         """
 
         # See 7.1.1 in RFC3447
-        modBits = Crypto.Util.number.size(self._key.n)
-        k = ceil_div(modBits, 8)            # Convert from bits to bytes
+        modBits = libcrypto.Util.number.size(self._key.n)
+        k = ceil_div(modBits, 8)  # Convert from bits to bytes
         hLen = self._hashObj.digest_size
         mLen = len(message)
 
@@ -108,7 +108,7 @@ class PKCS1OAEP_Cipher:
         # Step 2d
         ros = self._randfunc(hLen)
         # Step 2e
-        dbMask = self._mgf(ros, k-hLen-1)
+        dbMask = self._mgf(ros, k - hLen - 1)
         # Step 2f
         maskedDB = strxor(db, dbMask)
         # Step 2g
@@ -144,12 +144,12 @@ class PKCS1OAEP_Cipher:
         """
 
         # See 7.1.2 in RFC3447
-        modBits = Crypto.Util.number.size(self._key.n)
-        k = ceil_div(modBits, 8)            # Convert from bits to bytes
+        modBits = libcrypto.Util.number.size(self._key.n)
+        k = ceil_div(modBits, 8)  # Convert from bits to bytes
         hLen = self._hashObj.digest_size
 
         # Step 1b and 1c
-        if len(ciphertext) != k or k < hLen+2:
+        if len(ciphertext) != k or k < hLen + 2:
             raise ValueError("Ciphertext with incorrect length.")
         # Step 2a (O2SIP)
         ct_int = bytes_to_long(ciphertext)
@@ -159,14 +159,14 @@ class PKCS1OAEP_Cipher:
         lHash = self._hashObj.new(self._label).digest()
         # y must be 0, but we MUST NOT check it here in order not to
         # allow attacks like Manger's (http://dl.acm.org/citation.cfm?id=704143)
-        maskedSeed = em[1:hLen+1]
-        maskedDB = em[hLen+1:]
+        maskedSeed = em[1:hLen + 1]
+        maskedDB = em[hLen + 1:]
         # Step 3c
         seedMask = self._mgf(maskedDB, hLen)
         # Step 3d
         seed = strxor(maskedSeed, seedMask)
         # Step 3e
-        dbMask = self._mgf(seed, k-hLen-1)
+        dbMask = self._mgf(seed, k - hLen - 1)
         # Step 3f
         db = strxor(maskedDB, dbMask)
         # Step 3b + 3g
@@ -187,9 +187,9 @@ def new(key, hashAlgo=None, mgfunc=None, label=b'', randfunc=None):
     :type key: RSA key object
 
     :param hashAlgo:
-      The hash function to use. This can be a module under `Crypto.Hash`
+      The hash function to use. This can be a module under `libcrypto.Hash`
       or an existing hash object created from any of such modules.
-      If not specified, `Crypto.Hash.SHA1` is used.
+      If not specified, `libcrypto.Hash.SHA1` is used.
     :type hashAlgo: hash object
 
     :param mgfunc:

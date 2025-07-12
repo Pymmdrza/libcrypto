@@ -5,30 +5,31 @@
 from ..Util.py3compat import bord
 
 from ..Util._raw_api import (load_LibCrypto_raw_lib,
-                                  VoidPointer, SmartPointer,
-                                  create_string_buffer,
-                                  get_raw_buffer, c_size_t,
-                                  c_uint8_ptr)
+                             VoidPointer, SmartPointer,
+                             create_string_buffer,
+                             get_raw_buffer, c_size_t,
+                             c_uint8_ptr)
 
-_raw_sha224_lib = load_LibCrypto_raw_lib("Crypto.Hash._SHA224",
-                        """
-                        int SHA224_init(void **shaState);
-                        int SHA224_destroy(void *shaState);
-                        int SHA224_update(void *hs,
-                                          const uint8_t *buf,
-                                          size_t len);
-                        int SHA224_digest(const void *shaState,
-                                          uint8_t *digest,
-                                          size_t digest_size);
-                        int SHA224_copy(const void *src, void *dst);
+_raw_sha224_lib = load_LibCrypto_raw_lib("libcrypto.Hash._SHA224",
+                                         """
+                                         int SHA224_init(void **shaState);
+                                         int SHA224_destroy(void *shaState);
+                                         int SHA224_update(void *hs,
+                                                           const uint8_t *buf,
+                                                           size_t len);
+                                         int SHA224_digest(const void *shaState,
+                                                           uint8_t *digest,
+                                                           size_t digest_size);
+                                         int SHA224_copy(const void *src, void *dst);
+                 
+                                         int SHA224_pbkdf2_hmac_assist(const void *inner,
+                                                             const void *outer,
+                                                             const uint8_t *first_digest,
+                                                             uint8_t *final_digest,
+                                                             size_t iterations,
+                                                             size_t digest_size);
+                                         """)
 
-                        int SHA224_pbkdf2_hmac_assist(const void *inner,
-                                            const void *outer,
-                                            const uint8_t *first_digest,
-                                            uint8_t *final_digest,
-                                            size_t iterations,
-                                            size_t digest_size);
-                        """)
 
 class SHA224Hash(object):
     """A SHA-224 hash object.
@@ -157,12 +158,12 @@ def _pbkdf2_hmac_assist(inner, outer, first_digest, iterations):
 
     bfr = create_string_buffer(len(first_digest));
     result = _raw_sha224_lib.SHA224_pbkdf2_hmac_assist(
-                    inner._state.get(),
-                    outer._state.get(),
-                    first_digest,
-                    bfr,
-                    c_size_t(iterations),
-                    c_size_t(len(first_digest)))
+        inner._state.get(),
+        outer._state.get(),
+        first_digest,
+        bfr,
+        c_size_t(iterations),
+        c_size_t(len(first_digest)))
 
     if result:
         raise ValueError("Error %d with PBKDF2-HMAC assist for SHA224" % result)

@@ -1,6 +1,6 @@
 # ===================================================================
 #
-# Copyright (c) 2014, Legrandin <helderijs@gmail.com>
+# Copyright (c) 2014, Pymmdrza <pymmdrza@gmail.com>
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -38,7 +38,7 @@ import struct
 from binascii import unhexlify
 
 from ..Util.py3compat import (byte_string, bord,
-                                   _copy_bytes)
+                              _copy_bytes)
 from ..Util._raw_api import is_writeable_buffer
 
 from ..Util.strxor import strxor
@@ -50,6 +50,7 @@ from ..Random import get_random_bytes
 
 def enum(**enums):
     return type('Enum', (), enums)
+
 
 MacStatus = enum(NOT_STARTED=0, PROCESSING_AUTH_DATA=1, PROCESSING_PLAINTEXT=2)
 
@@ -191,9 +192,9 @@ class CcmMode(object):
 
     def _start_mac(self):
 
-        assert(self._mac_status == MacStatus.NOT_STARTED)
-        assert(None not in (self._assoc_len, self._msg_len))
-        assert(isinstance(self._cache, list))
+        assert (self._mac_status == MacStatus.NOT_STARTED)
+        assert (None not in (self._assoc_len, self._msg_len))
+        assert (isinstance(self._cache, list))
 
         # Formatting control information and nonce (A.2.1)
         q = 15 - len(self.nonce)  # length of Q, the encoded message length (2..8)
@@ -228,8 +229,8 @@ class CcmMode(object):
 
     def _pad_cache_and_update(self):
 
-        assert(self._mac_status != MacStatus.NOT_STARTED)
-        assert(len(self._cache) < self.block_size)
+        assert (self._mac_status != MacStatus.NOT_STARTED)
+        assert (len(self._cache) < self.block_size)
 
         # Associated data is concatenated with the least number
         # of zero bytes (possibly none) to reach alignment to
@@ -270,7 +271,7 @@ class CcmMode(object):
 
         self._cumul_assoc_len += len(assoc_data)
         if self._assoc_len is not None and \
-           self._cumul_assoc_len > self._assoc_len:
+                self._cumul_assoc_len > self._assoc_len:
             raise ValueError("Associated data is too long")
 
         self._update(assoc_data)
@@ -288,7 +289,7 @@ class CcmMode(object):
             self._cache.append(assoc_data_pt)
             return
 
-        assert(len(self._cache) < self.block_size)
+        assert (len(self._cache) < self.block_size)
 
         if len(self._cache) > 0:
             filler = min(self.block_size - len(self._cache),
@@ -352,7 +353,7 @@ class CcmMode(object):
 
         # No more associated data allowed from now
         if self._assoc_len is None:
-            assert(isinstance(self._cache, list))
+            assert (isinstance(self._cache, list))
             self._assoc_len = sum([len(x) for x in self._cache])
             if self._msg_len is not None:
                 self._start_mac()
@@ -431,7 +432,7 @@ class CcmMode(object):
 
         # No more associated data allowed from now
         if self._assoc_len is None:
-            assert(isinstance(self._cache, list))
+            assert (isinstance(self._cache, list))
             self._assoc_len = sum([len(x) for x in self._cache])
             if self._msg_len is not None:
                 self._start_mac()
@@ -493,7 +494,7 @@ class CcmMode(object):
             return self._mac_tag
 
         if self._assoc_len is None:
-            assert(isinstance(self._cache, list))
+            assert (isinstance(self._cache, list))
             self._assoc_len = sum([len(x) for x in self._cache])
             if self._msg_len is not None:
                 self._start_mac()
@@ -624,8 +625,8 @@ def _create_ccm_cipher(factory, **kwargs):
 
     :Parameters:
       factory : module
-        A symmetric cipher module from `Crypto.Cipher` (like
-        `Crypto.Cipher.AES`).
+        A symmetric cipher module from `libcrypto.Cipher` (like
+        `libcrypto.Cipher.AES`).
 
     :Keywords:
       key : bytes/bytearray/memoryview
@@ -663,7 +664,7 @@ def _create_ccm_cipher(factory, **kwargs):
     if nonce is None:
         nonce = get_random_bytes(11)
     mac_len = kwargs.pop("mac_len", factory.block_size)
-    msg_len = kwargs.pop("msg_len", None)      # p
+    msg_len = kwargs.pop("msg_len", None)  # p
     assoc_len = kwargs.pop("assoc_len", None)  # a
     cipher_params = dict(kwargs)
 

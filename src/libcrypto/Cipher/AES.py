@@ -8,25 +8,25 @@ import sys
 
 from ..Cipher import _create_cipher
 from ..Util._raw_api import (load_LibCrypto_raw_lib,
-                                  VoidPointer, SmartPointer,
-                                  c_size_t, c_uint8_ptr)
+                             VoidPointer, SmartPointer,
+                             c_size_t, c_uint8_ptr)
 
 from ..Util import _cpu_features
 from ..Random import get_random_bytes
 
-MODE_ECB = 1        #: Electronic Code Book (:ref:`ecb_mode`)
-MODE_CBC = 2        #: Cipher-Block Chaining (:ref:`cbc_mode`)
-MODE_CFB = 3        #: Cipher Feedback (:ref:`cfb_mode`)
-MODE_OFB = 5        #: Output Feedback (:ref:`ofb_mode`)
-MODE_CTR = 6        #: Counter mode (:ref:`ctr_mode`)
-MODE_OPENPGP = 7    #: OpenPGP mode (:ref:`openpgp_mode`)
-MODE_CCM = 8        #: Counter with CBC-MAC (:ref:`ccm_mode`)
-MODE_EAX = 9        #: :ref:`eax_mode`
-MODE_SIV = 10       #: Synthetic Initialization Vector (:ref:`siv_mode`)
-MODE_GCM = 11       #: Galois Counter Mode (:ref:`gcm_mode`)
-MODE_OCB = 12       #: Offset Code Book (:ref:`ocb_mode`)
-MODE_KW = 13        #: Key Wrap (:ref:`kw_mode`)
-MODE_KWP = 14       #: Key Wrap with Padding (:ref:`kwp_mode`)
+MODE_ECB = 1  #: Electronic Code Book (:ref:`ecb_mode`)
+MODE_CBC = 2  #: Cipher-Block Chaining (:ref:`cbc_mode`)
+MODE_CFB = 3  #: Cipher Feedback (:ref:`cfb_mode`)
+MODE_OFB = 5  #: Output Feedback (:ref:`ofb_mode`)
+MODE_CTR = 6  #: Counter mode (:ref:`ctr_mode`)
+MODE_OPENPGP = 7  #: OpenPGP mode (:ref:`openpgp_mode`)
+MODE_CCM = 8  #: Counter with CBC-MAC (:ref:`ccm_mode`)
+MODE_EAX = 9  #: :ref:`eax_mode`
+MODE_SIV = 10  #: Synthetic Initialization Vector (:ref:`siv_mode`)
+MODE_GCM = 11  #: Galois Counter Mode (:ref:`gcm_mode`)
+MODE_OCB = 12  #: Offset Code Book (:ref:`ocb_mode`)
+MODE_KW = 13  #: Key Wrap (:ref:`kw_mode`)
+MODE_KWP = 14  #: Key Wrap with Padding (:ref:`kwp_mode`)
 
 _cproto = """
         int AES_start_operation(const uint8_t key[],
@@ -43,18 +43,17 @@ _cproto = """
         int AES_stop_operation(void *state);
         """
 
-
 # Load portable AES
-_raw_aes_lib = load_LibCrypto_raw_lib("Crypto.Cipher._raw_aes",
-                                         _cproto)
+_raw_aes_lib = load_LibCrypto_raw_lib("libcrypto.Cipher._raw_aes",
+                                      _cproto)
 
 # Try to load AES with AES NI instructions
 try:
     _raw_aesni_lib = None
     if _cpu_features.have_aes_ni():
-        _raw_aesni_lib = load_LibCrypto_raw_lib("Crypto.Cipher._raw_aesni",
-                                                   _cproto.replace("AES",
-                                                                   "AESNI"))
+        _raw_aesni_lib = load_LibCrypto_raw_lib("libcrypto.Cipher._raw_aesni",
+                                                _cproto.replace("AES",
+                                                                "AESNI"))
 # _raw_aesni may not have been compiled in
 except OSError:
     pass
@@ -198,7 +197,7 @@ def new(key, mode, *args, **kwargs):
 
       counter (object):
         (Only ``MODE_CTR``).
-        Instance of ``Crypto.Util.Counter``, which allows full customization
+        Instance of ``libcrypto.Util.Counter``, which allows full customization
         of the counter block. This parameter is incompatible to both ``nonce``
         and ``initial_value``.
 

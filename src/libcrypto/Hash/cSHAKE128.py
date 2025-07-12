@@ -1,6 +1,6 @@
 # ===================================================================
 #
-# Copyright (c) 2021, Legrandin <helderijs@gmail.com>
+# Copyright (c) 2021, Pymmdrza <pymmdrza@gmail.com>
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -31,9 +31,9 @@
 from ..Util.py3compat import bchr, concat_buffers
 
 from ..Util._raw_api import (VoidPointer, SmartPointer,
-                                  create_string_buffer,
-                                  get_raw_buffer, c_size_t,
-                                  c_uint8_ptr, c_ubyte)
+                             create_string_buffer,
+                             get_raw_buffer, c_size_t,
+                             c_uint8_ptr, c_ubyte)
 
 from ..Util.number import long_to_bytes
 
@@ -95,14 +95,14 @@ class cSHAKE_XOF(object):
 
         if custom or function:
             prefix_unpad = _encode_str(function) + _encode_str(custom)
-            prefix = _bytepad(prefix_unpad, (1600 - capacity)//8)
+            prefix = _bytepad(prefix_unpad, (1600 - capacity) // 8)
             self._padding = 0x04
         else:
             prefix = None
             self._padding = 0x1F  # for SHAKE
 
         result = _raw_keccak_lib.keccak_init(state.address_of(),
-                                             c_size_t(capacity//8),
+                                             c_size_t(capacity // 8),
                                              c_ubyte(24))
         if result:
             raise ValueError("Error %d while instantiating cSHAKE"

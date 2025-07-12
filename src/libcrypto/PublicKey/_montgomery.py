@@ -4,14 +4,14 @@
 from ._curve import _Curve
 from ..Math.Numbers import Integer
 from ..Util._raw_api import (load_LibCrypto_raw_lib, VoidPointer,
-                                  SmartPointer)
+                             SmartPointer)
 
 
 def curve25519_curve():
     p = 0x7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffed  # 2**255 - 19
     order = 0x1000000000000000000000000000000014def9dea2f79cd65812631a5cf5d3ed
 
-    _curve25519_lib = load_LibCrypto_raw_lib("Crypto.PublicKey._curve25519", """
+    _curve25519_lib = load_LibCrypto_raw_lib("libcrypto.PublicKey._curve25519", """
 typedef void Point;
 
 int curve25519_new_point(Point **out,
@@ -70,7 +70,7 @@ int curve25519_cmp(const Point *ecp1, const Point *ecp2);
                         None,
                         None,
                         255,
-                        "1.3.101.110",      # RFC8410
+                        "1.3.101.110",  # RFC8410
                         None,
                         "Curve25519",
                         None,
@@ -85,7 +85,7 @@ def curve448_curve():
     p = 0xfffffffffffffffffffffffffffffffffffffffffffffffffffffffeffffffffffffffffffffffffffffffffffffffffffffffffffffffff  # 2**448 - 2**224 - 1
     order = 0x3fffffffffffffffffffffffffffffffffffffffffffffffffffffff7cca23e9c44edb49aed63690216cc2728dc58f552378c292ab5844f3
 
-    _curve448_lib = load_LibCrypto_raw_lib("Crypto.PublicKey._curve448", """
+    _curve448_lib = load_LibCrypto_raw_lib("libcrypto.PublicKey._curve448", """
 typedef void Curve448Context;
 typedef void Curve448Point;
 
@@ -141,7 +141,7 @@ int curve448_cmp(const Curve448Point *ecp1, const Curve448Point *ecp2);
                       None,
                       None,
                       448,
-                      "1.3.101.111",      # RFC8410
+                      "1.3.101.111",  # RFC8410
                       SmartPointer(curve448_context.get(), EcLib.free_context),
                       "Curve448",
                       None,

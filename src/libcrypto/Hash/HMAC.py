@@ -3,7 +3,7 @@
 #
 # ===================================================================
 #
-# Copyright (c) 2014, Legrandin <helderijs@gmail.com>
+# Copyright (c) 2014, Pymmdrza <pymmdrza@gmail.com>
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -42,16 +42,16 @@ from ..Random import get_random_bytes
 __all__ = ['new', 'HMAC']
 
 _hash2hmac_oid = {
-    '1.3.14.3.2.26': '1.2.840.113549.2.7',           # SHA-1
+    '1.3.14.3.2.26': '1.2.840.113549.2.7',  # SHA-1
     '2.16.840.1.101.3.4.2.4': '1.2.840.113549.2.8',  # SHA-224
     '2.16.840.1.101.3.4.2.1': '1.2.840.113549.2.9',  # SHA-256
     '2.16.840.1.101.3.4.2.2': '1.2.840.113549.2.10',  # SHA-384
     '2.16.840.1.101.3.4.2.3': '1.2.840.113549.2.11',  # SHA-512
     '2.16.840.1.101.3.4.2.5': '1.2.840.113549.2.12',  # SHA-512_224
     '2.16.840.1.101.3.4.2.6': '1.2.840.113549.2.13',  # SHA-512_256
-    '2.16.840.1.101.3.4.2.7': '2.16.840.1.101.3.4.2.13',   # SHA-3 224
-    '2.16.840.1.101.3.4.2.8': '2.16.840.1.101.3.4.2.14',   # SHA-3 256
-    '2.16.840.1.101.3.4.2.9': '2.16.840.1.101.3.4.2.15',   # SHA-3 384
+    '2.16.840.1.101.3.4.2.7': '2.16.840.1.101.3.4.2.13',  # SHA-3 224
+    '2.16.840.1.101.3.4.2.8': '2.16.840.1.101.3.4.2.14',  # SHA-3 256
+    '2.16.840.1.101.3.4.2.9': '2.16.840.1.101.3.4.2.15',  # SHA-3 384
     '2.16.840.1.101.3.4.2.10': '2.16.840.1.101.3.4.2.16',  # SHA-3 512
 }
 
@@ -131,10 +131,10 @@ class HMAC(object):
         """Carry out the expensive inner loop for PBKDF2-HMAC"""
 
         result = self._digestmod._pbkdf2_hmac_assist(
-                                    self._inner,
-                                    self._outer,
-                                    first_digest,
-                                    iterations)
+            self._inner,
+            self._outer,
+            first_digest,
+            iterations)
         return result
 
     def copy(self):
@@ -229,7 +229,7 @@ def new(key, msg=b"", digestmod=None):
             It is equivalent to an early call to :meth:`HMAC.update`.
         digestmod (module):
             The hash to use to implement the HMAC.
-            Default is :mod:`Crypto.Hash.MD5`.
+            Default is :mod:`libcrypto.Hash.MD5`.
 
     Returns:
         An :class:`HMAC` object

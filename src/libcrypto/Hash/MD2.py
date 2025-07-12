@@ -1,6 +1,6 @@
 # ===================================================================
 #
-# Copyright (c) 2014, Legrandin <helderijs@gmail.com>
+# Copyright (c) 2014, Pymmdrza <pymmdrza@gmail.com>
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -31,23 +31,23 @@
 from ..Util.py3compat import bord
 
 from ..Util._raw_api import (load_LibCrypto_raw_lib,
-                                  VoidPointer, SmartPointer,
-                                  create_string_buffer,
-                                  get_raw_buffer, c_size_t,
-                                  c_uint8_ptr)
+                             VoidPointer, SmartPointer,
+                             create_string_buffer,
+                             get_raw_buffer, c_size_t,
+                             c_uint8_ptr)
 
 _raw_md2_lib = load_LibCrypto_raw_lib(
-                        "Crypto.Hash._MD2",
-                        """
-                        int md2_init(void **shaState);
-                        int md2_destroy(void *shaState);
-                        int md2_update(void *hs,
-                                          const uint8_t *buf,
-                                          size_t len);
-                        int md2_digest(const void *shaState,
-                                          uint8_t digest[20]);
-                        int md2_copy(const void *src, void *dst);
-                        """)
+    "libcrypto.Hash._MD2",
+    """
+    int md2_init(void **shaState);
+    int md2_destroy(void *shaState);
+    int md2_update(void *hs,
+                      const uint8_t *buf,
+                      size_t len);
+    int md2_digest(const void *shaState,
+                      uint8_t digest[20]);
+    int md2_copy(const void *src, void *dst);
+    """)
 
 
 class MD2Hash(object):
@@ -158,6 +158,7 @@ def new(data=None):
     """
 
     return MD2Hash().new(data)
+
 
 # The size of the resulting hash in bytes.
 digest_size = MD2Hash.digest_size

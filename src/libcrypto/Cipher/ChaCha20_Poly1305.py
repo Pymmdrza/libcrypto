@@ -1,6 +1,6 @@
 # ===================================================================
 #
-# Copyright (c) 2018, Helder Eijs <helderijs@gmail.com>
+# Copyright (c) 2025, Mmdrza <pymmdrza@gmail.com>
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -69,7 +69,7 @@ class ChaCha20Poly1305Cipher(object):
         self._authenticator = Poly1305.new(key=key, nonce=nonce, cipher=ChaCha20)
 
         self._cipher = ChaCha20.new(key=key, nonce=nonce)
-        self._cipher.seek(64)   # Block counter starts at 1
+        self._cipher.seek(64)  # Block counter starts at 1
 
         self._len_aad = 0
         self._len_ct = 0
@@ -100,7 +100,7 @@ class ChaCha20Poly1305Cipher(object):
 
     def _pad_aad(self):
 
-        assert(self._status == _CipherStatus.PROCESSING_AUTH_DATA)
+        assert (self._status == _CipherStatus.PROCESSING_AUTH_DATA)
         if self._len_aad & 0x0F:
             self._authenticator.update(b'\x00' * (16 - (self._len_aad & 0x0F)))
         self._status = _CipherStatus.PROCESSING_CIPHERTEXT
@@ -163,10 +163,10 @@ class ChaCha20Poly1305Cipher(object):
         """Finalize the cipher (if not done already) and return the MAC."""
 
         if self._mac_tag:
-            assert(self._status == _CipherStatus.PROCESSING_DONE)
+            assert (self._status == _CipherStatus.PROCESSING_DONE)
             return self._mac_tag
 
-        assert(self._status != _CipherStatus.PROCESSING_DONE)
+        assert (self._status != _CipherStatus.PROCESSING_DONE)
 
         if self._status == _CipherStatus.PROCESSING_AUTH_DATA:
             self._pad_aad()
@@ -296,7 +296,7 @@ def new(**kwargs):
         (you can find them back in the ``nonce`` attribute).
     :type nonce: bytes, bytearray, memoryview
 
-    :Return: a :class:`Crypto.Cipher.ChaCha20.ChaCha20Poly1305Cipher` object
+    :Return: a :class:`libcrypto.Cipher.ChaCha20.ChaCha20Poly1305Cipher` object
     """
 
     try:

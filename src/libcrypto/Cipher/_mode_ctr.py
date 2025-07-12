@@ -13,15 +13,15 @@ __all__ = ['CtrMode']
 import struct
 
 from ..Util._raw_api import (load_LibCrypto_raw_lib, VoidPointer,
-                                  create_string_buffer, get_raw_buffer,
-                                  SmartPointer, c_size_t, c_uint8_ptr,
-                                  is_writeable_buffer)
+                             create_string_buffer, get_raw_buffer,
+                             SmartPointer, c_size_t, c_uint8_ptr,
+                             is_writeable_buffer)
 
 from ..Random import get_random_bytes
 from ..Util.py3compat import _copy_bytes, is_native_int
 from ..Util.number import long_to_bytes
 
-raw_ctr_lib = load_LibCrypto_raw_lib("Crypto.Cipher._raw_ctr", """
+raw_ctr_lib = load_LibCrypto_raw_lib("libcrypto.Cipher._raw_ctr", """
                     int CTR_start_operation(void *cipher,
                                             uint8_t   initialCounterBlock[],
                                             size_t    initialCounterBlock_len,
@@ -38,7 +38,7 @@ raw_ctr_lib = load_LibCrypto_raw_lib("Crypto.Cipher._raw_ctr", """
                                     uint8_t *out,
                                     size_t data_len);
                     int CTR_stop_operation(void *ctrState);"""
-                                        )
+                                     )
 
 
 class CtrMode(object):
@@ -266,7 +266,7 @@ def _create_ctr_cipher(factory, **kwargs):
 
     :Parameters:
       factory : module
-        The underlying block cipher, a module from ``Crypto.Cipher``.
+        The underlying block cipher, a module from ``libcrypto.Cipher``.
 
     :Keywords:
       nonce : bytes/bytearray/memoryview
@@ -289,7 +289,7 @@ def _create_ctr_cipher(factory, **kwargs):
         The counter number is encoded in big endian mode.
 
       counter : object
-        Instance of ``Crypto.Util.Counter``, which allows full customization
+        Instance of ``libcrypto.Util.Counter``, which allows full customization
         of the counter block. This parameter is incompatible to both ``nonce``
         and ``initial_value``.
 
@@ -311,7 +311,7 @@ def _create_ctr_cipher(factory, **kwargs):
                         " are mutually exclusive")
 
     if counter is None:
-        # Crypto.Util.Counter is not used
+        # libcrypto.Util.Counter is not used
         if nonce is None:
             if factory.block_size < 16:
                 raise TypeError("Impossible to create a safe nonce for short"
@@ -339,11 +339,11 @@ def _create_ctr_cipher(factory, **kwargs):
 
         return CtrMode(cipher_state,
                        initial_counter_block,
-                       len(nonce),                     # prefix
+                       len(nonce),  # prefix
                        counter_len,
-                       False)                          # little_endian
+                       False)  # little_endian
 
-    # Crypto.Util.Counter is used
+    # libcrypto.Util.Counter is used
 
     # 'counter' used to be a callable object, but now it is
     # just a dictionary for backward compatibility.
@@ -356,7 +356,7 @@ def _create_ctr_cipher(factory, **kwargs):
         little_endian = _counter.pop("little_endian")
     except KeyError:
         raise TypeError("Incorrect counter object"
-                        " (use Crypto.Util.Counter.new)")
+                        " (use libcrypto.Util.Counter.new)")
 
     # Compute initial counter block
     words = []

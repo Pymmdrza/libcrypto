@@ -3,7 +3,7 @@
 #
 # ===================================================================
 #
-# Copyright (c) 2014, Legrandin <helderijs@gmail.com>
+# Copyright (c) 2014, Pymmdrza <pymmdrza@gmail.com>
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -35,14 +35,13 @@
 from ..Util.py3compat import *
 
 from ..Util.asn1 import (
-            DerNull,
-            DerSequence,
-            DerObjectId,
-            DerOctetString,
-            )
+    DerNull,
+    DerSequence,
+    DerObjectId,
+    DerOctetString,
+)
 
 from ..IO._PBES import PBES1, PBES2, PbesError
-
 
 __all__ = ['wrap', 'unwrap']
 
@@ -86,7 +85,7 @@ def wrap(private_key, key_oid, passphrase=None, protection=None,
         Random number generation function; it should accept a single integer
         N and return a string of random data, N bytes long.
         If not specified, a new RNG will be instantiated
-        from :mod:`Crypto.Random`.
+        from :mod:`libcrypto.Random`.
 
     Returns:
       bytes: The PKCS#8-wrapped private key (possibly encrypted).
@@ -106,10 +105,10 @@ def wrap(private_key, key_oid, passphrase=None, protection=None,
         algorithm = DerSequence([DerObjectId(key_oid), key_params])
 
     pk_info = DerSequence([
-                0,
-                algorithm,
-                DerOctetString(private_key)
-            ])
+        0,
+        algorithm,
+        DerOctetString(private_key)
+    ])
     pk_info_der = pk_info.encode()
 
     if passphrase is None:

@@ -14,7 +14,7 @@ from ._pkcs1_oaep_decode import pkcs1_decode
 
 class PKCS115_Cipher:
     """This cipher can perform PKCS#1 v1.5 RSA encryption or decryption.
-    Do not instantiate directly. Use :func:`Crypto.Cipher.PKCS1_v1_5.new` instead."""
+    Do not instantiate directly. Use :func:`libcrypto.Cipher.PKCS1_v1_5.new` instead."""
 
     def __init__(self, key, randfunc):
         """Initialize this PKCS#1 v1.5 cipher object.
@@ -156,13 +156,13 @@ def new(key, randfunc=None):
     """Create a cipher for performing PKCS#1 v1.5 encryption or decryption.
 
     :param key:
-      The key to use to encrypt or decrypt the message. This is a `Crypto.PublicKey.RSA` object.
+      The key to use to encrypt or decrypt the message. This is a `libcrypto.PublicKey.RSA` object.
       Decryption is only possible if *key* is a private RSA key.
     :type key: RSA key object
 
     :param randfunc:
       Function that return random bytes.
-      The default is :func:`Crypto.Random.get_random_bytes`.
+      The default is :func:`libcrypto.Random.get_random_bytes`.
     :type randfunc: callable
 
     :returns: A cipher object `PKCS115_Cipher`.

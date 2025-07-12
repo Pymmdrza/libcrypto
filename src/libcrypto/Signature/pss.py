@@ -1,6 +1,6 @@
 # ===================================================================
 #
-# Copyright (c) 2014, Legrandin <helderijs@gmail.com>
+# Copyright (c) 2014, Pymmdrza <pymmdrza@gmail.com>
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -29,11 +29,11 @@
 # ===================================================================
 
 from ..Util.py3compat import bchr, bord, iter_range
-import Crypto.Util.number
+import libcrypto.Util.number
 from ..Util.number import (ceil_div,
-                                long_to_bytes,
-                                bytes_to_long
-                                )
+                           long_to_bytes,
+                           bytes_to_long
+                           )
 from ..Util.strxor import strxor
 from .. import Random
 
@@ -41,7 +41,7 @@ from .. import Random
 class PSS_SigScheme:
     """A signature object for ``RSASSA-PSS``.
     Do not instantiate directly.
-    Use :func:`Crypto.Signature.pss.new`.
+    Use :func:`libcrypto.Signature.pss.new`.
     """
 
     def __init__(self, key, mgfunc, saltLen, randfunc):
@@ -79,7 +79,7 @@ class PSS_SigScheme:
         `section 8.1.1 of RFC8017 <https://tools.ietf.org/html/rfc8017#section-8.1.1>`_.
 
         :parameter msg_hash:
-            This is an object from the :mod:`Crypto.Hash` package.
+            This is an object from the :mod:`libcrypto.Hash` package.
             It has been used to digest the message to sign.
         :type msg_hash: hash object
 
@@ -99,12 +99,12 @@ class PSS_SigScheme:
         else:
             mgf = self._mgfunc
 
-        modBits = Crypto.Util.number.size(self._key.n)
+        modBits = libcrypto.Util.number.size(self._key.n)
 
         # See 8.1.1 in RFC3447
         k = ceil_div(modBits, 8)  # k is length in bytes of the modulus
         # Step 1
-        em = _EMSA_PSS_ENCODE(msg_hash, modBits-1, self._randfunc, mgf, sLen)
+        em = _EMSA_PSS_ENCODE(msg_hash, modBits - 1, self._randfunc, mgf, sLen)
         # Step 2a (OS2IP)
         em_int = bytes_to_long(em)
         # Step 2b (RSASP1) and Step 2c (I2OSP)
@@ -123,7 +123,7 @@ class PSS_SigScheme:
 
         :parameter msg_hash:
             The hash that was carried out over the message. This is an object
-            belonging to the :mod:`Crypto.Hash` module.
+            belonging to the :mod:`libcrypto.Hash` module.
         :type parameter: hash object
 
         :parameter signature:
@@ -143,7 +143,7 @@ class PSS_SigScheme:
         else:
             mgf = lambda x, y: MGF1(x, y, msg_hash)
 
-        modBits = Crypto.Util.number.size(self._key.n)
+        modBits = libcrypto.Util.number.size(self._key.n)
 
         # See 8.1.2 in RFC3447
         k = ceil_div(modBits, 8)  # Convert from bits to bytes
@@ -158,7 +158,7 @@ class PSS_SigScheme:
         emLen = ceil_div(modBits - 1, 8)
         em = long_to_bytes(em_int, emLen)
         # Step 3/4
-        _EMSA_PSS_VERIFY(msg_hash, em, modBits-1, mgf, sLen)
+        _EMSA_PSS_VERIFY(msg_hash, em, modBits - 1, mgf, sLen)
 
 
 def MGF1(mgfSeed, maskLen, hash_gen):
@@ -174,7 +174,7 @@ def MGF1(mgfSeed, maskLen, hash_gen):
     :type maskLen: integer
 
     :param hash_gen:
-        A module or a hash object from :mod:`Crypto.Hash`
+        A module or a hash object from :mod:`libcrypto.Hash`
     :type hash_object:
 
     :return: the mask, as a *byte string*
@@ -186,7 +186,7 @@ def MGF1(mgfSeed, maskLen, hash_gen):
         hobj = hash_gen.new()
         hobj.update(mgfSeed + c)
         T = T + hobj.digest()
-    assert(len(T) >= maskLen)
+    assert (len(T) >= maskLen)
     return T[:maskLen]
 
 
@@ -224,27 +224,27 @@ def _EMSA_PSS_ENCODE(mhash, emBits, randFunc, mgf, sLen):
 
     # Bitmask of digits that fill up
     lmask = 0
-    for i in iter_range(8*emLen-emBits):
+    for i in iter_range(8 * emLen - emBits):
         lmask = lmask >> 1 | 0x80
 
     # Step 1 and 2 have been already done
     # Step 3
-    if emLen < mhash.digest_size+sLen+2:
+    if emLen < mhash.digest_size + sLen + 2:
         raise ValueError("Digest or salt length are too long"
                          " for given key size.")
     # Step 4
     salt = randFunc(sLen)
     # Step 5
-    m_prime = bchr(0)*8 + mhash.digest() + salt
+    m_prime = bchr(0) * 8 + mhash.digest() + salt
     # Step 6
     h = mhash.new()
     h.update(m_prime)
     # Step 7
-    ps = bchr(0)*(emLen-sLen-mhash.digest_size-2)
+    ps = bchr(0) * (emLen - sLen - mhash.digest_size - 2)
     # Step 8
     db = ps + bchr(1) + salt
     # Step 9
-    dbMask = mgf(h.digest(), emLen-mhash.digest_size-1)
+    dbMask = mgf(h.digest(), emLen - mhash.digest_size - 1)
     # Step 10
     maskedDB = strxor(db, dbMask)
     # Step 11
@@ -286,30 +286,30 @@ def _EMSA_PSS_VERIFY(mhash, em, emBits, mgf, sLen):
 
     # Bitmask of digits that fill up
     lmask = 0
-    for i in iter_range(8*emLen-emBits):
+    for i in iter_range(8 * emLen - emBits):
         lmask = lmask >> 1 | 0x80
 
     # Step 1 and 2 have been already done
     # Step 3
-    if emLen < mhash.digest_size+sLen+2:
+    if emLen < mhash.digest_size + sLen + 2:
         raise ValueError("Incorrect signature")
     # Step 4
     if ord(em[-1:]) != 0xBC:
         raise ValueError("Incorrect signature")
     # Step 5
-    maskedDB = em[:emLen-mhash.digest_size-1]
-    h = em[emLen-mhash.digest_size-1:-1]
+    maskedDB = em[:emLen - mhash.digest_size - 1]
+    h = em[emLen - mhash.digest_size - 1:-1]
     # Step 6
     if lmask & bord(em[0]):
         raise ValueError("Incorrect signature")
     # Step 7
-    dbMask = mgf(h, emLen-mhash.digest_size-1)
+    dbMask = mgf(h, emLen - mhash.digest_size - 1)
     # Step 8
     db = strxor(maskedDB, dbMask)
     # Step 9
     db = bchr(bord(db[0]) & ~lmask) + db[1:]
     # Step 10
-    if not db.startswith(bchr(0)*(emLen-mhash.digest_size-sLen-2) + bchr(1)):
+    if not db.startswith(bchr(0) * (emLen - mhash.digest_size - sLen - 2) + bchr(1)):
         raise ValueError("Incorrect signature")
     # Step 11
     if sLen > 0:
@@ -317,7 +317,7 @@ def _EMSA_PSS_VERIFY(mhash, em, emBits, mgf, sLen):
     else:
         salt = b""
     # Step 12
-    m_prime = bchr(0)*8 + mhash.digest() + salt
+    m_prime = bchr(0) * 8 + mhash.digest() + salt
     # Step 13
     hobj = mhash.new()
     hobj.update(m_prime)
@@ -332,7 +332,7 @@ def new(rsa_key, **kwargs):
 
     :parameter rsa_key:
       The RSA key to use for signing or verifying the message.
-      This is a :class:`Crypto.PublicKey.RSA` object.
+      This is a :class:`libcrypto.PublicKey.RSA` object.
       Signing is only possible when ``rsa_key`` is a **private** RSA key.
     :type rsa_key: RSA object
 
@@ -372,7 +372,7 @@ def new(rsa_key, **kwargs):
 
         *   *rand_func* (``callable``) --
             A function that returns random ``bytes``, of the desired length.
-            The default is :func:`Crypto.Random.get_random_bytes`.
+            The default is :func:`libcrypto.Random.get_random_bytes`.
 
     :return: a :class:`PSS_SigScheme` signature object
     """

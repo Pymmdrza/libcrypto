@@ -1,6 +1,6 @@
 # ===================================================================
 #
-# Copyright (c) 2014, Legrandin <helderijs@gmail.com>
+# Copyright (c) 2014, Pymmdrza <pymmdrza@gmail.com>
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -45,11 +45,10 @@ from ..Hash import BLAKE2s
 from ..Random import get_random_bytes
 
 from ..Util._raw_api import (load_LibCrypto_raw_lib, VoidPointer,
-                                  create_string_buffer, get_raw_buffer,
-                                  SmartPointer, c_size_t, c_uint8_ptr)
+                             create_string_buffer, get_raw_buffer,
+                             SmartPointer, c_size_t, c_uint8_ptr)
 
 from ..Util import _cpu_features
-
 
 # C API by module implementing GHASH
 _ghash_api_template = """
@@ -63,24 +62,27 @@ _ghash_api_template = """
     int ghash_destroy_%imp%(void *ghash_tables);
 """
 
+
 def _build_impl(lib, postfix):
     from collections import namedtuple
 
-    funcs = ( "ghash", "ghash_expand", "ghash_destroy" )
+    funcs = ("ghash", "ghash_expand", "ghash_destroy")
     GHASH_Imp = namedtuple('_GHash_Imp', funcs)
     try:
-        imp_funcs = [ getattr(lib, x + "_" + postfix) for x in funcs ]
-    except AttributeError:      # Make sphinx stop complaining with its mocklib
-        imp_funcs = [ None ] * 3
+        imp_funcs = [getattr(lib, x + "_" + postfix) for x in funcs]
+    except AttributeError:  # Make sphinx stop complaining with its mocklib
+        imp_funcs = [None] * 3
     params = dict(zip(funcs, imp_funcs))
     return GHASH_Imp(**params)
 
 
 def _get_ghash_portable():
     api = _ghash_api_template.replace("%imp%", "portable")
-    lib = load_LibCrypto_raw_lib("Crypto.Hash._ghash_portable", api)
+    lib = load_LibCrypto_raw_lib("libcrypto.Hash._ghash_portable", api)
     result = _build_impl(lib, "portable")
     return result
+
+
 _ghash_portable = _get_ghash_portable()
 
 
@@ -91,11 +93,13 @@ def _get_ghash_clmul():
         return None
     try:
         api = _ghash_api_template.replace("%imp%", "clmul")
-        lib = load_LibCrypto_raw_lib("Crypto.Hash._ghash_clmul", api)
+        lib = load_LibCrypto_raw_lib("libcrypto.Hash._ghash_clmul", api)
         result = _build_impl(lib, "clmul")
     except OSError:
         result = None
     return result
+
+
 _ghash_clmul = _get_ghash_clmul()
 
 
@@ -191,9 +195,8 @@ class GcmMode(object):
             raise TypeError("Nonce must be bytes, bytearray or memoryview")
 
         # See NIST SP 800 38D, 5.2.1.1
-        if len(nonce) > 2**64 - 1:
+        if len(nonce) > 2 ** 64 - 1:
             raise ValueError("Nonce exceeds maximum length")
-
 
         self.nonce = _copy_bytes(None, None, nonce)
         """Nonce"""
@@ -293,13 +296,13 @@ class GcmMode(object):
         self._auth_len += len(assoc_data)
 
         # See NIST SP 800 38D, 5.2.1.1
-        if self._auth_len > 2**64 - 1:
+        if self._auth_len > 2 ** 64 - 1:
             raise ValueError("Additional Authenticated Data exceeds maximum length")
 
         return self
 
     def _update(self, data):
-        assert(len(self._cache) < 16)
+        assert (len(self._cache) < 16)
 
         if len(self._cache) > 0:
             filler = min(16 - len(self._cache), len(data))
@@ -319,7 +322,7 @@ class GcmMode(object):
             self._signer.update(data[:update_len])
 
     def _pad_cache_and_update(self):
-        assert(len(self._cache) < 16)
+        assert (len(self._cache) < 16)
 
         # The authenticated data A is concatenated to the minimum
         # number of zero bytes (possibly none) such that the
@@ -379,7 +382,7 @@ class GcmMode(object):
         self._msg_len += len(plaintext)
 
         # See NIST SP 800 38D, 5.2.1.1
-        if self._msg_len > 2**39 - 256:
+        if self._msg_len > 2 ** 39 - 256:
             raise ValueError("Plaintext exceeds maximum length")
 
         return ciphertext
@@ -573,9 +576,9 @@ def _create_gcm_cipher(factory, **kwargs):
 
     :Parameters:
       factory : module
-        A block cipher module, taken from `Crypto.Cipher`.
+        A block cipher module, taken from `libcrypto.Cipher`.
         The cipher must have block length of 16 bytes.
-        GCM has been only defined for `Crypto.Cipher.AES`.
+        GCM has been only defined for `libcrypto.Cipher.AES`.
 
     :Keywords:
       key : bytes/bytearray/memoryview

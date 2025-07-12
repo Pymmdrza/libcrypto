@@ -5,30 +5,31 @@
 from ..Util.py3compat import *
 
 from ..Util._raw_api import (load_LibCrypto_raw_lib,
-                                  VoidPointer, SmartPointer,
-                                  create_string_buffer,
-                                  get_raw_buffer, c_size_t,
-                                  c_uint8_ptr)
+                             VoidPointer, SmartPointer,
+                             create_string_buffer,
+                             get_raw_buffer, c_size_t,
+                             c_uint8_ptr)
 
-_raw_sha1_lib = load_LibCrypto_raw_lib("Crypto.Hash._SHA1",
-                        """
-                        #define SHA1_DIGEST_SIZE 20
+_raw_sha1_lib = load_LibCrypto_raw_lib("libcrypto.Hash._SHA1",
+                                       """
+                                       #define SHA1_DIGEST_SIZE 20
+               
+                                       int SHA1_init(void **shaState);
+                                       int SHA1_destroy(void *shaState);
+                                       int SHA1_update(void *hs,
+                                                         const uint8_t *buf,
+                                                         size_t len);
+                                       int SHA1_digest(const void *shaState,
+                                                         uint8_t digest[SHA1_DIGEST_SIZE]);
+                                       int SHA1_copy(const void *src, void *dst);
+               
+                                       int SHA1_pbkdf2_hmac_assist(const void *inner,
+                                                           const void *outer,
+                                                           const uint8_t first_digest[SHA1_DIGEST_SIZE],
+                                                           uint8_t final_digest[SHA1_DIGEST_SIZE],
+                                                           size_t iterations);
+                                       """)
 
-                        int SHA1_init(void **shaState);
-                        int SHA1_destroy(void *shaState);
-                        int SHA1_update(void *hs,
-                                          const uint8_t *buf,
-                                          size_t len);
-                        int SHA1_digest(const void *shaState,
-                                          uint8_t digest[SHA1_DIGEST_SIZE]);
-                        int SHA1_copy(const void *src, void *dst);
-
-                        int SHA1_pbkdf2_hmac_assist(const void *inner,
-                                            const void *outer,
-                                            const uint8_t first_digest[SHA1_DIGEST_SIZE],
-                                            uint8_t final_digest[SHA1_DIGEST_SIZE],
-                                            size_t iterations);
-                        """)
 
 class SHA1Hash(object):
     """AN SHA-1 hash object.
@@ -157,11 +158,11 @@ def _pbkdf2_hmac_assist(inner, outer, first_digest, iterations):
 
     bfr = create_string_buffer(digest_size);
     result = _raw_sha1_lib.SHA1_pbkdf2_hmac_assist(
-                    inner._state.get(),
-                    outer._state.get(),
-                    first_digest,
-                    bfr,
-                    c_size_t(iterations))
+        inner._state.get(),
+        outer._state.get(),
+        first_digest,
+        bfr,
+        c_size_t(iterations))
 
     if result:
         raise ValueError("Error %d with PBKDF2-HMAC assis for SHA1" % result)

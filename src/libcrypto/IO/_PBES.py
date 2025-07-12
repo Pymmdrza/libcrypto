@@ -3,7 +3,7 @@
 #
 # ===================================================================
 #
-# Copyright (c) 2014, Legrandin <helderijs@gmail.com>
+# Copyright (c) 2014, Pymmdrza <pymmdrza@gmail.com>
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -36,9 +36,9 @@ import re
 from .. import Hash
 from .. import Random
 from ..Util.asn1 import (
-            DerSequence, DerOctetString,
-            DerObjectId, DerInteger,
-            )
+    DerSequence, DerOctetString,
+    DerObjectId, DerInteger,
+)
 
 from ..Cipher import AES
 from ..Util.Padding import pad, unpad
@@ -64,8 +64,10 @@ _OID_AES128_GCM = "2.16.840.1.101.3.4.1.6"
 _OID_AES192_GCM = "2.16.840.1.101.3.4.1.26"
 _OID_AES256_GCM = "2.16.840.1.101.3.4.1.46"
 
+
 class PbesError(ValueError):
     pass
+
 
 # These are the ASN.1 definitions used by the PBES1/2 logic:
 #
@@ -238,7 +240,7 @@ class PBES2(object):
             Random number generation function; it should accept
             a single integer N and return a string of random data,
             N bytes long. If not specified, a new RNG will be
-            instantiated from ``Crypto.Random``.
+            instantiated from ``libcrypto.Random``.
 
         :Returns:
           The encrypted data, as a binary string.
@@ -329,9 +331,9 @@ class PBES2(object):
                          hmac_hash_module=digestmod)
 
             pbkdf2_params = DerSequence([
-                                DerOctetString(salt),
-                                DerInteger(count)
-                            ])
+                DerOctetString(salt),
+                DerInteger(count)
+            ])
 
             if pbkdf2_hmac_algo != 'SHA1':
                 try:
@@ -341,8 +343,8 @@ class PBES2(object):
                 pbkdf2_params.append(DerSequence([DerObjectId(hmac_oid)]))
 
             kdf_info = DerSequence([
-                    DerObjectId(_OID_PBKDF2),   # PBKDF2
-                    pbkdf2_params
+                DerObjectId(_OID_PBKDF2),  # PBKDF2
+                pbkdf2_params
             ])
 
         elif pbkdf == 'scrypt':
@@ -353,13 +355,13 @@ class PBES2(object):
             key = scrypt(passphrase, salt, key_size,
                          count, scrypt_r, scrypt_p)
             kdf_info = DerSequence([
-                    DerObjectId(_OID_SCRYPT),  # scrypt
-                    DerSequence([
-                        DerOctetString(salt),
-                        DerInteger(count),
-                        DerInteger(scrypt_r),
-                        DerInteger(scrypt_p)
-                    ])
+                DerObjectId(_OID_SCRYPT),  # scrypt
+                DerSequence([
+                    DerOctetString(salt),
+                    DerInteger(count),
+                    DerInteger(scrypt_r),
+                    DerInteger(scrypt_p)
+                ])
             ])
 
         else:
@@ -373,8 +375,8 @@ class PBES2(object):
         else:
             encrypted_data = cipher.encrypt(pad(data, cipher.block_size))
         enc_info = DerSequence([
-                DerObjectId(enc_oid),
-                DerOctetString(iv_nonce)
+            DerObjectId(enc_oid),
+            DerOctetString(iv_nonce)
         ])
 
         # Result
@@ -529,7 +531,7 @@ class PBES2(object):
         else:
             key = scrypt(passphrase, salt, key_size, iteration_count,
                          scrypt_r, scrypt_p)
-        cipher = module.new(key, cipher_mode, **{cipher_param:iv_nonce})
+        cipher = module.new(key, cipher_mode, **{cipher_param: iv_nonce})
 
         # Decrypt data
         if len(encrypted_data) < cipher.block_size:

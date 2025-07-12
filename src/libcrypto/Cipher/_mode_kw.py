@@ -9,8 +9,7 @@ from ..Util.strxor import strxor
 
 def W(cipher: ModuleType,
       plaintext: Union[bytes, bytearray]) -> bytes:
-
-    S = [plaintext[i:i+8] for i in range(0, len(plaintext), 8)]
+    S = [plaintext[i:i + 8] for i in range(0, len(plaintext), 8)]
     n = len(S)
     s = 6 * (n - 1)
     A = S[0]
@@ -27,8 +26,7 @@ def W(cipher: ModuleType,
 
 def W_inverse(cipher: ModuleType,
               ciphertext: Union[bytes, bytearray]) -> bytes:
-
-    C = [ciphertext[i:i+8] for i in range(0, len(ciphertext), 8)]
+    C = [ciphertext[i:i + 8] for i in range(0, len(ciphertext), 8)]
     n = len(C)
     s = 6 * (n - 1)
     A = C[0]
@@ -95,7 +93,7 @@ class KWMode(object):
         if len(plaintext) < 16:
             raise ValueError("The plaintext must be at least 16 bytes long")
 
-        if len(plaintext) >= 2**32:
+        if len(plaintext) >= 2 ** 32:
             raise ValueError("The plaintext is too long")
 
         res = W(self._cipher, b'\xA6\xA6\xA6\xA6\xA6\xA6\xA6\xA6' + plaintext)
@@ -142,7 +140,7 @@ def _create_kw_cipher(factory: ModuleType,
 
     Args:
       factory:
-        A block cipher module, taken from `Crypto.Cipher`.
+        A block cipher module, taken from `libcrypto.Cipher`.
         The cipher must have block length of 16 bytes, such as AES.
 
     Keywords:

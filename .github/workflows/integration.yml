@@ -1,0 +1,200 @@
+name: Integration
+
+on: [ push, pull_request ]
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        python-version: [ 3.7, 3.8, 3.9, "3.10", "3.11", "3.12", "3.13" ]
+        cffi: [ yes, no ]
+        os: [ ubuntu-22.04 ]
+        include:
+          - python-version: "3.13"
+            cffi: yes
+            os: macos-13
+          - python-version: "3.13"
+            cffi: no
+            os: windows-latest
+          - python-version: "3.13"
+            cffi: yes
+            os: windows-latest
+          - python-version: "3.13"
+            cffi: no
+            os: windows-11-arm
+          - python-version: "3.13"
+            cffi: yes
+            os: windows-11-arm
+          - python-version: pypy2.7
+            cffi: no
+            os: ubuntu-latest
+          - python-version: pypy3.9
+            cffi: no
+            os: ubuntu-latest
+          - python-version: "3.13"
+            cffi: yes
+            os: ubuntu-22.04-arm
+    env:
+      CFLAGS: "-Wconversion"
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Display Python version
+        run: python -c "from __future__ import print_function; import sys; print(sys.version)"
+
+      - name: Install CFFI
+        if: matrix.cffi == 'yes'
+        run: pip install cffi
+
+      - name: Install dependencies (testing only)
+        run: |
+          pip install -r requirements-dev.txt
+
+      - name: Install package
+        run: |
+          pip install -v .
+
+
+  build_python_27:
+    # GitHub Actions will not setup Python 2.7 since June 2023
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ ubuntu-22.04, windows-latest ]
+        cffi: [ yes, no ]
+        include:
+          - os: ubuntu-22.04
+            container: python:2.7.18-buster
+    container:
+      image: ${{ matrix.container }}
+    env:
+      CFLAGS: "-Wconversion"
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Python 2
+        if: matrix.os == 'windows-latest'
+        run: |
+          choco install python2
+
+      - name: Install MSVC
+        if: matrix.os == 'windows-latest'
+        uses: ilammy/msvc-dev-cmd@v1
+
+      - name: Prepare environmental variables
+        if: matrix.os == 'windows-latest'
+        shell: bash
+        run: |
+          echo "DISTUTILS_USE_SDK=1" >> $GITHUB_ENV
+          echo "MSSdk=1" >> $GITHUB_ENV
+          echo "C:\\Python27;$(cat $GITHUB_PATH)" >> $GITHUB_PATH
+          cat $GITHUB_PATH
+
+      - name: Display Python version
+        run: python -c "from __future__ import print_function; import sys; print(sys.version)"
+
+      - name: Install CFFI
+        if: matrix.cffi == 'yes'
+        run: python -m pip install cffi
+
+      - name: Install dependencies (testing only)
+        run: |
+          python -m pip install -r requirements-dev.txt
+
+      - name: Install package
+        run: |
+          python -m pip install -v .
+
+
+  mypy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+      - name: Install dependencies
+        run: |
+          pip install mypy -r requirements-dev.txt
+      - name: Test
+        run: |
+          mypy --enable-incomplete-feature=Unpack src/
+
+  test_c_linux:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        sse: [ 0, 1 ]
+        arch: [ x64, x32 ]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install libc6-dev-i386 libubsan1
+      - name: Test Linux x32 and x64
+        run: |
+          cd src/test
+          mkdir build
+          GCC_M32_TOOLCHAIN=${{ github.workspace }}/.github/workflows/gcc_m32_toolchain.txt
+          EXTRA=$([ ${{ matrix.arch }} = x32 ] && echo "-DCMAKE_TOOLCHAIN_FILE=$GCC_M32_TOOLCHAIN" || true)
+          cmake -B build -DSSE=${{ matrix.sse }} $EXTRA
+          make -C build all test
+
+  test_c_windows:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: windows-latest
+            arch: x64
+          - os: windows-latest
+            arch: win32
+          - os: windows-11-arm
+            arch: arm64
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python "3.13"
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - name: Install MSVC
+        uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: ${{ matrix.arch }}
+      - name: Test Windows 32 and 64
+        run: |
+          cd src/test
+          mkdir build
+          cmake -B build -G "NMake Makefiles"
+          cd build
+          nmake all test
+
+  python_no_gil:
+    runs-on: ubuntu-latest
+    env:
+      CFLAGS: "-Wconversion"
+    steps:
+      - uses: actions/checkout@v4
+      - name: No-GIL Python
+        uses: deadsnakes/action@v3.1.0
+        with:
+          python-version: "3.13"
+          nogil: true
+
+      - name: Install dependencies (testing only)
+        run: |
+          pip install -r requirements-dev.txt
+
+      - name: Install package
+        run: |
+          pip install -v .

@@ -1,6 +1,6 @@
 /* ===================================================================
  *
- * Copyright (c) 2015, Legrandin <helderijs@gmail.com>
+ * Copyright (c) 2015, Pymmdrza <pymmdrza@gmail.com>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without

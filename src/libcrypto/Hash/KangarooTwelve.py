@@ -1,6 +1,6 @@
 # ===================================================================
 #
-# Copyright (c) 2021, Legrandin <helderijs@gmail.com>
+# Copyright (c) 2021, Pymmdrza <pymmdrza@gmail.com>
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -33,6 +33,7 @@ from ..Util.py3compat import bchr
 
 from . import TurboSHAKE128
 
+
 def _length_encode(x):
     if x == 0:
         return b'\x00'
@@ -42,10 +43,10 @@ def _length_encode(x):
 
 
 # Possible states for a KangarooTwelve instance, which depend on the amount of data processed so far.
-SHORT_MSG = 1       # Still within the first 8192 bytes, but it is not certain we will exceed them.
-LONG_MSG_S0 = 2     # Still within the first 8192 bytes, and it is certain we will exceed them.
-LONG_MSG_SX = 3     # Beyond the first 8192 bytes.
-SQUEEZING = 4       # No more data to process.
+SHORT_MSG = 1  # Still within the first 8192 bytes, but it is not certain we will exceed them.
+LONG_MSG_S0 = 2  # Still within the first 8192 bytes, and it is certain we will exceed them.
+LONG_MSG_SX = 3  # Beyond the first 8192 bytes.
+SQUEEZING = 4  # No more data to process.
 
 
 class K12_XOF(object):
@@ -61,7 +62,7 @@ class K12_XOF(object):
 
         self._custom = custom + _length_encode(len(custom))
         self._state = SHORT_MSG
-        self._padding = None        # Final padding is only decided in read()
+        self._padding = None  # Final padding is only decided in read()
 
         # Internal hash that consumes FinalNode
         # The real domain separation byte will be known before squeezing
@@ -105,7 +106,7 @@ class K12_XOF(object):
 
         if self._state == LONG_MSG_S0:
             data_mem = memoryview(data)
-            assert(self._length1 < 8192)
+            assert (self._length1 < 8192)
             dtc = min(len(data), 8192 - self._length1)
             self._hash1.update(data_mem[:dtc])
             self._length1 += dtc
@@ -114,7 +115,7 @@ class K12_XOF(object):
                 return self
 
             # Finish hashing S_0 and start S_1
-            assert(self._length1 == 8192)
+            assert (self._length1 == 8192)
 
             divider = b'\x03' + b'\x00' * 7
             self._hash1.update(divider)
@@ -128,7 +129,7 @@ class K12_XOF(object):
             return self.update(data_mem[dtc:])
 
         # LONG_MSG_SX
-        assert(self._state == LONG_MSG_SX)
+        assert (self._state == LONG_MSG_SX)
         index = 0
         len_data = len(data)
 
@@ -176,7 +177,7 @@ class K12_XOF(object):
         if self._state == LONG_MSG_S0:
             self.update(self._custom)
             custom_was_consumed = True
-            assert(self._state == LONG_MSG_SX)
+            assert (self._state == LONG_MSG_SX)
 
         if self._state == LONG_MSG_SX:
             if not custom_was_consumed:

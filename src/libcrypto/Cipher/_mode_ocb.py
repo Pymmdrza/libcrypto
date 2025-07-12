@@ -1,6 +1,6 @@
 # ===================================================================
 #
-# Copyright (c) 2014, Legrandin <helderijs@gmail.com>
+# Copyright (c) 2014, Pymmdrza <pymmdrza@gmail.com>
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -79,11 +79,11 @@ from ..Hash import BLAKE2s
 from ..Random import get_random_bytes
 
 from ..Util._raw_api import (load_LibCrypto_raw_lib, VoidPointer,
-                                  create_string_buffer, get_raw_buffer,
-                                  SmartPointer, c_size_t, c_uint8_ptr,
-                                  is_buffer)
+                             create_string_buffer, get_raw_buffer,
+                             SmartPointer, c_size_t, c_uint8_ptr,
+                             is_buffer)
 
-_raw_ocb_lib = load_LibCrypto_raw_lib("Crypto.Cipher._raw_ocb", """
+_raw_ocb_lib = load_LibCrypto_raw_lib("libcrypto.Cipher._raw_ocb", """
                                     int OCB_start_operation(void *cipher,
                                         const uint8_t *offset_0,
                                         size_t offset_0_len,
@@ -151,16 +151,16 @@ class OcbMode(object):
 
         taglen_mod128 = (self._mac_len * 8) % 128
         if len(self.nonce) < 15:
-            nonce = bchr(taglen_mod128 << 1) +\
-                    b'\x00' * (14 - len(nonce)) +\
-                    b'\x01' +\
+            nonce = bchr(taglen_mod128 << 1) + \
+                    b'\x00' * (14 - len(nonce)) + \
+                    b'\x01' + \
                     self.nonce
         else:
-            nonce = bchr((taglen_mod128 << 1) | 0x01) +\
+            nonce = bchr((taglen_mod128 << 1) | 0x01) + \
                     self.nonce
 
-        bottom_bits = bord(nonce[15]) & 0x3F    # 6 bits, 0..63
-        top_bits = bord(nonce[15]) & 0xC0       # 2 bits
+        bottom_bits = bord(nonce[15]) & 0x3F  # 6 bits, 0..63
+        top_bits = bord(nonce[15]) & 0xC0  # 2 bits
 
         ktop_cipher = factory.new(key,
                                   factory.MODE_ECB,
@@ -169,7 +169,7 @@ class OcbMode(object):
                                                nonce[:15],
                                                top_bits))
 
-        stretch = ktop + strxor(ktop[:8], ktop[1:9])    # 192 bits
+        stretch = ktop + strxor(ktop[:8], ktop[1:9])  # 192 bits
         offset_0 = long_to_bytes(bytes_to_long(stretch) >>
                                  (64 - bottom_bits), 24)[8:]
 
@@ -398,7 +398,7 @@ class OcbMode(object):
         if "digest" not in self._next:
             raise TypeError("digest() cannot be called now for this cipher")
 
-        assert(len(self._cache_P) == 0)
+        assert (len(self._cache_P) == 0)
 
         self._next = ["digest"]
 
@@ -433,7 +433,7 @@ class OcbMode(object):
         if "verify" not in self._next:
             raise TypeError("verify() cannot be called now for this cipher")
 
-        assert(len(self._cache_P) == 0)
+        assert (len(self._cache_P) == 0)
 
         self._next = ["verify"]
 
@@ -502,8 +502,8 @@ def _create_ocb_cipher(factory, **kwargs):
 
     :Parameters:
       factory : module
-        A symmetric cipher module from `Crypto.Cipher`
-        (like `Crypto.Cipher.AES`).
+        A symmetric cipher module from `libcrypto.Cipher`
+        (like `libcrypto.Cipher.AES`).
 
     :Keywords:
       nonce : bytes/bytearray/memoryview

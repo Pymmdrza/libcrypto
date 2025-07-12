@@ -20,27 +20,27 @@ import sys
 from ..Cipher import _create_cipher
 from ..Util.py3compat import byte_string
 from ..Util._raw_api import (load_LibCrypto_raw_lib,
-                                  VoidPointer, SmartPointer,
-                                  c_size_t, c_uint8_ptr)
+                             VoidPointer, SmartPointer,
+                             c_size_t, c_uint8_ptr)
 
 _raw_arc2_lib = load_LibCrypto_raw_lib(
-                        "Crypto.Cipher._raw_arc2",
-                        """
-                        int ARC2_start_operation(const uint8_t key[],
-                                                 size_t key_len,
-                                                 size_t effective_key_len,
-                                                 void **pResult);
-                        int ARC2_encrypt(const void *state,
-                                         const uint8_t *in,
-                                         uint8_t *out,
-                                         size_t data_len);
-                        int ARC2_decrypt(const void *state,
-                                         const uint8_t *in,
-                                         uint8_t *out,
-                                         size_t data_len);
-                        int ARC2_stop_operation(void *state);
-                        """
-                        )
+    "libcrypto.Cipher._raw_arc2",
+    """
+    int ARC2_start_operation(const uint8_t key[],
+                             size_t key_len,
+                             size_t effective_key_len,
+                             void **pResult);
+    int ARC2_encrypt(const void *state,
+                     const uint8_t *in,
+                     uint8_t *out,
+                     size_t data_len);
+    int ARC2_decrypt(const void *state,
+                     const uint8_t *in,
+                     uint8_t *out,
+                     size_t data_len);
+    int ARC2_stop_operation(void *state);
+    """
+)
 
 
 def _create_base_cipher(dict_parameters):
@@ -144,6 +144,7 @@ def new(key, mode, *args, **kwargs):
     """
 
     return _create_cipher(sys.modules[__name__], key, mode, *args, **kwargs)
+
 
 MODE_ECB = 1
 MODE_CBC = 2

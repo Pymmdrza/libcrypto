@@ -1,6 +1,6 @@
 # ===================================================================
 #
-# Copyright (c) 2014, Legrandin <helderijs@gmail.com>
+# Copyright (c) 2014, Pymmdrza <pymmdrza@gmail.com>
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -28,14 +28,15 @@
 # POSSIBILITY OF SUCH DAMAGE.
 # ===================================================================
 
-import Crypto.Util.number
+import libcrypto.Util.number
 from ..Util.number import ceil_div, bytes_to_long, long_to_bytes
 from ..Util.asn1 import DerSequence, DerNull, DerOctetString, DerObjectId
+
 
 class PKCS115_SigScheme:
     """A signature object for ``RSASSA-PKCS1-v1_5``.
     Do not instantiate directly.
-    Use :func:`Crypto.Signature.pkcs1_15.new`.
+    Use :func:`libcrypto.Signature.pkcs1_15.new`.
     """
 
     def __init__(self, rsa_key):
@@ -60,7 +61,7 @@ class PKCS115_SigScheme:
         `section 8.2.1 of RFC8017 <https://tools.ietf.org/html/rfc8017#page-36>`_.
 
         :parameter msg_hash:
-            This is an object from the :mod:`Crypto.Hash` package.
+            This is an object from the :mod:`libcrypto.Hash` package.
             It has been used to digest the message to sign.
         :type msg_hash: hash object
 
@@ -70,8 +71,8 @@ class PKCS115_SigScheme:
         """
 
         # See 8.2.1 in RFC3447
-        modBits = Crypto.Util.number.size(self._key.n)
-        k = ceil_div(modBits,8) # Convert from bits to bytes
+        modBits = libcrypto.Util.number.size(self._key.n)
+        k = ceil_div(modBits, 8)  # Convert from bits to bytes
 
         # Step 1
         em = _EMSA_PKCS1_V1_5_ENCODE(msg_hash, k)
@@ -93,7 +94,7 @@ class PKCS115_SigScheme:
 
         :parameter msg_hash:
             The hash that was carried out over the message. This is an object
-            belonging to the :mod:`Crypto.Hash` module.
+            belonging to the :mod:`libcrypto.Hash` module.
         :type parameter: hash object
 
         :parameter signature:
@@ -104,8 +105,8 @@ class PKCS115_SigScheme:
         """
 
         # See 8.2.2 in RFC3447
-        modBits = Crypto.Util.number.size(self._key.n)
-        k = ceil_div(modBits, 8) # Convert from bits to bytes
+        modBits = libcrypto.Util.number.size(self._key.n)
+        k = ceil_div(modBits, 8)  # Convert from bits to bytes
 
         # Step 1
         if len(signature) != k:
@@ -118,7 +119,7 @@ class PKCS115_SigScheme:
         em1 = long_to_bytes(em_int, k)
         # Step 3
         try:
-            possible_em1 = [ _EMSA_PKCS1_V1_5_ENCODE(msg_hash, k, True) ]
+            possible_em1 = [_EMSA_PKCS1_V1_5_ENCODE(msg_hash, k, True)]
             # MD2/4/5 hashes always require NULL params in AlgorithmIdentifier.
             # For all others, it is optional.
             try:
@@ -189,23 +190,24 @@ def _EMSA_PKCS1_V1_5_ENCODE(msg_hash, emLen, with_hash_parameters=True):
     # should be omitted. They may be present, but when they are, they shall
     # have NULL value.
 
-    digestAlgo = DerSequence([ DerObjectId(msg_hash.oid).encode() ])
+    digestAlgo = DerSequence([DerObjectId(msg_hash.oid).encode()])
 
     if with_hash_parameters:
         digestAlgo.append(DerNull().encode())
 
-    digest      = DerOctetString(msg_hash.digest())
-    digestInfo  = DerSequence([
-                    digestAlgo.encode(),
-                    digest.encode()
-                    ]).encode()
+    digest = DerOctetString(msg_hash.digest())
+    digestInfo = DerSequence([
+        digestAlgo.encode(),
+        digest.encode()
+    ]).encode()
 
     # We need at least 11 bytes for the remaining data: 3 fixed bytes and
     # at least 8 bytes of padding).
-    if emLen<len(digestInfo)+11:
+    if emLen < len(digestInfo) + 11:
         raise TypeError("DigestInfo is too long for this RSA key (%d bytes)." % len(digestInfo))
     PS = b'\xFF' * (emLen - len(digestInfo) - 3)
     return b'\x00\x01' + PS + b'\x00' + digestInfo
+
 
 def new(rsa_key):
     """Create a signature object for creating
@@ -213,11 +215,10 @@ def new(rsa_key):
 
     :parameter rsa_key:
       The RSA key to use for signing or verifying the message.
-      This is a :class:`Crypto.PublicKey.RSA` object.
+      This is a :class:`libcrypto.PublicKey.RSA` object.
       Signing is only possible when ``rsa_key`` is a **private** RSA key.
     :type rsa_key: RSA object
 
     :return: a :class:`PKCS115_SigScheme` signature object
     """
     return PKCS115_SigScheme(rsa_key)
-

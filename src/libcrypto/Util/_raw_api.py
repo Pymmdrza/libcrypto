@@ -10,6 +10,7 @@ from ..Util._file_system import libcrypto_filename
 if sys.version_info[0] < 3:
 
     import imp
+
     extension_suffixes = []
     for ext, mod, typ in imp.get_suffixes():
         if typ == imp.C_EXTENSION:
@@ -18,6 +19,7 @@ if sys.version_info[0] < 3:
 else:
 
     from importlib import machinery
+
     extension_suffixes = machinery.EXTENSION_SUFFIXES
 
 # Which types with buffer interface we support (apart from byte strings)
@@ -42,7 +44,7 @@ try:
     # passed. In that case, we fall back to ctypes.
     # Note that PyPy ships with an old version of pycparser so we can keep
     # using cffi there.
-    # See https://github.com/Legrandin/LibCrypto/issues/228
+    # See https://github.com/Pymmdrza/LibCrypto/issues/228
     if '__pypy__' not in sys.builtin_module_names and sys.flags.optimize == 2:
         raise ImportError("CFFI with optimize=2 fails due to pycparser bug.")
 
@@ -60,6 +62,7 @@ try:
 
     _Array = ffi.new("uint8_t[1]").__class__.__bases__
 
+
     def load_lib(name, cdecl):
         """Load a shared library and return a handle to it.
 
@@ -76,17 +79,21 @@ try:
         ffi.cdef(cdecl)
         return lib
 
-    def c_ulong(x):
+
+    def c_long(x):
         """Convert a Python integer to unsigned long"""
         return x
 
-    c_ulonglong = c_ulong
-    c_uint = c_ulong
-    c_ubyte = c_ulong
+
+    c_ulonglong = c_long
+    c_uint = c_long
+    c_ubyte = c_long
+
 
     def c_size_t(x):
         """Convert a Python integer to size_t"""
         return x
+
 
     def create_string_buffer(init_or_size, size=None):
         """Allocate the given amount of bytes (initially set to 0)"""
@@ -101,13 +108,16 @@ try:
             result = ffi.new("uint8_t[]", init_or_size)
         return result
 
+
     def get_c_string(c_string):
         """Convert a C string into a Python byte sequence"""
         return ffi.string(c_string)
 
+
     def get_raw_buffer(buf):
         """Convert a C buffer into a Python byte sequence"""
         return ffi.buffer(buf)[:]
+
 
     def c_uint8_ptr(data):
         if isinstance(data, _buffer_type):
@@ -117,6 +127,7 @@ try:
             return data
         else:
             raise TypeError("Object type %s cannot be passed to C code" % type(data))
+
 
     class VoidPointer_cffi(_VoidPointer):
         """Model a newly allocated pointer to void"""
@@ -130,8 +141,10 @@ try:
         def address_of(self):
             return self._pp
 
+
     def VoidPointer():
         return VoidPointer_cffi()
+
 
     backend = "cffi"
 
@@ -146,10 +159,12 @@ except ImportError:
     null_pointer = None
     cached_architecture = []
 
-    def c_ubyte(c):
+
+    def cByte(c):
         if not (0 <= c < 256):
             raise OverflowError()
         return ctypes.c_ubyte(c)
+
 
     def load_lib(name, cdecl):
         if not cached_architecture:
@@ -165,11 +180,14 @@ except ImportError:
             name = full_name
         return CDLL(name)
 
+
     def get_c_string(c_string):
         return c_string.value
 
+
     def get_raw_buffer(buf):
         return buf.raw
+
 
     # ---- Get raw pointer ---
 
@@ -181,26 +199,28 @@ except ImportError:
     _py_object = ctypes.py_object
     _c_ssize_p = ctypes.POINTER(_c_ssize_t)
 
+
     # See Include/object.h for CPython
     # and https://github.com/pallets/click/blob/master/src/click/_winconsole.py
     class _Py_buffer(ctypes.Structure):
         _fields_ = [
-            ('buf',         c_void_p),
-            ('obj',         ctypes.py_object),
-            ('len',         _c_ssize_t),
-            ('itemsize',    _c_ssize_t),
-            ('readonly',    ctypes.c_int),
-            ('ndim',        ctypes.c_int),
-            ('format',      ctypes.c_char_p),
-            ('shape',       _c_ssize_p),
-            ('strides',     _c_ssize_p),
-            ('suboffsets',  _c_ssize_p),
-            ('internal',    c_void_p)
+            ('buf', c_void_p),
+            ('obj', ctypes.py_object),
+            ('len', _c_ssize_t),
+            ('itemsize', _c_ssize_t),
+            ('readonly', ctypes.c_int),
+            ('ndim', ctypes.c_int),
+            ('format', ctypes.c_char_p),
+            ('shape', _c_ssize_p),
+            ('strides', _c_ssize_p),
+            ('suboffsets', _c_ssize_p),
+            ('internal', c_void_p)
         ]
 
         # Extra field for CPython 2.6/2.7
         if sys.version_info[0] == 2:
             _fields_.insert(-1, ('smalltable', _c_ssize_t * 2))
+
 
     def c_uint8_ptr(data):
         if byte_string(data) or isinstance(data, _Array):
@@ -217,6 +237,7 @@ except ImportError:
         else:
             raise TypeError("Object type %s cannot be passed to C code" % type(data))
 
+
     # ---
 
     class VoidPointer_ctypes(_VoidPointer):
@@ -231,8 +252,10 @@ except ImportError:
         def address_of(self):
             return byref(self._p)
 
+
     def VoidPointer():
         return VoidPointer_ctypes()
+
 
     backend = "ctypes"
 
@@ -264,7 +287,7 @@ def load_LibCrypto_raw_lib(name, cdecl):
     """Load a shared library and return a handle to it.
 
     @name,  the name of the library expressed as a LibCrypto module,
-            for instance Crypto.Cipher._raw_cbc.
+            for instance libcrypto.Cipher._raw_cbc.
 
     @cdecl, the C function declarations.
     """
@@ -272,6 +295,7 @@ def load_LibCrypto_raw_lib(name, cdecl):
     split = name.split(".")
     dir_comps, basename = split[:-1], split[-1]
     attempts = []
+    filename = ""
     for ext in extension_suffixes:
         try:
             filename = basename + ext

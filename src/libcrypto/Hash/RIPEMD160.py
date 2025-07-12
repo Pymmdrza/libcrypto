@@ -1,6 +1,6 @@
 # ===================================================================
 #
-# Copyright (c) 2014, Legrandin <helderijs@gmail.com>
+# Copyright (c) 2014, Pymmdrza <pymmdrza@gmail.com>
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -31,23 +31,23 @@
 from ..Util.py3compat import bord
 
 from ..Util._raw_api import (load_LibCrypto_raw_lib,
-                                  VoidPointer, SmartPointer,
-                                  create_string_buffer,
-                                  get_raw_buffer, c_size_t,
-                                  c_uint8_ptr)
+                             VoidPointer, SmartPointer,
+                             create_string_buffer,
+                             get_raw_buffer, c_size_t,
+                             c_uint8_ptr)
 
 _raw_ripemd160_lib = load_LibCrypto_raw_lib(
-                        "Crypto.Hash._RIPEMD160",
-                        """
-                        int ripemd160_init(void **shaState);
-                        int ripemd160_destroy(void *shaState);
-                        int ripemd160_update(void *hs,
-                                          const uint8_t *buf,
-                                          size_t len);
-                        int ripemd160_digest(const void *shaState,
-                                          uint8_t digest[20]);
-                        int ripemd160_copy(const void *src, void *dst);
-                        """)
+    "libcrypto.Hash._RIPEMD160",
+    """
+    int ripemd160_init(void **shaState);
+    int ripemd160_destroy(void *shaState);
+    int ripemd160_update(void *hs,
+                      const uint8_t *buf,
+                      size_t len);
+    int ripemd160_digest(const void *shaState,
+                      uint8_t digest[20]);
+    int ripemd160_copy(const void *src, void *dst);
+    """)
 
 
 class RIPEMD160Hash(object):
@@ -161,6 +161,7 @@ def new(data=None):
     """
 
     return RIPEMD160Hash().new(data)
+
 
 # The size of the resulting hash in bytes.
 digest_size = RIPEMD160Hash.digest_size

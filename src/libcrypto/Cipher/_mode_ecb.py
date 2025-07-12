@@ -8,15 +8,15 @@
 Electronic Code Book (ECB) mode.
 """
 
-__all__ = [ 'EcbMode' ]
+__all__ = ['EcbMode']
 
 from ..Util._raw_api import (load_LibCrypto_raw_lib,
-                                  VoidPointer, create_string_buffer,
-                                  get_raw_buffer, SmartPointer,
-                                  c_size_t, c_uint8_ptr,
-                                  is_writeable_buffer)
+                             VoidPointer, create_string_buffer,
+                             get_raw_buffer, SmartPointer,
+                             c_size_t, c_uint8_ptr,
+                             is_writeable_buffer)
 
-raw_ecb_lib = load_LibCrypto_raw_lib("Crypto.Cipher._raw_ecb", """
+raw_ecb_lib = load_LibCrypto_raw_lib("libcrypto.Cipher._raw_ecb", """
                     int ECB_start_operation(void *cipher,
                                             void **pResult);
                     int ECB_encrypt(void *ecbState,
@@ -29,7 +29,7 @@ raw_ecb_lib = load_LibCrypto_raw_lib("Crypto.Cipher._raw_ecb", """
                                     size_t data_len);
                     int ECB_stop_operation(void *state);
                     """
-                                        )
+                                     )
 
 
 class EcbMode(object):
@@ -108,10 +108,10 @@ class EcbMode(object):
             ciphertext = create_string_buffer(len(plaintext))
         else:
             ciphertext = output
-            
+
             if not is_writeable_buffer(output):
                 raise TypeError("output must be a bytearray or a writeable memoryview")
-        
+
             if len(plaintext) != len(output):
                 raise ValueError("output must have the same length as the input"
                                  "  (%d bytes)" % len(plaintext))
@@ -124,7 +124,7 @@ class EcbMode(object):
             if result == 3:
                 raise ValueError("Data must be aligned to block boundary in ECB mode")
             raise ValueError("Error %d while encrypting in ECB mode" % result)
-        
+
         if output is None:
             return get_raw_buffer(ciphertext)
         else:
@@ -158,7 +158,7 @@ class EcbMode(object):
           If ``output`` is ``None``, the plaintext is returned as ``bytes``.
           Otherwise, ``None``.
         """
-        
+
         if output is None:
             plaintext = create_string_buffer(len(ciphertext))
         else:
@@ -166,7 +166,7 @@ class EcbMode(object):
 
             if not is_writeable_buffer(output):
                 raise TypeError("output must be a bytearray or a writeable memoryview")
-            
+
             if len(ciphertext) != len(output):
                 raise ValueError("output must have the same length as the input"
                                  "  (%d bytes)" % len(plaintext))
@@ -191,7 +191,7 @@ def _create_ecb_cipher(factory, **kwargs):
 
     :Parameters:
       factory : module
-        The underlying block cipher, a module from ``Crypto.Cipher``.
+        The underlying block cipher, a module from ``libcrypto.Cipher``.
 
     All keywords are passed to the underlying block cipher.
     See the relevant documentation for details (at least ``key`` will need

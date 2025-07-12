@@ -1,6 +1,6 @@
 # ===================================================================
 #
-# Copyright (c) 2018, Helder Eijs <helderijs@gmail.com>
+# Copyright (c) 2025, Mmdrza <pymmdrza@gmail.com>
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -33,10 +33,9 @@ from ._IntegerNative import IntegerNative
 from ..Util.number import long_to_bytes, bytes_to_long
 
 from ..Util._raw_api import (load_LibCrypto_raw_lib,
-                                  create_string_buffer,
-                                  get_raw_buffer, backend,
-                                  c_size_t, c_ulonglong)
-
+                             create_string_buffer,
+                             get_raw_buffer, backend,
+                             c_size_t, c_ulonglong)
 
 from ..Random.random import getrandbits
 
@@ -55,8 +54,7 @@ int monty_multiply(uint8_t       *out,
                    size_t        len);
 """
 
-
-_raw_montgomery = load_LibCrypto_raw_lib("Crypto.Math._modexp", c_defs)
+_raw_montgomery = load_LibCrypto_raw_lib("libcrypto.Math._modexp", c_defs)
 implementation = {"library": "custom", "api": backend}
 
 
@@ -108,13 +106,13 @@ class IntegerCustom(IntegerNative):
         out = create_string_buffer(max_len)
 
         error = _raw_montgomery.monty_pow(
-                    out,
-                    base_b,
-                    exp_b,
-                    modulus_b,
-                    c_size_t(max_len),
-                    c_ulonglong(getrandbits(64))
-                    )
+            out,
+            base_b,
+            exp_b,
+            modulus_b,
+            c_size_t(max_len),
+            c_ulonglong(getrandbits(64))
+        )
 
         if error:
             raise ValueError("monty_pow failed with error: %d" % error)
@@ -150,12 +148,12 @@ class IntegerCustom(IntegerNative):
         out = create_string_buffer(numbers_len)
 
         error = _raw_montgomery.monty_multiply(
-                    out,
-                    term1_b,
-                    term2_b,
-                    modulus_b,
-                    c_size_t(numbers_len)
-                    )
+            out,
+            term1_b,
+            term2_b,
+            modulus_b,
+            c_size_t(numbers_len)
+        )
         if error:
             raise ValueError("monty_multiply failed with error: %d" % error)
 

@@ -3,7 +3,7 @@
 #
 # ===================================================================
 #
-# Copyright (c) 2014, Legrandin <helderijs@gmail.com>
+# Copyright (c) 2014, Pymmdrza <pymmdrza@gmail.com>
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -78,8 +78,8 @@ def encode(data, marker, passphrase=None, randfunc=None):
         key = PBKDF1(passphrase, salt, 16, 1, MD5)
         key += PBKDF1(key + passphrase, salt, 8, 1, MD5)
         objenc = DES3.new(key, DES3.MODE_CBC, salt)
-        out += "Proc-Type: 4,ENCRYPTED\nDEK-Info: DES-EDE3-CBC,%s\n\n" %\
-            tostr(hexlify(salt).upper())
+        out += "Proc-Type: 4,ENCRYPTED\nDEK-Info: DES-EDE3-CBC,%s\n\n" % \
+               tostr(hexlify(salt).upper())
         # Encrypt with PKCS#7 padding
         data = objenc.encrypt(pad(data, objenc.block_size))
     elif passphrase is not None:
@@ -95,8 +95,8 @@ def encode(data, marker, passphrase=None, randfunc=None):
 
 
 def _EVP_BytesToKey(data, salt, key_len):
-    d = [ b'' ]
-    m = (key_len + 15 ) // 16
+    d = [b'']
+    m = (key_len + 15) // 16
     for _ in range(m):
         nd = MD5.new(d[-1] + data + salt).digest()
         d.append(nd)

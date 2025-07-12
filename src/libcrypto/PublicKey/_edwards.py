@@ -4,7 +4,7 @@
 from ._curve import _Curve
 from ..Math.Numbers import Integer
 from ..Util._raw_api import (load_LibCrypto_raw_lib, VoidPointer,
-                                  SmartPointer)
+                             SmartPointer)
 
 
 def ed25519_curve():
@@ -13,7 +13,7 @@ def ed25519_curve():
     Gx = 0x216936d3cd6e53fec0a4e231fdd6dc5c692cc7609525a7b2c9562d608f25d51a
     Gy = 0x6666666666666666666666666666666666666666666666666666666666666658
 
-    _ed25519_lib = load_LibCrypto_raw_lib("Crypto.PublicKey._ed25519", """
+    _ed25519_lib = load_LibCrypto_raw_lib("libcrypto.PublicKey._ed25519", """
 typedef void Point;
 int ed25519_new_point(Point **out,
                       const uint8_t x[32],
@@ -48,7 +48,7 @@ int ed25519_scalar(Point *P, const uint8_t *scalar, size_t scalar_len, uint64_t 
                      Integer(Gy),
                      None,
                      255,
-                     "1.3.101.112",     # RFC8410
+                     "1.3.101.112",  # RFC8410
                      None,
                      "Ed25519",
                      "ssh-ed25519",
@@ -62,7 +62,7 @@ def ed448_curve():
     Gx = 0x4f1970c66bed0ded221d15a622bf36da9e146570470f1767ea6de324a3d3a46412ae1af72ab66511433b80e18b00938e2626a82bc70cc05e
     Gy = 0x693f46716eb6bc248876203756c9c7624bea73736ca3984087789c1e05a0c2d73ad3ff1ce67c39c4fdbd132c4ed7c8ad9808795bf230fa14
 
-    _ed448_lib = load_LibCrypto_raw_lib("Crypto.PublicKey._ed448", """
+    _ed448_lib = load_LibCrypto_raw_lib("libcrypto.PublicKey._ed448", """
 typedef void EcContext;
 typedef void PointEd448;
 int ed448_new_context(EcContext **pec_ctx);
@@ -108,7 +108,7 @@ int ed448_scalar(PointEd448 *P, const uint8_t *scalar, size_t scalar_len, uint64
                    Integer(Gy),
                    None,
                    448,
-                   "1.3.101.113",       # RFC8410
+                   "1.3.101.113",  # RFC8410
                    context,
                    "Ed448",
                    None,

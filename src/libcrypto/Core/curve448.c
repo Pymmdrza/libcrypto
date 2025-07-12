@@ -1,4 +1,4 @@
-/* Copyright (C) 2024 by Helder Eijs <helderijs@gmail.com> -- All rights reserved.
+/* Copyright (C) 2024 by Mmdrza <pymmdrza@gmail.com> -- All rights reserved.
  * This code is licensed under the BSD 2-Clause license. See LICENSE.rst file for info. */
 
 /*

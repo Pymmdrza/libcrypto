@@ -3,7 +3,7 @@
 #
 # ===================================================================
 #
-# Copyright (c) 2014, Legrandin <helderijs@gmail.com>
+# Copyright (c) 2014, Pymmdrza <pymmdrza@gmail.com>
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -31,7 +31,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 # ===================================================================
 
-__all__ = [ 'pad', 'unpad' ]
+__all__ = ['pad', 'unpad']
 
 from ..Util.py3compat import *
 
@@ -57,9 +57,9 @@ def pad(data_to_pad, block_size, style='pkcs7'):
     if style == 'pkcs7':
         padding = bchr(padding_len) * padding_len
     elif style == 'x923':
-        padding = bchr(0)*(padding_len-1) + bchr(padding_len)
+        padding = bchr(0) * (padding_len - 1) + bchr(padding_len)
     elif style == 'iso7816':
-        padding = bchr(128) + bchr(0) * (padding_len-1)
+        padding = bchr(128) + bchr(0) * (padding_len - 1)
     else:
         raise ValueError("Unknown padding style")
 
@@ -98,10 +98,10 @@ def unpad(padded_data, block_size, style='pkcs7'):
             raise ValueError("Padding is incorrect.")
 
         if style == 'pkcs7':
-            if padded_data[-padding_len:] != bchr(padding_len)*padding_len:
+            if padded_data[-padding_len:] != bchr(padding_len) * padding_len:
                 raise ValueError("PKCS#7 padding is incorrect.")
         else:
-            if padded_data[-padding_len:-1] != bchr(0)*(padding_len-1):
+            if padded_data[-padding_len:-1] != bchr(0) * (padding_len - 1):
                 raise ValueError("ANSI X.923 padding is incorrect.")
 
     elif style == 'iso7816':
@@ -110,10 +110,9 @@ def unpad(padded_data, block_size, style='pkcs7'):
         if padding_len < 1 or padding_len > min(block_size, pdata_len):
             raise ValueError("Padding is incorrect.")
 
-        if padding_len > 1 and padded_data[1-padding_len:] != bchr(0)*(padding_len-1):
+        if padding_len > 1 and padded_data[1 - padding_len:] != bchr(0) * (padding_len - 1):
             raise ValueError("ISO 7816-4 padding is incorrect.")
     else:
         raise ValueError("Unknown padding style")
 
     return padded_data[:-padding_len]
-

@@ -1,6 +1,6 @@
 # ===================================================================
 #
-# Copyright (c) 2021, Legrandin <helderijs@gmail.com>
+# Copyright (c) 2021, Pymmdrza <pymmdrza@gmail.com>
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -60,7 +60,7 @@ class TupleHash(object):
 
         for item in data:
             if not is_bytes(item):
-                raise TypeError("You can only call 'update' on bytes" )
+                raise TypeError("You can only call 'update' on bytes")
             self._cshake.update(_encode_str(item))
 
         return self

@@ -1,31 +1,32 @@
 from ..Util.py3compat import bord
 
 from ..Util._raw_api import (load_LibCrypto_raw_lib,
-                                  VoidPointer, SmartPointer,
-                                  create_string_buffer,
-                                  get_raw_buffer, c_size_t,
-                                  c_uint8_ptr, c_ubyte)
+                             VoidPointer, SmartPointer,
+                             create_string_buffer,
+                             get_raw_buffer, c_size_t,
+                             c_uint8_ptr, c_ubyte)
 
-_raw_keccak_lib = load_LibCrypto_raw_lib("Crypto.Hash._keccak",
-                        """
-                        int keccak_init(void **state,
-                                        size_t capacity_bytes,
-                                        uint8_t rounds);
-                        int keccak_destroy(void *state);
-                        int keccak_absorb(void *state,
-                                          const uint8_t *in,
-                                          size_t len);
-                        int keccak_squeeze(const void *state,
-                                           uint8_t *out,
-                                           size_t len,
-                                           uint8_t padding);
-                        int keccak_digest(void *state,
-                                          uint8_t *digest,
-                                          size_t len,
-                                          uint8_t padding);
-                        int keccak_copy(const void *src, void *dst);
-                        int keccak_reset(void *state);
-                        """)
+_raw_keccak_lib = load_LibCrypto_raw_lib("libcrypto.Hash._keccak",
+                                         """
+                                         int keccak_init(void **state,
+                                                         size_t capacity_bytes,
+                                                         uint8_t rounds);
+                                         int keccak_destroy(void *state);
+                                         int keccak_absorb(void *state,
+                                                           const uint8_t *in,
+                                                           size_t len);
+                                         int keccak_squeeze(const void *state,
+                                                            uint8_t *out,
+                                                            size_t len,
+                                                            uint8_t padding);
+                                         int keccak_digest(void *state,
+                                                           uint8_t *digest,
+                                                           size_t len,
+                                                           uint8_t padding);
+                                         int keccak_copy(const void *src, void *dst);
+                                         int keccak_reset(void *state);
+                                         """)
+
 
 class Keccak_Hash(object):
     """A Keccak hash object.

@@ -12,13 +12,13 @@ __all__ = ['OfbMode']
 
 from ..Util.py3compat import _copy_bytes
 from ..Util._raw_api import (load_LibCrypto_raw_lib, VoidPointer,
-                                  create_string_buffer, get_raw_buffer,
-                                  SmartPointer, c_size_t, c_uint8_ptr,
-                                  is_writeable_buffer)
+                             create_string_buffer, get_raw_buffer,
+                             SmartPointer, c_size_t, c_uint8_ptr,
+                             is_writeable_buffer)
 
 from ..Random import get_random_bytes
 
-raw_ofb_lib = load_LibCrypto_raw_lib("Crypto.Cipher._raw_ofb", """
+raw_ofb_lib = load_LibCrypto_raw_lib("libcrypto.Cipher._raw_ofb", """
                         int OFB_start_operation(void *cipher,
                                                 const uint8_t iv[],
                                                 size_t iv_len,
@@ -33,7 +33,7 @@ raw_ofb_lib = load_LibCrypto_raw_lib("Crypto.Cipher._raw_ofb", """
                                         size_t data_len);
                         int OFB_stop_operation(void *state);
                         """
-                                        )
+                                     )
 
 
 class OfbMode(object):
@@ -230,7 +230,7 @@ def _create_ofb_cipher(factory, **kwargs):
 
     :Parameters:
       factory : module
-        The underlying block cipher, a module from ``Crypto.Cipher``.
+        The underlying block cipher, a module from ``libcrypto.Cipher``.
 
     :Keywords:
       iv : bytes/bytearray/memoryview
@@ -258,7 +258,7 @@ def _create_ofb_cipher(factory, **kwargs):
 
     if len(iv) != factory.block_size:
         raise ValueError("Incorrect IV length (it must be %d bytes long)" %
-                factory.block_size)
+                         factory.block_size)
 
     if kwargs:
         raise TypeError("Unknown parameters for OFB: %s" % str(kwargs))

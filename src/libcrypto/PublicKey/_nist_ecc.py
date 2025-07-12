@@ -4,13 +4,12 @@
 from ._curve import _Curve
 from ..Math.Numbers import Integer
 from ..Util._raw_api import (load_LibCrypto_raw_lib, VoidPointer,
-                                  SmartPointer, c_size_t, c_uint8_ptr,
-                                  c_ulonglong)
+                             SmartPointer, c_size_t, c_uint8_ptr,
+                             c_ulonglong)
 from ..Util.number import long_to_bytes
 from ..Random.random import getrandbits
 
-
-_ec_lib = load_LibCrypto_raw_lib("Crypto.PublicKey._ec_ws", """
+_ec_lib = load_LibCrypto_raw_lib("libcrypto.PublicKey._ec_ws", """
 typedef void EcContext;
 typedef void EcPoint;
 int ec_ws_new_context(EcContext **pec_ctx,
@@ -86,7 +85,7 @@ def p192_curve():
                   Integer(Gy),
                   None,
                   192,
-                  "1.2.840.10045.3.1.1",    # ANSI X9.62 / SEC2
+                  "1.2.840.10045.3.1.1",  # ANSI X9.62 / SEC2
                   context,
                   "NIST P-192",
                   "ecdsa-sha2-nistp192",
@@ -124,7 +123,7 @@ def p224_curve():
                   Integer(Gy),
                   None,
                   224,
-                  "1.3.132.0.33",    # SEC 2
+                  "1.3.132.0.33",  # SEC 2
                   context,
                   "NIST P-224",
                   "ecdsa-sha2-nistp224",
@@ -162,7 +161,7 @@ def p256_curve():
                   Integer(Gy),
                   None,
                   256,
-                  "1.2.840.10045.3.1.7",    # ANSI X9.62 / SEC2
+                  "1.2.840.10045.3.1.7",  # ANSI X9.62 / SEC2
                   context,
                   "NIST P-256",
                   "ecdsa-sha2-nistp256",
@@ -200,7 +199,7 @@ def p384_curve():
                   Integer(Gy),
                   None,
                   384,
-                  "1.3.132.0.34",   # SEC 2
+                  "1.3.132.0.34",  # SEC 2
                   context,
                   "NIST P-384",
                   "ecdsa-sha2-nistp384",
@@ -238,7 +237,7 @@ def p521_curve():
                   Integer(Gy),
                   None,
                   521,
-                  "1.3.132.0.35",   # SEC 2
+                  "1.3.132.0.35",  # SEC 2
                   context,
                   "NIST P-521",
                   "ecdsa-sha2-nistp521",

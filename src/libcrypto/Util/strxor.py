@@ -1,6 +1,6 @@
 # ===================================================================
 #
-# Copyright (c) 2014, Legrandin <helderijs@gmail.com>
+# Copyright (c) 2014, Pymmdrza <pymmdrza@gmail.com>
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -29,20 +29,20 @@
 # ===================================================================
 
 from ..Util._raw_api import (load_LibCrypto_raw_lib, c_size_t,
-                                  create_string_buffer, get_raw_buffer,
-                                  c_uint8_ptr, is_writeable_buffer)
+                             create_string_buffer, get_raw_buffer,
+                             c_uint8_ptr, is_writeable_buffer)
 
 _raw_strxor = load_LibCrypto_raw_lib(
-                    "Crypto.Util._strxor",
-                    """
-                    void strxor(const uint8_t *in1,
-                                const uint8_t *in2,
-                                uint8_t *out, size_t len);
-                    void strxor_c(const uint8_t *in,
-                                  uint8_t c,
-                                  uint8_t *out,
-                                  size_t len);
-                    """)
+    "libcrypto.Util._strxor",
+    """
+    void strxor(const uint8_t *in1,
+                const uint8_t *in2,
+                uint8_t *out, size_t len);
+    void strxor_c(const uint8_t *in,
+                  uint8_t c,
+                  uint8_t *out,
+                  size_t len);
+    """)
 
 
 def strxor(term1, term2, output=None):

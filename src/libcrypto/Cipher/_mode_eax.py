@@ -1,6 +1,6 @@
 # ===================================================================
 #
-# Copyright (c) 2014, Legrandin <helderijs@gmail.com>
+# Copyright (c) 2014, Pymmdrza <pymmdrza@gmail.com>
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -105,12 +105,12 @@ class EaxMode(object):
             raise TypeError("nonce must be bytes, bytearray or memoryview")
 
         self._omac = [
-                CMAC.new(key,
-                         b'\x00' * (self.block_size - 1) + struct.pack('B', i),
-                         ciphermod=factory,
-                         cipher_params=cipher_params)
-                for i in range(0, 3)
-                ]
+            CMAC.new(key,
+                     b'\x00' * (self.block_size - 1) + struct.pack('B', i),
+                     ciphermod=factory,
+                     cipher_params=cipher_params)
+            for i in range(0, 3)
+        ]
 
         # Compute MAC of nonce
         self._omac[0].update(self.nonce)
@@ -147,7 +147,7 @@ class EaxMode(object):
 
         if "update" not in self._next:
             raise TypeError("update() can only be called"
-                                " immediately after initialization")
+                            " immediately after initialization")
 
         self._next = ["update", "encrypt", "decrypt",
                       "digest", "verify"]
@@ -252,7 +252,7 @@ class EaxMode(object):
 
         if "digest" not in self._next:
             raise TypeError("digest() cannot be called when decrypting"
-                                " or validating a message")
+                            " or validating a message")
         self._next = ["digest"]
 
         if not self._mac_tag:
@@ -291,7 +291,7 @@ class EaxMode(object):
 
         if "verify" not in self._next:
             raise TypeError("verify() cannot be called"
-                                " when encrypting a message")
+                            " when encrypting a message")
         self._next = ["verify"]
 
         if not self._mac_tag:
@@ -374,8 +374,8 @@ def _create_eax_cipher(factory, **kwargs):
 
     :Parameters:
       factory : module
-        A symmetric cipher module from `Crypto.Cipher` (like
-        `Crypto.Cipher.AES`).
+        A symmetric cipher module from `libcrypto.Cipher` (like
+        `libcrypto.Cipher.AES`).
 
     :Keywords:
       key : bytes/bytearray/memoryview

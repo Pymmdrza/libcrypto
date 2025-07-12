@@ -1,6 +1,6 @@
 # ===================================================================
 #
-# Copyright (c) 2019, Helder Eijs <helderijs@gmail.com>
+# Copyright (c) 2019, Mmdrza <pymmdrza@gmail.com>
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -80,7 +80,7 @@ def import_openssh_private_generic(data, password):
     if number_of_keys != 1:
         raise ValueError("We only handle 1 key at a time")
 
-    _, data = read_string(data)             # Public key
+    _, data = read_string(data)  # Public key
     encrypted, data = read_bytes(data)
     if data:
         raise ValueError("Too much data")
@@ -118,12 +118,12 @@ def import_openssh_private_generic(data, password):
                 strxor(acc, out, output=acc)
             stripes.append(acc[:24])
 
-        result = b"".join([bchr(a)+bchr(b) for (a, b) in zip(*stripes)])
+        result = b"".join([bchr(a) + bchr(b) for (a, b) in zip(*stripes)])
 
         cipher = AES.new(result[:32],
                          AES.MODE_CTR,
                          nonce=b"",
-                         initial_value=result[32:32+16])
+                         initial_value=result[32:32 + 16])
         decrypted = cipher.decrypt(encrypted)
 
     checkint1, decrypted = read_int4(decrypted)

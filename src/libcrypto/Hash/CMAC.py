@@ -12,7 +12,6 @@ from ..Util.number import long_to_bytes, bytes_to_long
 from ..Util.py3compat import bord, tobytes, _copy_bytes
 from ..Random import get_random_bytes
 
-
 # The size of the authentication tag produced by the MAC.
 digest_size = None
 
@@ -107,7 +106,7 @@ class CMAC(object):
 
         if self._cache_n > 0:
             filler = min(bs - self._cache_n, len(msg))
-            self._cache[self._cache_n:self._cache_n+filler] = msg[:filler]
+            self._cache[self._cache_n:self._cache_n + filler] = msg[:filler]
             self._cache_n += filler
 
             if self._cache_n < bs:
@@ -128,7 +127,7 @@ class CMAC(object):
 
     def _update(self, data_block):
         """Update a block aligned to the block boundary"""
-        
+
         bs = self._block_size
         assert len(data_block) % bs == 0
 
@@ -139,7 +138,7 @@ class CMAC(object):
         if len(data_block) == bs:
             second_last = self._last_ct
         else:
-            second_last = ct[-bs*2:-bs]
+            second_last = ct[-bs * 2:-bs]
         self._last_ct = ct[-bs:]
         self._last_pt = strxor(second_last, data_block[-bs:])
 
@@ -250,9 +249,9 @@ def new(key, msg=None, ciphermod=None, cipher_params=None, mac_len=None,
             The key must be valid for the underlying cipher algorithm.
             For instance, it must be 16 bytes long for AES-128.
         ciphermod (module):
-            A cipher module from :mod:`Crypto.Cipher`.
+            A cipher module from :mod:`libcrypto.Cipher`.
             The cipher's block size has to be 128 bits,
-            like :mod:`Crypto.Cipher.AES`, to reduce the probability
+            like :mod:`libcrypto.Cipher.AES`, to reduce the probability
             of collisions.
         msg (byte string/byte array/memoryview):
             Optional. The very first chunk of the message to authenticate.
@@ -279,10 +278,10 @@ def new(key, msg=None, ciphermod=None, cipher_params=None, mac_len=None,
 
     if mac_len is None:
         mac_len = ciphermod.block_size
-    
+
     if mac_len < 4:
         raise ValueError("MAC tag length must be at least 4 bytes long")
-    
+
     if mac_len > ciphermod.block_size:
         raise ValueError("MAC tag length cannot be larger than a cipher block (%d) bytes" % ciphermod.block_size)
 

@@ -1,6 +1,6 @@
 # ===================================================================
 #
-# Copyright (c) 2014, Legrandin <helderijs@gmail.com>
+# Copyright (c) 2014, Pymmdrza <pymmdrza@gmail.com>
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -34,25 +34,25 @@ from ..Util.py3compat import bord, tobytes
 
 from ..Random import get_random_bytes
 from ..Util._raw_api import (load_LibCrypto_raw_lib,
-                                  VoidPointer, SmartPointer,
-                                  create_string_buffer,
-                                  get_raw_buffer, c_size_t,
-                                  c_uint8_ptr)
+                             VoidPointer, SmartPointer,
+                             create_string_buffer,
+                             get_raw_buffer, c_size_t,
+                             c_uint8_ptr)
 
-_raw_blake2b_lib = load_LibCrypto_raw_lib("Crypto.Hash._BLAKE2b",
-                        """
-                        int blake2b_init(void **state,
-                                         const uint8_t *key,
-                                         size_t key_size,
-                                         size_t digest_size);
-                        int blake2b_destroy(void *state);
-                        int blake2b_update(void *state,
-                                           const uint8_t *buf,
-                                           size_t len);
-                        int blake2b_digest(const void *state,
-                                           uint8_t digest[64]);
-                        int blake2b_copy(const void *src, void *dst);
-                        """)
+_raw_blake2b_lib = load_LibCrypto_raw_lib("libcrypto.Hash._BLAKE2b",
+                                          """
+                                          int blake2b_init(void **state,
+                                                           const uint8_t *key,
+                                                           size_t key_size,
+                                                           size_t digest_size);
+                                          int blake2b_destroy(void *state);
+                                          int blake2b_update(void *state,
+                                                             const uint8_t *buf,
+                                                             size_t len);
+                                          int blake2b_digest(const void *state,
+                                                             uint8_t digest[64]);
+                                          int blake2b_copy(const void *src, void *dst);
+                                          """)
 
 
 class BLAKE2b_Hash(object):
@@ -98,7 +98,6 @@ class BLAKE2b_Hash(object):
         if data:
             self.update(data)
 
-
     def update(self, data):
         """Continue hashing of a message by consuming the next chunk of data.
 
@@ -115,7 +114,6 @@ class BLAKE2b_Hash(object):
         if result:
             raise ValueError("Error %d while hashing BLAKE2b data" % result)
         return self
-
 
     def digest(self):
         """Return the **binary** (non-printable) digest of the message that has been hashed so far.
@@ -135,7 +133,6 @@ class BLAKE2b_Hash(object):
 
         return get_raw_buffer(bfr)[:self.digest_size]
 
-
     def hexdigest(self):
         """Return the **printable** digest of the message that has been hashed so far.
 
@@ -145,7 +142,6 @@ class BLAKE2b_Hash(object):
         """
 
         return "".join(["%02x" % bord(x) for x in tuple(self.digest())])
-
 
     def verify(self, mac_tag):
         """Verify that a given **binary** MAC (computed by another party)
@@ -167,7 +163,6 @@ class BLAKE2b_Hash(object):
         if mac1.digest() != mac2.digest():
             raise ValueError("MAC check failed")
 
-
     def hexverify(self, hex_mac_tag):
         """Verify that a given **printable** MAC (computed by another party)
         is valid.
@@ -181,7 +176,6 @@ class BLAKE2b_Hash(object):
         """
 
         self.verify(unhexlify(tobytes(hex_mac_tag)))
-
 
     def new(self, **kwargs):
         """Return a new instance of a BLAKE2b hash object.

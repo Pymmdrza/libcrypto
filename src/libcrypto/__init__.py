@@ -56,17 +56,16 @@ except ImportError:
     import Protocol
     import Math
     import IO
-    import bip39
 
 # Main wallet functionality - import from the correct modules
 try:
     # Try relative imports first (when imported as a package)
-    from .bip39 import (
+    from .wallet.bip39 import (
         generate_mnemonic,
         validate_mnemonic,
         mnemonic_to_seed
     )
-    
+
     from .wallet import (
         HDWallet,
         HDNode,
@@ -76,12 +75,12 @@ try:
     )
 except ImportError:
     # Fall back to absolute imports (when running as a script)
-    from bip39 import (
+    from .wallet.bip39 import (
         generate_mnemonic,
         validate_mnemonic,
         mnemonic_to_seed
     )
-    
+
     from wallet import (
         HDWallet,
         HDNode,
@@ -89,6 +88,7 @@ except ImportError:
         PublicKey as WalletPublicKey,
         AddressGenerator
     )
+
 
 # Convenience functions for common operations
 def create_hd_wallet(mnemonic: str, passphrase: str = "", network: str = 'mainnet') -> 'wallet.HDWallet':
@@ -105,8 +105,9 @@ def create_hd_wallet(mnemonic: str, passphrase: str = "", network: str = 'mainne
     """
     return wallet.HDWallet.from_mnemonic(mnemonic, passphrase, network)
 
-def generate_address(currency: str, mnemonic: str, passphrase: str = "", 
-                    account: int = 0, change: int = 0, address_index: int = 0) -> str:
+
+def generate_address(currency: str, mnemonic: str, passphrase: str = "",
+                     account: int = 0, change: int = 0, address_index: int = 0) -> str:
     """
     Generate a cryptocurrency address from mnemonic.
     
@@ -123,20 +124,21 @@ def generate_address(currency: str, mnemonic: str, passphrase: str = "",
     """
     wallet_instance = create_hd_wallet(mnemonic, passphrase)
     from .Util.constants import BIP44_COIN_TYPES
-    
+
     if currency not in BIP44_COIN_TYPES:
         raise ValueError(f"Unsupported currency: {currency}")
-    
+
     coin_type = BIP44_COIN_TYPES[currency]
     key_node = wallet_instance.derive_address_key(coin_type, account, change, address_index)
-    
+
     # Generate address using the address generator
     address_gen = wallet.AddressGenerator()
     return address_gen.generate_address(key_node.private_key, currency)
 
-def get_private_key(mnemonic: str, passphrase: str = "", 
-                   coin_type: int = 0, account: int = 0, 
-                   change: int = 0, address_index: int = 0) -> str:
+
+def get_private_key(mnemonic: str, passphrase: str = "",
+                    coin_type: int = 0, account: int = 0,
+                    change: int = 0, address_index: int = 0) -> str:
     """
     Get private key from mnemonic using BIP44 derivation.
     
@@ -155,9 +157,10 @@ def get_private_key(mnemonic: str, passphrase: str = "",
     key_node = wallet_instance.derive_address_key(coin_type, account, change, address_index)
     return key_node.private_key.hex()
 
-def get_public_key(mnemonic: str, passphrase: str = "", 
-                  coin_type: int = 0, account: int = 0, 
-                  change: int = 0, address_index: int = 0) -> str:
+
+def get_public_key(mnemonic: str, passphrase: str = "",
+                   coin_type: int = 0, account: int = 0,
+                   change: int = 0, address_index: int = 0) -> str:
     """
     Get public key from mnemonic using BIP44 derivation.
     
@@ -176,9 +179,10 @@ def get_public_key(mnemonic: str, passphrase: str = "",
     key_node = wallet_instance.derive_address_key(coin_type, account, change, address_index)
     return key_node.public_key.hex()
 
+
 # Supported currencies
 SUPPORTED_CURRENCIES = [
-    'btc', 'eth', 'ltc', 'dash', 'doge', 'bch', 'btg', 
+    'btc', 'eth', 'ltc', 'dash', 'doge', 'bch', 'btg',
     'dgb', 'sol', 'avax', 'ton', 'zec', 'xrp', 'trx'
 ]
 
@@ -192,7 +196,7 @@ __all__ = [
     '__author__',
     '__email__',
     '__license__',
-    
+
     # Modules
     'wallet',
     'Core',
@@ -206,41 +210,44 @@ __all__ = [
     'Math',
     'IO',
     'bip39',
-    
+
     # BIP39 functions
     'generate_mnemonic',
-    'validate_mnemonic', 
+    'validate_mnemonic',
     'mnemonic_to_seed',
-    
+
     # Wallet classes
     'HDWallet',
     'HDNode',
     'PrivateKey',
     'WalletPublicKey',
     'AddressGenerator',
-    
+
     # Convenience functions
     'create_hd_wallet',
     'generate_address',
     'get_private_key',
     'get_public_key',
-    
+
     # Constants
     'SUPPORTED_CURRENCIES',
     'BIP39_WORD_COUNT_OPTIONS',
     'DEFAULT_DERIVATION_PATH'
 ]
 
+
 def get_version():
-    """Get the current version of LibCrypto."""
+    """Get the current version of Liblibcrypto."""
     return __version__
+
 
 def get_supported_currencies():
     """Get list of supported cryptocurrency symbols."""
     return SUPPORTED_CURRENCIES.copy()
 
+
 def info():
-    """Print information about LibCrypto."""
+    """Print information about Liblibcrypto."""
     print(f"LibCrypto v{__version__}")
     print(f"Supported currencies: {', '.join(SUPPORTED_CURRENCIES)}")
     print(f"BIP39 word counts: {BIP39_WORD_COUNT_OPTIONS}")

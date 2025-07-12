@@ -1,6 +1,6 @@
 # ===================================================================
 #
-# Copyright (c) 2014, Legrandin <helderijs@gmail.com>
+# Copyright (c) 2014, Pymmdrza <pymmdrza@gmail.com>
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -32,48 +32,47 @@ from ..Random import get_random_bytes
 
 from ..Util.py3compat import _copy_bytes
 from ..Util._raw_api import (load_LibCrypto_raw_lib,
-                                  create_string_buffer,
-                                  get_raw_buffer, VoidPointer,
-                                  SmartPointer, c_size_t,
-                                  c_uint8_ptr, c_ulong,
-                                  is_writeable_buffer)
+                             create_string_buffer,
+                             get_raw_buffer, VoidPointer,
+                             SmartPointer, c_size_t,
+                             c_uint8_ptr, c_long,
+                             is_writeable_buffer)
 
-_raw_chacha20_lib = load_LibCrypto_raw_lib("Crypto.Cipher._chacha20",
-                    """
-                    int chacha20_init(void **pState,
-                                      const uint8_t *key,
-                                      size_t keySize,
-                                      const uint8_t *nonce,
-                                      size_t nonceSize);
-
-                    int chacha20_destroy(void *state);
-
-                    int chacha20_encrypt(void *state,
-                                         const uint8_t in[],
-                                         uint8_t out[],
-                                         size_t len);
-
-                    int chacha20_seek(void *state,
-                                      unsigned long block_high,
-                                      unsigned long block_low,
-                                      unsigned offset);
-
-                    int hchacha20(  const uint8_t key[32],
-                                    const uint8_t nonce16[16],
-                                    uint8_t subkey[32]);
-                    """)
+_raw_chacha20_lib = load_LibCrypto_raw_lib("libcrypto.Cipher._chacha20",
+                                           """
+                                           int chacha20_init(void **pState,
+                                                             const uint8_t *key,
+                                                             size_t keySize,
+                                                             const uint8_t *nonce,
+                                                             size_t nonceSize);
+                       
+                                           int chacha20_destroy(void *state);
+                       
+                                           int chacha20_encrypt(void *state,
+                                                                const uint8_t in[],
+                                                                uint8_t out[],
+                                                                size_t len);
+                       
+                                           int chacha20_seek(void *state,
+                                                             unsigned long block_high,
+                                                             unsigned long block_low,
+                                                             unsigned offset);
+                       
+                                           int hchacha20(  const uint8_t key[32],
+                                                           const uint8_t nonce16[16],
+                                                           uint8_t subkey[32]);
+                                           """)
 
 
 def _HChaCha20(key, nonce):
-
-    assert(len(key) == 32)
-    assert(len(nonce) == 16)
+    assert (len(key) == 32)
+    assert (len(nonce) == 16)
 
     subkey = bytearray(32)
     result = _raw_chacha20_lib.hchacha20(
-                c_uint8_ptr(key),
-                c_uint8_ptr(nonce),
-                c_uint8_ptr(subkey))
+        c_uint8_ptr(key),
+        c_uint8_ptr(nonce),
+        c_uint8_ptr(subkey))
     if result:
         raise ValueError("Error %d when deriving subkey with HChaCha20" % result)
 
@@ -111,11 +110,11 @@ class ChaCha20Cipher(object):
 
         self._state = VoidPointer()
         result = _raw_chacha20_lib.chacha20_init(
-                        self._state.address_of(),
-                        c_uint8_ptr(key),
-                        c_size_t(len(key)),
-                        nonce,
-                        c_size_t(len(nonce)))
+            self._state.address_of(),
+            c_uint8_ptr(key),
+            c_size_t(len(key)),
+            nonce,
+            c_size_t(len(nonce)))
         if result:
             raise ValueError("Error %d instantiating a %s cipher" % (result,
                                                                      self._name))
@@ -156,10 +155,10 @@ class ChaCha20Cipher(object):
                                  "  (%d bytes)" % len(plaintext))
 
         result = _raw_chacha20_lib.chacha20_encrypt(
-                                         self._state.get(),
-                                         c_uint8_ptr(plaintext),
-                                         c_uint8_ptr(ciphertext),
-                                         c_size_t(len(plaintext)))
+            self._state.get(),
+            c_uint8_ptr(plaintext),
+            c_uint8_ptr(ciphertext),
+            c_size_t(len(plaintext)))
         if result:
             raise ValueError("Error %d while encrypting with %s" % (result, self._name))
 
@@ -206,11 +205,11 @@ class ChaCha20Cipher(object):
         block_high = block_number >> 32
 
         result = _raw_chacha20_lib.chacha20_seek(
-                                                 self._state.get(),
-                                                 c_ulong(block_high),
-                                                 c_ulong(block_low),
-                                                 offset
-                                                 )
+            self._state.get(),
+            c_long(block_high),
+            c_long(block_low),
+            offset
+        )
         if result:
             raise ValueError("Error %d while seeking with %s" % (result, self._name))
 
@@ -261,7 +260,7 @@ def new(**kwargs):
             If not provided, 8 bytes will be randomly generated
             (you can find them back in the ``nonce`` attribute).
 
-    :Return: a :class:`Crypto.Cipher.ChaCha20.ChaCha20Cipher` object
+    :Return: a :class:`libcrypto.Cipher.ChaCha20.ChaCha20Cipher` object
     """
 
     try:
@@ -283,6 +282,7 @@ def new(**kwargs):
         raise TypeError("Unknown parameters: " + str(kwargs))
 
     return ChaCha20Cipher(key, nonce)
+
 
 # Size of a data block (in bytes)
 block_size = 1

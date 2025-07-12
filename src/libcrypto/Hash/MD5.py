@@ -5,30 +5,31 @@
 from ..Util.py3compat import *
 
 from ..Util._raw_api import (load_LibCrypto_raw_lib,
-                                  VoidPointer, SmartPointer,
-                                  create_string_buffer,
-                                  get_raw_buffer, c_size_t,
-                                  c_uint8_ptr)
+                             VoidPointer, SmartPointer,
+                             create_string_buffer,
+                             get_raw_buffer, c_size_t,
+                             c_uint8_ptr)
 
-_raw_md5_lib = load_LibCrypto_raw_lib("Crypto.Hash._MD5",
-                        """
-                        #define MD5_DIGEST_SIZE 16
+_raw_md5_lib = load_LibCrypto_raw_lib("libcrypto.Hash._MD5",
+                                      """
+                                      #define MD5_DIGEST_SIZE 16
+              
+                                      int MD5_init(void **shaState);
+                                      int MD5_destroy(void *shaState);
+                                      int MD5_update(void *hs,
+                                                        const uint8_t *buf,
+                                                        size_t len);
+                                      int MD5_digest(const void *shaState,
+                                                        uint8_t digest[MD5_DIGEST_SIZE]);
+                                      int MD5_copy(const void *src, void *dst);
+              
+                                      int MD5_pbkdf2_hmac_assist(const void *inner,
+                                                          const void *outer,
+                                                          const uint8_t first_digest[MD5_DIGEST_SIZE],
+                                                          uint8_t final_digest[MD5_DIGEST_SIZE],
+                                                          size_t iterations);
+                                      """)
 
-                        int MD5_init(void **shaState);
-                        int MD5_destroy(void *shaState);
-                        int MD5_update(void *hs,
-                                          const uint8_t *buf,
-                                          size_t len);
-                        int MD5_digest(const void *shaState,
-                                          uint8_t digest[MD5_DIGEST_SIZE]);
-                        int MD5_copy(const void *src, void *dst);
-
-                        int MD5_pbkdf2_hmac_assist(const void *inner,
-                                            const void *outer,
-                                            const uint8_t first_digest[MD5_DIGEST_SIZE],
-                                            uint8_t final_digest[MD5_DIGEST_SIZE],
-                                            size_t iterations);
-                        """)
 
 class MD5Hash(object):
     """A MD5 hash object.
@@ -88,7 +89,7 @@ class MD5Hash(object):
 
         bfr = create_string_buffer(self.digest_size)
         result = _raw_md5_lib.MD5_digest(self._state.get(),
-                                           bfr)
+                                         bfr)
         if result:
             raise ValueError("Error %d while instantiating MD5"
                              % result)
@@ -118,7 +119,7 @@ class MD5Hash(object):
 
         clone = MD5Hash()
         result = _raw_md5_lib.MD5_copy(self._state.get(),
-                                         clone._state.get())
+                                       clone._state.get())
         if result:
             raise ValueError("Error %d while copying MD5" % result)
         return clone
@@ -141,6 +142,7 @@ def new(data=None):
     """
     return MD5Hash().new(data)
 
+
 # The size of the resulting hash in bytes.
 digest_size = 16
 
@@ -156,11 +158,11 @@ def _pbkdf2_hmac_assist(inner, outer, first_digest, iterations):
 
     bfr = create_string_buffer(digest_size);
     result = _raw_md5_lib.MD5_pbkdf2_hmac_assist(
-                    inner._state.get(),
-                    outer._state.get(),
-                    first_digest,
-                    bfr,
-                    c_size_t(iterations))
+        inner._state.get(),
+        outer._state.get(),
+        first_digest,
+        bfr,
+        c_size_t(iterations))
 
     if result:
         raise ValueError("Error %d with PBKDF2-HMAC assis for MD5" % result)

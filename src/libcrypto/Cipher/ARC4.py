@@ -5,11 +5,10 @@
 
 
 from ..Util._raw_api import (load_LibCrypto_raw_lib, VoidPointer,
-                                  create_string_buffer, get_raw_buffer,
-                                  SmartPointer, c_size_t, c_uint8_ptr)
+                             create_string_buffer, get_raw_buffer,
+                             SmartPointer, c_size_t, c_uint8_ptr)
 
-
-_raw_arc4_lib = load_LibCrypto_raw_lib("Crypto.Cipher._ARC4", """
+_raw_arc4_lib = load_LibCrypto_raw_lib("libcrypto.Cipher._ARC4", """
                     int ARC4_stream_encrypt(void *rc4State, const uint8_t in[],
                                             uint8_t out[], size_t len);
                     int ARC4_stream_init(uint8_t *key, size_t keylen,
@@ -20,7 +19,7 @@ _raw_arc4_lib = load_LibCrypto_raw_lib("Crypto.Cipher._ARC4", """
 
 class ARC4Cipher:
     """ARC4 cipher object. Do not create it directly. Use
-    :func:`Crypto.Cipher.ARC4.new` instead.
+    :func:`libcrypto.Cipher.ARC4.new` instead.
     """
 
     def __init__(self, key, *args, **kwargs):
@@ -117,4 +116,4 @@ def new(key, *args, **kwargs):
 # Size of a data block (in bytes)
 block_size = 1
 # Size of a key (in bytes)
-key_size = range(1, 256+1)
+key_size = range(1, 256 + 1)

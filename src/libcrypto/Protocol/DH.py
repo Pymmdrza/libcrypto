@@ -1,14 +1,14 @@
 from ..Util.number import long_to_bytes
 from ..PublicKey.ECC import (EccKey,
-                                  construct,
-                                  _import_curve25519_public_key,
-                                  _import_curve448_public_key)
+                             construct,
+                             _import_curve25519_public_key,
+                             _import_curve448_public_key)
 
 
 def _compute_ecdh(key_priv, key_pub):
     pointP = key_pub.pointQ * key_priv.d
     if pointP.is_point_at_infinity():
-         raise ValueError("Invalid ECDH point")
+        raise ValueError("Invalid ECDH point")
 
     if key_priv.curve == "Curve25519":
         z = bytearray(pointP.x.to_bytes(32, byteorder='little'))
@@ -31,7 +31,7 @@ def import_x25519_public_key(encoded):
         It must be 32 bytes.
 
     Returns:
-      :class:`Crypto.PublicKey.EccKey` : a new ECC key object.
+      :class:`libcrypto.PublicKey.EccKey` : a new ECC key object.
 
     Raises:
       ValueError: when the given key cannot be parsed.
@@ -52,7 +52,7 @@ def import_x25519_private_key(encoded):
         It must be 32 bytes.
 
     Returns:
-      :class:`Crypto.PublicKey.EccKey` : a new ECC key object.
+      :class:`libcrypto.PublicKey.EccKey` : a new ECC key object.
 
     Raises:
       ValueError: when the given key cannot be parsed.
@@ -72,7 +72,7 @@ def import_x448_public_key(encoded):
         It must be 56 bytes.
 
     Returns:
-      :class:`Crypto.PublicKey.EccKey` : a new ECC key object.
+      :class:`libcrypto.PublicKey.EccKey` : a new ECC key object.
 
     Raises:
       ValueError: when the given key cannot be parsed.
@@ -93,7 +93,7 @@ def import_x448_private_key(encoded):
         It must be 56 bytes.
 
     Returns:
-      :class:`Crypto.PublicKey.EccKey` : a new ECC key object.
+      :class:`libcrypto.PublicKey.EccKey` : a new ECC key object.
 
     Raises:
       ValueError: when the given key cannot be parsed.
