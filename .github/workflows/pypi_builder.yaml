@@ -1,4 +1,4 @@
-name: Build and Publish LibFake Package
+name: .::Build and Publish Libcrypto Package::.
 
 on:
   workflow_dispatch:
