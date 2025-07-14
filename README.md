@@ -168,7 +168,7 @@ for currency in currencies:
     print(f"{currency.capitalize()}: {address}")
 ```
 
-## 📚 API Overview
+## API Overview
 
 ### Mnemonic Module (`mnemonic.py`)
 - `generate_mnemonic(word_count)` - Generate new mnemonic
@@ -197,7 +197,7 @@ for currency in currencies:
 - `generate_multiple_formats(public_key, network)` - All formats
 - `validate_address(address, network)` - Validate address
 
-## 🔒 Security Features
+## Security Features
 
 - **Cryptographically Secure**: Uses `secrets` module for random number generation
 - **Proper Entropy**: Validates entropy for mnemonic generation
@@ -205,27 +205,9 @@ for currency in currencies:
 - **Constant-Time Operations**: Where possible, uses constant-time implementations
 - **Zero External Dependencies**: Reduces attack surface by avoiding third-party libraries
 
-## 🧪 Testing
 
-```python
-# Test mnemonic generation
-import mnemonic
-test_mnemonic = mnemonic.generate_mnemonic(24)
-assert mnemonic.validate_mnemonic(test_mnemonic)
 
-# Test wallet derivation
-from wallet import HDWallet
-wallet = HDWallet.from_mnemonic(test_mnemonic)
-key = wallet.derive_address_key(coin_type=0, address_index=0)
-assert len(key.private_key) == 32
-
-# Test address generation
-from wallet import AddressGenerator
-address = AddressGenerator.from_public_key(key.public_key, 'p2pkh', 'bitcoin')
-assert address.startswith('1')
-```
-
-## 🛠️ Advanced Usage
+## Advanced Usage
 
 ### Custom Derivation Paths
 
@@ -268,7 +250,7 @@ def generate_address_batch(mnemonic, coin_type, count=100):
 btc_addresses = generate_address_batch("your mnemonic", coin_type=0, count=100)
 ```
 
-## ⚡ Performance
+## Performance
 
 Typical performance on modern hardware:
 - **Mnemonic generation**: < 100ms
@@ -276,7 +258,7 @@ Typical performance on modern hardware:
 - **Key derivation**: < 200ms for complex paths
 - **Memory usage**: < 50MB for typical operations
 
-## 🤝 Contributing
+## Contributing
 
 1. Fork the repository
 2. Create a feature branch
@@ -284,11 +266,11 @@ Typical performance on modern hardware:
 4. Add tests for new functionality
 5. Submit a pull request
 
-## 📄 License
+## License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
 
-## 🔗 Standards Compliance
+## Standards Compliance
 
 - **BIP-39**: Mnemonic code for generating deterministic keys
 - **BIP-32**: Hierarchical Deterministic (HD) Wallets
@@ -296,10 +278,8 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 - **EIP-55**: Mixed-case checksum address encoding (Ethereum)
 - **RFC-6979**: Deterministic Usage of DSA and ECDSA
 
-## ⚠️ Disclaimer
-
-This library is for educational and development purposes. Always audit the code before using in production. The authors are not responsible for any loss of funds due to bugs or misuse.
 
 ---
 
 **LibCrypto** - Professional Cryptocurrency Wallet Library with Zero Dependencies 
+
