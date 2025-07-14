@@ -81,6 +81,9 @@ print(f"Bitcoin (SegWit) Address: {btc_address}")
 print(f"Bitcoin Cash Address: {bch_address}")
 ```
 
+![CLI](https://raw.githubusercontent.com/Pymmdrza/libcrypto/refs/heads/main/.github/libcrypto_generate.png 'Libcrypto')
+
+
 ## Quick Start (Command-Line Interface)
 
 ```bash
