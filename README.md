@@ -1,6 +1,7 @@
-![Python Version](https://img.shields.io/pypi/v/libcrypto?color=blue&logo=python)
-![License](https://img.shields.io/pypi/l/libcrypto)
-![PyPI Version](https://img.shields.io/pypi/v/libcrypto)
+[![Python Version](https://img.shields.io/pypi/v/libcrypto?color=blue&logo=python)](https://pypi.org/project/libcrypto/)
+[![License](https://img.shields.io/pypi/l/libcrypto)](LICENSE)
+
+# LibCrypto
 
 A professional library for Cryptography and Cryptocurrencies in Python.
 
@@ -156,5 +157,15 @@ Example:
 ```bash
 libcrypto mnemonic validate "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about"
 ```
+
+## Donate
+
+If you find this library useful, consider supporting its development:
+
+- **Bitcoin (BTC)**: `1MMDRZAcM6dzmdMUSV8pDdAPDFpwzve9Fc`
+
+## Contact
+
+For support or inquiries, please contact us at [pymmdrza@gmail.com](mailto:pymmdrza@gmail.com).
 
 
