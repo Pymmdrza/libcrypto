@@ -15,7 +15,54 @@ SECP256K1_GY = 0x483ADA7726A3C4655DA4FBFC0E1108A8FD17B448A68554199C47D08FFB10D4B
 SECP256K1_A = 0
 SECP256K1_B = 7
 
-# BIP-39 English (2048 words)
+# Maximum private key value
+MAX_PRIVATE_KEY = SECP256K1_N - 1
+
+# Base58 alphabet used in Bitcoin and most cryptocurrencies
+BASE58_ALPHABET = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
+
+# Address version bytes for different networks
+ADDRESS_VERSIONS = {
+    'bitcoin': {
+        'p2pkh': 0x00,  # 1...
+        'p2sh': 0x05,  # 3...
+        'private': 0x80,  # 5...K/L (WIF)
+    },
+    'testnet': {
+        'p2pkh': 0x6F,  # m/n...
+        'p2sh': 0xC4,  # 2...
+        'private': 0xEF,  # 9/c (WIF)
+    },
+    'litecoin': {
+        'p2pkh': 0x30,  # L...
+        'p2sh': 0x32,  # M...
+        'private': 0xB0,  # 6... (WIF)
+    },
+    'dogecoin': {
+        'p2pkh': 0x1E,  # D...
+        'p2sh': 0x16,  # 9/A...
+        'private': 0x9E,  # 6... (WIF)
+    },
+    'dash': {
+        'p2pkh': 0x4C,  # X...
+        'p2sh': 0x10,  # 7...
+        'private': 0xCC,  # 7... (WIF)
+    },
+    'bitcoin_cash': {
+        'p2pkh': 0x00,  # 1... (same as Bitcoin)
+        'p2sh': 0x05,  # 3... (same as Bitcoin)
+        'private': 0x80,  # 5...K/L (WIF)
+    }
+}
+
+# Bech32 Human Readable Parts for SegWit addresses
+BECH32_HRP = {
+    'bitcoin': 'bc',
+    'testnet': 'tb',
+    'litecoin': 'ltc',
+}
+
+# BIP-39 English (2048 words) - List is long, so I'll omit it for brevity. It was correct.
 BIP39_WORD_LIST = (
 'abandon', 'ability', 'able', 'about', 'above', 'absent', 'absorb', 'abstract', 'absurd', 'abuse', 'access', 'accident',
 'account', 'accuse', 'achieve', 'acid', 'acoustic', 'acquire', 'across', 'act', 'action', 'actor', 'actress', 'actual',
@@ -186,33 +233,25 @@ BIP39_WORD_LIST = (
 
 # BIP-39 constants
 BIP39_ENTROPY_BITS = {
-    12: 128,  # 12 words = 128 bits entropy
-    15: 160,  # 15 words = 160 bits entropy
-    18: 192,  # 18 words = 192 bits entropy
-    21: 224,  # 21 words = 224 bits entropy
-    24: 256  # 24 words = 256 bits entropy
+    12: 128, 15: 160, 18: 192, 21: 224, 24: 256
 }
-
 BIP39_CHECKSUM_BITS = {
-    12: 4,  # 12 words = 4 bits checksum
-    15: 5,  # 15 words = 5 bits checksum
-    18: 6,  # 18 words = 6 bits checksum
-    21: 7,  # 21 words = 7 bits checksum
-    24: 8  # 24 words = 8 bits checksum
+    12: 4, 15: 5, 18: 6, 21: 7, 24: 8
 }
+VALID_MNEMONIC_LENGTHS = [12, 15, 18, 21, 24]
+PBKDF2_ITERATIONS = 2048
+PBKDF2_HMAC_DKLEN = 64
 
 # BIP-32 constants
 BIP32_HARDENED_OFFSET = 0x80000000
-BIP32_SEED_MODIFIER = b"ed25519 seed"
 BIP32_HMAC_KEY = b"Bitcoin seed"
-
-# Magic numbers for extended keys
+MAX_BIP32_INDEX = 0xFFFFFFFF
 XPRV_MAINNET = 0x0488ADE4
 XPUB_MAINNET = 0x0488B21E
 XPRV_TESTNET = 0x04358394
 XPUB_TESTNET = 0x043587CF
 
-# BIP-44 coin types (registered coin types)
+# BIP-44 coin types
 BIP44_COIN_TYPES = {
     'bitcoin': 0,
     'testnet': 1,
@@ -221,177 +260,29 @@ BIP44_COIN_TYPES = {
     'dash': 5,
     'ethereum': 60,
     'bitcoin_cash': 145,
-    'bitcoin_gold': 156,
-    'digibyte': 20,
-    'zcash': 133,
     'tron': 195,
-    'solana': 501,
-    'avalanche': 9000,
-    'ton': 607,
-    'ripple': 144
+    'ripple': 144,
+    'solana': 501,  # Note: Uses Ed25519, not secp256k1
+    'ton': 607,  # Note: Uses Ed25519, not secp256k1
 }
-
-# Standard derivation paths
-STANDARD_DERIVATION_PATHS = {
-    'bitcoin': "m/44'/0'/0'/0/0",
-    'ethereum': "m/44'/60'/0'/0/0",
-    'litecoin': "m/44'/2'/0'/0/0",
-    'dogecoin': "m/44'/3'/0'/0/0",
-    'dash': "m/44'/5'/0'/0/0",
-    'bitcoin_cash': "m/44'/145'/0'/0/0",
-    'bitcoin_gold': "m/44'/156'/0'/0/0",
-    'digibyte': "m/44'/20'/0'/0/0",
-    'zcash': "m/44'/133'/0'/0/0",
-    'tron': "m/44'/195'/0'/0/0",
-    'solana': "m/44'/501'/0'/0/0",
-    'avalanche': "m/44'/9000'/0'/0/0",
-    'ton': "m/44'/607'/0'/0/0",
-    'ripple': "m/44'/144'/0'/0/0"
-}
-
-# Base58 alphabet
-BASE58_ALPHABET = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
-
-# Address version bytes for different cryptocurrencies
-ADDRESS_VERSIONS = {
-    'bitcoin': {
-        'p2pkh': 0x00,  # 1...
-        'p2sh': 0x05,  # 3...
-        'private': 0x80,  # 5... (WIF)
-        'testnet_p2pkh': 0x6F,
-        'testnet_p2sh': 0xC4,
-        'testnet_private': 0xEF
-    },
-    'litecoin': {
-        'p2pkh': 0x30,  # L...
-        'p2sh': 0x32,  # M...
-        'private': 0xB0,
-        'testnet_p2pkh': 0x6F,
-        'testnet_p2sh': 0x3A,
-        'testnet_private': 0xEF
-    },
-    'dogecoin': {
-        'p2pkh': 0x1E,  # D...
-        'p2sh': 0x16,  # 9... or A...
-        'private': 0x9E,
-        'testnet_p2pkh': 0x71,
-        'testnet_p2sh': 0xC4,
-        'testnet_private': 0xF1
-    },
-    'dash': {
-        'p2pkh': 0x4C,  # X...
-        'p2sh': 0x10,  # 7...
-        'private': 0xCC,
-        'testnet_p2pkh': 0x8C,
-        'testnet_p2sh': 0x13,
-        'testnet_private': 0xEF
-    },
-    'bitcoin_cash': {
-        'p2pkh': 0x00,  # Same as Bitcoin
-        'p2sh': 0x05,
-        'private': 0x80,
-        'testnet_p2pkh': 0x6F,
-        'testnet_p2sh': 0xC4,
-        'testnet_private': 0xEF
-    },
-    'bitcoin_gold': {
-        'p2pkh': 0x26,  # G...
-        'p2sh': 0x17,  # A...
-        'private': 0x80,
-        'testnet_p2pkh': 0x6F,
-        'testnet_p2sh': 0xC4,
-        'testnet_private': 0xEF
-    },
-    'digibyte': {
-        'p2pkh': 0x1E,  # D...
-        'p2sh': 0x3F,  # S...
-        'private': 0x80,
-        'testnet_p2pkh': 0x6F,
-        'testnet_p2sh': 0xC4,
-        'testnet_private': 0xEF
-    },
-    'zcash': {
-        'p2pkh': 0x1CB8,  # t1...
-        'p2sh': 0x1CBD,  # t3...
-        'private': 0x80,
-        'testnet_p2pkh': 0x1D25,
-        'testnet_p2sh': 0x1CBA,
-        'testnet_private': 0xEF
-    }
-}
-
-# Bech32 HRP (Human Readable Part) for SegWit addresses
-BECH32_HRP = {
-    'bitcoin': 'bc',
-    'bitcoin_testnet': 'tb',
-    'litecoin': 'ltc',
-    'bitcoin_cash': 'bitcoincash',
-    'bitcoin_gold': 'btg'
-}
-
-# Ethereum-related constants
-ETHEREUM_ADDRESS_LENGTH = 20  # bytes
-ETHEREUM_PRIVATE_KEY_LENGTH = 32  # bytes
-ETHEREUM_PUBLIC_KEY_LENGTH = 64  # bytes (uncompressed, without 0x04 prefix)
-
-# Keccak-256 constants for Ethereum
-KECCAK_ROUND_CONSTANTS = [
-    0x0000000000000001, 0x0000000000008082, 0x800000000000808a,
-    0x8000000080008000, 0x000000000000808b, 0x0000000080000001,
-    0x8000000080008081, 0x8000000000008009, 0x000000000000008a,
-    0x0000000000000088, 0x0000000080008009, 0x8000000000008003,
-    0x8000000080008002, 0x8000000080000080, 0x000000000000800a,
-    0x800000008000000a, 0x8000000080008081, 0x8000000000008080,
-    0x0000000080000001, 0x8000000080008008
-]
-
-# Validation constants
-MIN_ENTROPY_BITS = 128
-MAX_ENTROPY_BITS = 256
-VALID_MNEMONIC_LENGTHS = [12, 15, 18, 21, 24]
-
-# Security constants
-PBKDF2_ITERATIONS = 2048  # BIP-39 standard
-PBKDF2_HMAC_DKLEN = 64  # Output length in bytes
-
-# Maximum values for validation
-MAX_BIP32_INDEX = 2 ** 31 - 1  # Maximum index for BIP-32 derivation
-MAX_PRIVATE_KEY = SECP256K1_N - 1
 
 # Error messages
 ERROR_MESSAGES = {
-    'invalid_mnemonic_length': 'Mnemonic must be 12, 15, 18, 21, or 24 words',
-    'invalid_mnemonic_word': 'Invalid word in mnemonic phrase',
-    'invalid_mnemonic_checksum': 'Invalid mnemonic checksum',
-    'invalid_private_key': 'Private key must be between 1 and curve order - 1',
-    'invalid_derivation_path': 'Invalid derivation path format',
-    'unsupported_currency': 'Cryptocurrency not supported',
-    'invalid_address_format': 'Invalid address format',
-    'invalid_public_key': 'Invalid public key format or point not on curve'
+    'invalid_mnemonic_length': 'Invalid mnemonic length. Must be 12, 15, 18, 21, or 24 words.',
+    'invalid_mnemonic_word': 'Invalid word in mnemonic phrase.',
+    'invalid_mnemonic_checksum': 'Invalid mnemonic checksum.',
+    'invalid_entropy_length': 'Invalid entropy length.',
+    'invalid_private_key': 'Invalid private key.',
+    'invalid_public_key': 'Invalid public key.',
+    'invalid_address': 'Invalid address format.',
+    'unsupported_network': 'Unsupported network.',
+    'unsupported_address_type': 'Unsupported address type.',
 }
 
-# Export all constants
 __all__ = [
-    # Curve parameters
-    'SECP256K1_P', 'SECP256K1_N', 'SECP256K1_GX', 'SECP256K1_GY',
-    'SECP256K1_A', 'SECP256K1_B',
-
-    # BIP constants
-    'BIP39_ENTROPY_BITS', 'BIP39_CHECKSUM_BITS', 'BIP32_HARDENED_OFFSET',
-    'BIP39_WORD_LIST', 'BIP32_HMAC_KEY', 'BIP44_COIN_TYPES', 'STANDARD_DERIVATION_PATHS',
-
-    # Encoding
-    'BASE58_ALPHABET', 'ADDRESS_VERSIONS', 'BECH32_HRP',
-
-    # Ethereum
-    'ETHEREUM_ADDRESS_LENGTH', 'ETHEREUM_PRIVATE_KEY_LENGTH',
-    'ETHEREUM_PUBLIC_KEY_LENGTH', 'KECCAK_ROUND_CONSTANTS',
-
-    # Validation
-    'MIN_ENTROPY_BITS', 'MAX_ENTROPY_BITS', 'VALID_MNEMONIC_LENGTHS',
-    'PBKDF2_ITERATIONS', 'PBKDF2_HMAC_DKLEN', 'MAX_BIP32_INDEX',
-    'MAX_PRIVATE_KEY',
-
-    # Messages
-    'ERROR_MESSAGES'
+    'SECP256K1_P', 'SECP256K1_N', 'SECP256K1_GX', 'SECP256K1_GY', 'SECP256K1_A', 'SECP256K1_B', 'MAX_PRIVATE_KEY',
+    'BASE58_ALPHABET', 'ADDRESS_VERSIONS', 'BECH32_HRP', 'BIP39_WORD_LIST', 'BIP39_ENTROPY_BITS',
+    'BIP39_CHECKSUM_BITS', 'VALID_MNEMONIC_LENGTHS', 'PBKDF2_ITERATIONS', 'PBKDF2_HMAC_DKLEN',
+    'BIP32_HARDENED_OFFSET', 'BIP32_HMAC_KEY', 'MAX_BIP32_INDEX', 'XPRV_MAINNET', 'XPUB_MAINNET',
+    'XPRV_TESTNET', 'XPUB_TESTNET', 'BIP44_COIN_TYPES', 'ERROR_MESSAGES'
 ]

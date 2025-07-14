@@ -7,9 +7,9 @@ This module provides comprehensive cryptocurrency wallet functionality including
 - Key format conversions
 - WIF (Wallet Import Format) support
 """
-
-from .bip32 import HDWallet, HDNode
-from .keys import PrivateKey, PublicKey
+from .wallet import Wallet
+from .bip32 import HDWallet, HDNode, BIP32Error
+from .keys import PrivateKey, PublicKey, KeyError
 from .mnemonic import (
     generate_mnemonic,
     validate_mnemonic,
@@ -19,27 +19,38 @@ from .mnemonic import (
     InvalidMnemonicError,
     InvalidEntropyError
 )
-from .addresses import AddressGenerator
+from .addresses import AddressGenerator, AddressError
 from .formats import (
     private_key_to_wif,
     wif_to_private_key,
     base58_encode,
     base58_decode,
     bytes_to_hex,
-    hex_to_bytes
+    hex_to_bytes,
+    InvalidFormatError
 )
 
+__version__ = '1.0.0'
 __all__ = [
+    # Library Version
+    '__version__',
+
+    # High-Level Wallet
+    'Wallet',
+
     # HD Wallet
     'HDWallet',
     'HDNode',
+    'BIP32Error',
 
     # Key classes
     'PrivateKey',
     'PublicKey',
+    'KeyError',
 
     # Address generation
     'AddressGenerator',
+    'AddressError',
 
     # Format conversions
     'private_key_to_wif',
@@ -48,6 +59,7 @@ __all__ = [
     'base58_decode',
     'bytes_to_hex',
     'hex_to_bytes',
+    'InvalidFormatError',
 
     # Mnemonic functions
     'generate_mnemonic',

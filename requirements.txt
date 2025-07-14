@@ -1,0 +1,6 @@
+setuptools
+pycryptodome
+wheel
+ecdsa
+typer
+rich

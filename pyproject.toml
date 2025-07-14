@@ -1,0 +1,60 @@
+# pyproject.toml
+
+[build-system]
+# This section defines the build system requirements for the package.
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+# Metadatas for the package.
+name = "libcrypto"
+authors = [
+    { name = "Mmdrza", email = "pymmdrza@gmail.com" },
+]
+description = "A professional library For Cryptography and Cryptocurrencies in Python."
+readme = "README.md"
+requires-python = ">=3.8"
+license = { text = "MIT" }
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Intended Audience :: Developers",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Security :: Cryptography",
+]
+
+# Dependencies required for the package.
+dependencies = [
+    "pycryptodome",
+    "ecdsa",
+    "rich",
+    "typer",
+]
+
+# Optional dependencies that can be installed with the package.
+dynamic = ["version"]
+
+[project.urls]
+Homepage = "https://libcrypto.readthedocs.io/"
+Repository = "https://github.com/Pymmdrza/libcrypto"
+"Bug Tracker" = "https://github.com/Pymmdrza/libcrypto/issues"
+
+[project.scripts]
+libcrypto = "libcrypto.cli:app"
+
+[tool.setuptools]
+# Package file structure.
+package-dir = { "" = "src" }
+
+[tool.setuptools.packages.find]
+# Library packages to include in the distribution.
+where = ["src"]
+
+[tool.setuptools.dynamic]
+# Read the version dynamically from the __init__.py file.
+version = { attr = "libcrypto.__version__" }
