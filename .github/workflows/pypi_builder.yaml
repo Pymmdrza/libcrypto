@@ -1,35 +1,69 @@
-name: PyPI Builder
+name: .::Build and Publish Libcrypto Package::.
+
 on:
+  workflow_dispatch:
+    inputs:
+      version_bump:
+        description: 'Version bump type (patch, minor, major) or skip for no bump'
+        required: false
+        default: 'skip'
+        type: choice
+        options:
+          - skip
+          - patch
+          - minor
+          - major
+      custom_version:
+        description: 'Custom version (e.g., 1.2.3) - overrides version_bump'
+        required: false
+        type: string
+      version_suffix:
+        description: 'Version suffix (e.g., rc1, a1, b1) - optional'
+        required: false
+        type: string
+      dry_run:
+        description: 'Dry run (build only, do not publish)'
+        required: false
+        default: false
+        type: boolean
+
   push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
+    tags:
+      - 'v*'
+
+  release:
+    types: [published]
+
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+      - name: Checkout Repository
+        uses: actions/checkout@v4
 
       - name: Set up Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v5
         with:
-          python-version: '3.8'
+          python-version: '3.10'
 
-      - name: Install dependencies
+      - name: Install build tools
         run: |
           python -m pip install --upgrade pip
-          pip install setuptools wheel twine
+          pip install build twine
 
-      - name: Build package
-        run: |
-          python setup.py sdist bdist_wheel
+      - name: Build the package
+        run: python -m build
 
-      - name: Upload to PyPI
+      - name: Publish to PyPI
         env:
           TWINE_USERNAME: __token__
           TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
         run: |
           twine upload dist/*
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: libcrypto-distribution
+          path: dist/
