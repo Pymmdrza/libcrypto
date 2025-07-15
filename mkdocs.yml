@@ -1,0 +1,36 @@
+site_name: libcrypto
+site_author: 'Pymmdrza@gmail.com'
+repo_url: 'https://github.com/pymmdrza/libcrypto'
+edit_uri: 'root/main/docs/'
+site_description: 'A professional library for Cryptography and Cryptocurrencies in Python.'
+site_url: !ENV READTHEDOCS_CANONICAL_URL
+copyright: 'Copyright © 2025, Pymmdrza'
+
+nav:
+  - Home: index.md
+  - Install: '#installation
+  - How To: '#quick-start-library-usage'
+  - CLI: '#quick-start-command-line-interface'
+  - Donate: '#donate'
+  - Contact: '#contact'
+  - Owner: 'https://mmdrza.com'
+
+theme:
+  name: readthedocs
+  locale: en
+  collapse_by_default: false
+  include_homepage_in_sidebar: true
+  features:
+    - navigation.tabs
+    - navigation.instant
+
+plugins:
+  - search:
+      indexing: 'full'
+
+markdown_extensions:
+  - smarty
+  - toc:
+      permalink: true
+      separator: "-"
+  - sane_lists
