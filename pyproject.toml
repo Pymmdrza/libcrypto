@@ -1,60 +1,75 @@
-# pyproject.toml
-
 [build-system]
-# This section defines the build system requirements for the package.
 requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-# Metadatas for the package.
 name = "libcrypto"
-authors = [
-    { name = "Mmdrza", email = "pymmdrza@gmail.com" },
-]
 description = "A professional library For Cryptography and Cryptocurrencies in Python."
 readme = "README.md"
 requires-python = ">=3.8"
 license = { text = "MIT" }
+authors = [
+    { name = "Mmdrza", email = "pymmdrza@gmail.com" },
+]
+keywords = [
+    "cryptocurrency", "bitcoin", "ethereum", "wallet", "bip39", "bip32", "bip44",
+    "mnemonic", "private-key", "public-key", "address", "hdwallet", "crypto",
+    "blockchain", "litecoin", "dash", "dogecoin", "bitcoin-cash", "secp256k1",
+    "pycryptodome", "cryptography",
+]
 classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
-    "License :: OSI Approved :: MIT License",
-    "Operating System :: OS Independent",
-    "Intended Audience :: Developers",
-    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Programming Language :: Python :: 3.12",
     "Topic :: Security :: Cryptography",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Office/Business :: Financial",
+    "Topic :: System :: Systems Administration :: Authentication/Directory",
+    "Typing :: Typed",
 ]
-
-# Dependencies required for the package.
 dependencies = [
-    "pycryptodome",
-    "ecdsa",
-    "rich",
-    "typer",
+    "pycryptodome>=3.23.0",
+    "rich>=14.0.0",
+    "wheel>=0.45.1",
+    "setuptools>=80.9.0",
 ]
 
-# Optional dependencies that can be installed with the package.
-dynamic = ["version"]
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
+    "black>=22.0.0",
+    "flake8>=5.0.0",
+    "isort>=5.10.0",
+    "mypy>=1.0.0",
+]
+test = [
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
+]
 
 [project.urls]
 Homepage = "https://libcrypto.readthedocs.io/"
 Repository = "https://github.com/Pymmdrza/libcrypto"
-"Bug Tracker" = "https://github.com/Pymmdrza/libcrypto/issues"
+Bug Tracker = "https://github.com/Pymmdrza/libcrypto/issues"
+Documentation = "https://libcrypto.readthedocs.io"
+PyPI = "https://pypi.org/project/libcrypto/"
 
 [project.scripts]
 libcrypto = "libcrypto.cli:app"
 
 [tool.setuptools]
-# Package file structure.
 package-dir = { "" = "src" }
 
 [tool.setuptools.packages.find]
-# Library packages to include in the distribution.
 where = ["src"]
 
 [tool.setuptools.dynamic]
-# Read the version dynamically from the __init__.py file.
 version = { attr = "libcrypto.__version__" }
