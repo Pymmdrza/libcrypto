@@ -161,6 +161,15 @@ Example:
 libcrypto mnemonic validate "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about"
 ```
 
+## Testing
+
+Install the project with its testing extras and execute the pytest suite:
+
+```bash
+pip install -e .[test]
+python -m pytest
+```
+
 ## Donate
 
 If you find this library useful, consider supporting its development:
