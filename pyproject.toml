@@ -4,6 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "libcrypto"
+version = "1.1.2"
 description = "A professional library For Cryptography and Cryptocurrencies in Python."
 readme = "README.md"
 requires-python = ">=3.8"
@@ -70,6 +71,3 @@ package-dir = { "" = "src" }
 
 [tool.setuptools.packages.find]
 where = ["src"]
-
-[tool.setuptools.dynamic]
-version = { attr = "libcrypto.__version__" }
