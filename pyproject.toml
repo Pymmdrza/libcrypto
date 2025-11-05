@@ -58,7 +58,7 @@ test = [
 [project.urls]
 Homepage = "https://libcrypto.readthedocs.io/"
 Repository = "https://github.com/Pymmdrza/libcrypto"
-Bug Tracker = "https://github.com/Pymmdrza/libcrypto/issues"
+"Bug Tracker" = "https://github.com/Pymmdrza/libcrypto/issues"
 Documentation = "https://libcrypto.readthedocs.io"
 PyPI = "https://pypi.org/project/libcrypto/"
 
