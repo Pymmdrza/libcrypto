@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "libcrypto"
-version = "1.1.5"
+version = "1.1.6"
 description = "A professional library For Cryptography and Cryptocurrencies in Python."
 readme = "README.md"
 requires-python = ">=3.8"
