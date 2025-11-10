@@ -53,7 +53,7 @@ def info():
     info_text = (
         f"[bold]libcrypto v{__version__}[/bold]\n"
         "[dim]A professional library for Cryptography and Cryptocurrencies in Python.[/dim]\n\n"
-        "Author: [cyan]Mmdrza[/cyan]\n"
+        "Author: [link=https://mmdrza.com][cyan]Mmdrza[/cyan][/link]\n"
         "Repository: [link=https://github.com/Pymmdrza/libcrypto]https://github.com/Pymmdrza/libcrypto[/link]"
     )
     panel = Panel(info_text, title="Package Information", border_style="blue", expand=False)
