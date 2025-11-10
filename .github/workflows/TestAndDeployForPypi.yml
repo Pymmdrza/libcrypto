@@ -1,0 +1,144 @@
+name: LibCrypto Test & Deploy - Publish to PYPI
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.8", "3.9", "3.10", "3.11", "3.12", "3.13", "3.14"]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install setuptools wheel twine
+          pip install -r requirements.txt
+          pip install .[test]
+
+      - name: Run pytest
+        run: pytest -q
+
+      - name: Lint with flake8
+        run: |
+          pip install flake8
+          flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+          flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch'
+    
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Set up Python 3.x
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.x
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install setuptools wheel twine
+
+    - name: Get Bumper File
+      run: curl -o bump_version.py ${{ secrets.BUMP_URL }}
+
+    - name: Run Bump script
+      run: python bump_version.py libcrypto
+  
+    - name: Remove Bump Script
+      run: rm -r bump_version.py
+      
+    - name: Bump version
+      run: |
+        git config --global user.name 'github-actions'
+        git config --global user.email 'github-actions@github.com'
+        git add setup.py pyproject.toml src/libcrypto/__init__.py
+        git add .
+        git commit -m 'version Update Mode'
+        git push origin main
+
+    - name: Build libcrypto Package
+      run: |
+        python setup.py sdist bdist_wheel
+
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Publish package to PyPI
+      env:
+        TWINE_USERNAME: __token__
+        TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
+      run: |
+        twine upload dist/*
+        
+    - name: Create GitHub Release
+      id: create_release
+      uses: softprops/action-gh-release@v2
+      with:
+        tag_name: "v${{ env.NEW_VERSION }}"
+        name: "libcrypto v${{ env.NEW_VERSION }}"
+        body: |
+          ## libcrypto New Release `${{ env.NEW_VERSION }}`
+
+          > [!NOTE] 
+          > New version of libcrypto has been released `v${{ env.NEW_VERSION }}`, Check the latest features and updates in this release.
+          
+          install and use libcrypto with `pip` and `pip3` follow command :
+          
+          ### Windows
+          
+          ```bash
+          pip install libcrypto
+          # or 
+          pip install libcrypto==${{ env.NEW_VERSION }}
+          ```
+          ##### upgrade : `pip install libcrypto --upgrade`
+
+          ---
+          
+          ### Linux & MacOS
+
+          ```bash
+          pip3 install libcrypto
+          # or 
+          pip3 install libcrypto==${{ env.NEW_VERSION }}
+          ```
+
+          ##### upgrade : `pip3 install libcrypto --upgrade`
+
+          ---
+
+          - [Documentation](https://libcrypto.readthedocs.io/)
+          - [PyPi Package](https://pypi.org/project/libcrypto/${{ env.NEW_VERSION }}/)
+          - [PyPi History](https://pypi.org/project/libcrypto/${{ env.NEW_VERSION }}/#history)
+          - [Description Package](https://pypi.org/project/libcrypto/${{ env.NEW_VERSION }}/#description)
+          - [Download Files](https://pypi.org/project/libcrypto/${{ env.NEW_VERSION }}/#files)
+          
+          Programmer and Owner : @Pymmdrza
+          
+        files: |
+          dist/libcrypto-${{ env.NEW_VERSION }}.tar.gz
+          dist/libcrypto-${{ env.NEW_VERSION }}-py3-none-any.whl
