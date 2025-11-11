@@ -102,10 +102,6 @@ jobs:
          python -m pip install --upgrade pip
          pip install setuptools wheel twine
          
-      - name: Build libcrypto Package
-        run: |
-         python setup.py sdist bdist_wheel
-         
       - name: Publish package to PyPI
         env:
           TWINE_USERNAME: __token__
