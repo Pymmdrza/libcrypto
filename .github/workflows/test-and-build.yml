@@ -37,12 +37,10 @@ jobs:
               run: |
                   pip install -e .
 
-            - name: Verify no external crypto dependencies
-              run: |
-                  python -c "import sys; import libcrypto; assert 'ecdsa' not in sys.modules, 'ecdsa should not be loaded'; assert 'Crypto' not in sys.modules, 'pycryptodome should not be loaded'; print('✅ No external crypto dependencies detected')"
-
             - name: Run verification script
               run: |
+                  # Use the project's verification script which knows how to
+                  # differentiate internal 'cryptod' vs external pycryptodome.
                   python verify_no_deps.py
 
             - name: Run tests with pytest
@@ -168,7 +166,8 @@ jobs:
 
             - name: Verify no external crypto dependencies
               run: |
-                  python -c "import sys; import libcrypto; assert 'ecdsa' not in sys.modules; assert 'Crypto' not in sys.modules; print('✅ No external crypto dependencies')"
+                  # Use the project's verification script to validate dependency policy
+                  python verify_no_deps.py
 
             - name: Test key generation
               run: |

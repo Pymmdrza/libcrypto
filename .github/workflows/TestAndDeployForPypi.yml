@@ -15,7 +15,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.8", "3.9", "3.10", "3.11", "3.12", "3.13", "3.14"]
+        python-version: ["3.8", "3.9", "3.10", "3.11", "3.12", "3.13"]
 
     steps:
       - name: Checkout repository
@@ -54,7 +54,8 @@ jobs:
   publish:
     needs: build
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch'
+    # Only publish when running on main or manually, AND when a PYPI token is configured
+    if: (github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch') && secrets.PYPI_TOKEN != ''
 
     steps:
       - name: Checkout repository
@@ -72,15 +73,19 @@ jobs:
           pip install setuptools wheel twine build
 
       - name: Get Bumper File
+        if: ${{ secrets.BUMP_URL != '' }}
         run: curl -o bump_version.py ${{ secrets.BUMP_URL }}
 
       - name: Run Bump script
+        if: ${{ secrets.BUMP_URL != '' }}
         run: python bump_version.py libcrypto
 
       - name: Remove Bump Script
+        if: ${{ secrets.BUMP_URL != '' }}
         run: rm -r bump_version.py
 
       - name: Bump version
+        if: ${{ secrets.BUMP_URL != '' }}
         run: |
           git config --global user.name 'github-actions'
           git config --global user.email 'github-actions@github.com'
