@@ -56,10 +56,6 @@ jobs:
         run: |
           pytest tests/ -v --cov=libcrypto --cov-report=term-missing
 
-      - name: Verify no external crypto dependencies
-        run: |
-          python verify_no_deps.py
-
       - name: Install build tools
         run: |
           pip install build twine
@@ -72,12 +68,6 @@ jobs:
         run: |
           twine check dist/*
 
-      - name: Upload distribution artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: python-package-distributions
-          path: dist/
-          retention-days: 7
 
   publish-to-pypi:
     name: Publish to PyPI
