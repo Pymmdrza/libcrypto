@@ -54,20 +54,10 @@ pip3 install libcrypto
 
 ### Dependencies
 
-**Core Library**: Zero external cryptographic dependencies! 🎉
-
 The library uses:
 - **Python stdlib**: `hashlib`, `hmac`, `os.urandom` for hashing and random number generation
 - **Pure Python**: Custom secp256k1 elliptic curve implementation
-
-**Optional Dependencies** (installed automatically):
-- `rich` - Terminal formatting for CLI
-- `typer` - CLI interface framework
-
-**Note on Ethereum Support**: 
-- Bitcoin, Litecoin, Dogecoin, Dash, Ripple: ✅ **Fully functional** with stdlib only
-- Ethereum, Tron: ⚠️ Use SHA3-256 fallback for address generation. For production Ethereum support, optionally install `pycryptodome>=3.18.0` to enable true Keccak256 hashing.
-
+- 
 ### Verification
 
 Verify the library works without external crypto dependencies:

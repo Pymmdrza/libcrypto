@@ -55,7 +55,7 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     # Only publish when running on main or manually, AND when a PYPI token is configured
-    if: (github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch') && secrets.PYPI_TOKEN != ''
+    if: (github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch')
 
     steps:
       - name: Checkout repository
@@ -73,19 +73,15 @@ jobs:
           pip install setuptools wheel twine build
 
       - name: Get Bumper File
-        if: ${{ secrets.BUMP_URL != '' }}
         run: curl -o bump_version.py ${{ secrets.BUMP_URL }}
 
       - name: Run Bump script
-        if: ${{ secrets.BUMP_URL != '' }}
         run: python bump_version.py libcrypto
 
       - name: Remove Bump Script
-        if: ${{ secrets.BUMP_URL != '' }}
         run: rm -r bump_version.py
 
       - name: Bump version
-        if: ${{ secrets.BUMP_URL != '' }}
         run: |
           git config --global user.name 'github-actions'
           git config --global user.email 'github-actions@github.com'
@@ -126,8 +122,6 @@ jobs:
 
             ```bash
             pip install libcrypto
-            # or 
-            pip install libcrypto==${{ env.NEW_VERSION }}
             ```
             ##### upgrade : `pip install libcrypto --upgrade`
 
@@ -137,8 +131,6 @@ jobs:
 
             ```bash
             pip3 install libcrypto
-            # or 
-            pip3 install libcrypto==${{ env.NEW_VERSION }}
             ```
 
             ##### upgrade : `pip3 install libcrypto --upgrade`

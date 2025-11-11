@@ -1,223 +1,222 @@
 name: Publish to PyPI
 
 on:
-    release:
-        types: [published]
-    workflow_dispatch:
-        inputs:
-            version:
-                description: "Version to publish (e.g., env.NEW_VERSION)"
-                required: false
-                type: string
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version to publish (e.g., env.NEW_VERSION)"
+        required: false
+        type: string
 
 jobs:
-    build:
-        name: Build Distribution
-        runs-on: ubuntu-latest
+  build:
+    name: Build Distribution
+    runs-on: ubuntu-latest
 
-        steps:
-            - name: Checkout repository
-              uses: actions/checkout@v4
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-            - name: Set up Python 3.12
-              uses: actions/setup-python@v5
-              with:
-                  python-version: "3.12"
-                  cache: "pip"
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
 
-            - name: bumper version
-              run: curl -o bump_version.py ${{ secrets.BUMP_URL }}
+      - name: bumper version
+        run: curl -o bump_version.py ${{ secrets.BUMP_URL }}
 
-            - name: Run Bump script
-              run: python bump_version.py libcrypto
+      - name: Run Bump script
+        run: python bump_version.py libcrypto
 
-            - name: Remove Bump Script
-              run: rm -r bump_version.py
+      - name: Remove Bump Script
+        run: rm -r bump_version.py
 
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pytest pytest-cov
+          pip install -r requirements.txt
 
-            - name: Install dependencies
-              run: |
-                  python -m pip install --upgrade pip
-                  pip install pytest pytest-cov
-                  pip install -r requirements.txt
+      - name: Install package in development mode
+        run: |
+          pip install -e .
 
-            - name: Install package in development mode
-              run: |
-                  pip install -e .
+      - name: Run tests
+        run: |
+          pytest tests/ -v --cov=libcrypto --cov-report=term-missing
 
-            - name: Run tests
-              run: |
-                  pytest tests/ -v --cov=libcrypto --cov-report=term-missing
+      - name: Verify no external crypto dependencies
+        run: |
+          python verify_no_deps.py
 
-            - name: Verify no external crypto dependencies
-              run: |
-                  python verify_no_deps.py
+      - name: Install build tools
+        run: |
+          pip install build twine
 
-            - name: Install build tools
-              run: |
-                  pip install build twine
+      - name: Build package
+        run: |
+          python -m build
 
-            - name: Build package
-              run: |
-                  python -m build
+      - name: Check distribution
+        run: |
+          twine check dist/*
 
-            - name: Check distribution
-              run: |
-                  twine check dist/*
+      - name: Upload distribution artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: python-package-distributions
+          path: dist/
+          retention-days: 7
 
-            - name: Upload distribution artifacts
-              uses: actions/upload-artifact@v4
-              with:
-                  name: python-package-distributions
-                  path: dist/
-                  retention-days: 7
+  publish-to-pypi:
+    name: Publish to PyPI
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/p/libcrypto
+    permissions:
+      id-token: write # IMPORTANT: mandatory for trusted publishing
 
-    publish-to-pypi:
-        name: Publish to PyPI
-        needs: build
-        runs-on: ubuntu-latest
-        environment:
-            name: pypi
-            url: https://pypi.org/p/libcrypto
-        permissions:
-            id-token: write # IMPORTANT: mandatory for trusted publishing
+    steps:
+      - name: Download distribution artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: python-package-distributions
+          path: dist/
 
-        steps:
-            - name: Download distribution artifacts
-              uses: actions/download-artifact@v4
-              with:
-                  name: python-package-distributions
-                  path: dist/
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          password: ${{ secrets.PYPI_TOKEN }}
+          skip-existing: true
+          verbose: true
 
-            - name: Publish to PyPI
-              uses: pypa/gh-action-pypi-publish@release/v1
-              with:
-                  password: ${{ secrets.PYPI_TOKEN }}
-                  skip-existing: true
-                  verbose: true
+  create-github-release:
+    name: Create GitHub Release
+    needs: publish-to-pypi
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch'
+    permissions:
+      contents: write
 
-    create-github-release:
-        name: Create GitHub Release
-        needs: publish-to-pypi
-        runs-on: ubuntu-latest
-        if: github.event_name == 'workflow_dispatch'
-        permissions:
-            contents: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-        steps:
-            - name: Checkout repository
-              uses: actions/checkout@v4
+      - name: Download distribution artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: python-package-distributions
+          path: dist/
 
-            - name: Download distribution artifacts
-              uses: actions/download-artifact@v4
-              with:
-                  name: python-package-distributions
-                  path: dist/
+      - name: Get version from input or release
+        id: get_version
+        run: |
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            echo "VERSION=${{ env.NEW_VERSION }}" >> $GITHUB_OUTPUT
+          else
+            echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+          fi
 
-            - name: Get version from input or release
-              id: get_version
-              run: |
-                  if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
-                    echo "VERSION=${{ env.NEW_VERSION }}" >> $GITHUB_OUTPUT
-                  else
-                    echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
-                  fi
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: "v${{ env.NEW_VERSION }}"
+          name: "libcrypto v${{ env.NEW_VERSION }}"
+          body: |
+            ## 🎉 libcrypto v${{ env.NEW_VERSION }}
 
-            - name: Create GitHub Release
-              uses: softprops/action-gh-release@v2
-              with:
-                  tag_name: "v${{ env.NEW_VERSION }}"
-                  name: "libcrypto v${{ env.NEW_VERSION }}"
-                  body: |
-                      ## 🎉 libcrypto v${{ env.NEW_VERSION }}
+            ### ✨ What's New
 
-                      ### ✨ What's New
+            This release includes important improvements to the library:
 
-                      This release includes important improvements to the library:
+            - ✅ **Zero External Crypto Dependencies**: No more `ecdsa` or `pycryptodome` required
+            - ✅ **Pure Python Implementation**: Custom secp256k1 elliptic curve cryptography
+            - ✅ **Stdlib Integration**: Uses Python's `hashlib`, `hmac`, and `os.urandom`
+            - ✅ **GitHub Actions Compatible**: Works in any Python environment
+            - ✅ **98.6% Test Coverage**: 71/72 tests passing
+            - ✅ **Full Bitcoin Support**: Bitcoin, Litecoin, Dogecoin, Dash, Bitcoin Cash
 
-                      - ✅ **Zero External Crypto Dependencies**: No more `ecdsa` or `pycryptodome` required
-                      - ✅ **Pure Python Implementation**: Custom secp256k1 elliptic curve cryptography
-                      - ✅ **Stdlib Integration**: Uses Python's `hashlib`, `hmac`, and `os.urandom`
-                      - ✅ **GitHub Actions Compatible**: Works in any Python environment
-                      - ✅ **98.6% Test Coverage**: 71/72 tests passing
-                      - ✅ **Full Bitcoin Support**: Bitcoin, Litecoin, Dogecoin, Dash, Bitcoin Cash
+            ### 📦 Installation
 
-                      ### 📦 Installation
+            #### Windows
+            ```bash
+            pip install libcrypto
+            # or specific version
+            pip install libcrypto==${{ env.NEW_VERSION }}
+            ```
 
-                      #### Windows
-                      ```bash
-                      pip install libcrypto
-                      # or specific version
-                      pip install libcrypto==${{ env.NEW_VERSION }}
-                      ```
+            #### Linux & macOS
+            ```bash
+            pip3 install libcrypto
+            # or specific version
+            pip3 install libcrypto==${{ env.NEW_VERSION }}
+            ```
 
-                      #### Linux & macOS
-                      ```bash
-                      pip3 install libcrypto
-                      # or specific version
-                      pip3 install libcrypto==${{ env.NEW_VERSION }}
-                      ```
+            #### Upgrade
+            ```bash
+            pip install libcrypto --upgrade
+            ```
 
-                      #### Upgrade
-                      ```bash
-                      pip install libcrypto --upgrade
-                      ```
+            ### 🔗 Resources
 
-                      ### 🔗 Resources
+            - [📚 Documentation](https://libcrypto.readthedocs.io/)
+            - [📦 PyPI Package](https://pypi.org/project/libcrypto/${{ env.NEW_VERSION }}/)
+            - [🐛 Issue Tracker](https://github.com/Pymmdrza/libcrypto/issues)
+            - [💻 Source Code](https://github.com/Pymmdrza/libcrypto)
 
-                      - [📚 Documentation](https://libcrypto.readthedocs.io/)
-                      - [📦 PyPI Package](https://pypi.org/project/libcrypto/${{ env.NEW_VERSION }}/)
-                      - [🐛 Issue Tracker](https://github.com/Pymmdrza/libcrypto/issues)
-                      - [💻 Source Code](https://github.com/Pymmdrza/libcrypto)
+            ### ⚠️ Note on Ethereum Support
 
-                      ### ⚠️ Note on Ethereum Support
+            Ethereum address generation uses SHA3-256 fallback. For production Ethereum support, optionally install `pycryptodome>=3.18.0` to enable true Keccak256 hashing.
 
-                      Ethereum address generation uses SHA3-256 fallback. For production Ethereum support, optionally install `pycryptodome>=3.18.0` to enable true Keccak256 hashing.
+            ### 🙏 Credits
 
-                      ### 🙏 Credits
+            Developed and maintained by [@Pymmdrza](https://github.com/Pymmdrza)
 
-                      Developed and maintained by [@Pymmdrza](https://github.com/Pymmdrza)
+            ---
 
-                      ---
+            **Full Changelog**: https://github.com/Pymmdrza/libcrypto/compare/v${{ steps.get_version.outputs.VERSION }}...main
 
-                      **Full Changelog**: https://github.com/Pymmdrza/libcrypto/compare/v${{ steps.get_version.outputs.VERSION }}...main
+          files: |
+            dist/*.tar.gz
+            dist/*.whl
+          draft: false
+          prerelease: false
 
-                  files: |
-                      dist/*.tar.gz
-                      dist/*.whl
-                  draft: false
-                  prerelease: false
+  test-pypi-installation:
+    name: Test PyPI Installation
+    needs: publish-to-pypi
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        python-version: ["3.8", "3.12"]
 
-    test-pypi-installation:
-        name: Test PyPI Installation
-        needs: publish-to-pypi
-        runs-on: ${{ matrix.os }}
-        strategy:
-            matrix:
-                os: [ubuntu-latest, windows-latest, macos-latest]
-                python-version: ["3.8", "3.12"]
+    steps:
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
 
-        steps:
-            - name: Set up Python ${{ matrix.python-version }}
-              uses: actions/setup-python@v5
-              with:
-                  python-version: ${{ matrix.python-version }}
+      - name: Wait for PyPI to update
+        run: sleep 60
 
-            - name: Wait for PyPI to update
-              run: sleep 60
+      - name: Install from PyPI
+        run: |
+          pip install libcrypto --upgrade --no-cache-dir
 
-            - name: Install from PyPI
-              run: |
-                  pip install libcrypto --upgrade --no-cache-dir
+      - name: Test import
+        run: |
+          python -c "import libcrypto; print('LibCrypto version:', libcrypto.__version__)"
 
-            - name: Test import
-              run: |
-                  python -c "import libcrypto; print('LibCrypto version:', libcrypto.__version__)"
+      - name: Verify no external crypto dependencies
+        run: |
+          python -c "import sys; import libcrypto; assert 'ecdsa' not in sys.modules; assert 'Crypto' not in sys.modules; print('No external crypto dependencies')"
 
-            - name: Verify no external crypto dependencies
-              run: |
-                  python -c "import sys; import libcrypto; assert 'ecdsa' not in sys.modules; assert 'Crypto' not in sys.modules; print('No external crypto dependencies')"
-
-            - name: Test basic functionality
-              run: |
-                  python -c "from libcrypto import PrivateKey, Wallet, generate_mnemonic; pk = PrivateKey(1); print('Public key:', pk.get_public_key().hex[:32]); print('All tests passed')"
+      - name: Test basic functionality
+        run: |
+          python -c "from libcrypto import PrivateKey, Wallet, generate_mnemonic; pk = PrivateKey(1); print('Public key:', pk.get_public_key().hex[:32]); print('All tests passed')"

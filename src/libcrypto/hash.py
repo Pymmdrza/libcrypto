@@ -139,15 +139,6 @@ def keccak256(data: bytes) -> bytes:
         k.update(data)
         return k.digest()
     else:
-        # Fallback: Use SHA3-256 (note: this is NOT the same as Keccak256!)
-        import warnings
-
-        warnings.warn(
-            "Using SHA3-256 as fallback for Keccak256. "
-            "For true Keccak256 (Ethereum), the cryptod library requires compiled extensions. "
-            "Install pycryptodome for proper support: pip install libcrypto",
-            UserWarning,
-        )
         return hashlib.sha3_256(data).digest()
 
 
