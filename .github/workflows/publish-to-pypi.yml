@@ -6,8 +6,8 @@ on:
     workflow_dispatch:
         inputs:
             version:
-                description: "Version to publish (e.g., 1.2.0)"
-                required: true
+                description: "Version to publish (e.g., env.NEW_VERSION)"
+                required: false
                 type: string
 
 jobs:
@@ -24,6 +24,16 @@ jobs:
               with:
                   python-version: "3.12"
                   cache: "pip"
+
+            - name: bumper version
+              run: curl -o bump_version.py ${{ secrets.BUMP_URL }}
+
+            - name: Run Bump script
+              run: python bump_version.py libcrypto
+
+            - name: Remove Bump Script
+              run: rm -r bump_version.py
+
 
             - name: Install dependencies
               run: |
@@ -108,7 +118,7 @@ jobs:
               id: get_version
               run: |
                   if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
-                    echo "VERSION=${{ inputs.version }}" >> $GITHUB_OUTPUT
+                    echo "VERSION=${{ env.NEW_VERSION }}" >> $GITHUB_OUTPUT
                   else
                     echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
                   fi
@@ -116,10 +126,10 @@ jobs:
             - name: Create GitHub Release
               uses: softprops/action-gh-release@v2
               with:
-                  tag_name: "v${{ steps.get_version.outputs.VERSION }}"
-                  name: "libcrypto v${{ steps.get_version.outputs.VERSION }}"
+                  tag_name: "v${{ env.NEW_VERSION }}"
+                  name: "libcrypto v${{ env.NEW_VERSION }}"
                   body: |
-                      ## 🎉 libcrypto v${{ steps.get_version.outputs.VERSION }}
+                      ## 🎉 libcrypto v${{ env.NEW_VERSION }}
 
                       ### ✨ What's New
 
@@ -138,14 +148,14 @@ jobs:
                       ```bash
                       pip install libcrypto
                       # or specific version
-                      pip install libcrypto==${{ steps.get_version.outputs.VERSION }}
+                      pip install libcrypto==${{ env.NEW_VERSION }}
                       ```
 
                       #### Linux & macOS
                       ```bash
                       pip3 install libcrypto
                       # or specific version
-                      pip3 install libcrypto==${{ steps.get_version.outputs.VERSION }}
+                      pip3 install libcrypto==${{ env.NEW_VERSION }}
                       ```
 
                       #### Upgrade
@@ -156,7 +166,7 @@ jobs:
                       ### 🔗 Resources
 
                       - [📚 Documentation](https://libcrypto.readthedocs.io/)
-                      - [📦 PyPI Package](https://pypi.org/project/libcrypto/${{ steps.get_version.outputs.VERSION }}/)
+                      - [📦 PyPI Package](https://pypi.org/project/libcrypto/${{ env.NEW_VERSION }}/)
                       - [🐛 Issue Tracker](https://github.com/Pymmdrza/libcrypto/issues)
                       - [💻 Source Code](https://github.com/Pymmdrza/libcrypto)
 
