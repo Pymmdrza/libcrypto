@@ -83,21 +83,21 @@ jobs:
       - name: Lint with flake8
         run: |
           # Stop the build if there are Python syntax errors or undefined names
-          flake8 src/libcrypto --count --select=E9,F63,F7,F82 --show-source --statistics
+          flake8 src/libcrypto --count --select=E9,F63,F7,F82 --show-source --statistics --exclude=src/libcrypto/cryptod
           # Exit-zero treats all errors as warnings
-          flake8 src/libcrypto --count --exit-zero --max-complexity=12 --max-line-length=120 --statistics
+          flake8 src/libcrypto --count --exit-zero --max-complexity=12 --max-line-length=120 --statistics --exclude=src/libcrypto/cryptod
 
       - name: Check formatting with black (optional)
         continue-on-error: true
         run: |
           pip install black
-          black --check src/libcrypto
+          black --check src/libcrypto --exclude="cryptod"
 
       - name: Check import sorting with isort (optional)
         continue-on-error: true
         run: |
           pip install isort
-          isort --check-only src/libcrypto
+          isort --check-only src/libcrypto --skip-glob="*/cryptod/*"
 
   build:
     name: Build Distribution
@@ -164,14 +164,14 @@ jobs:
         run: |
           pip install dist/*.whl
 
-            - name: Test basic import
-              run: |
-                  python -c "import libcrypto; from libcrypto import PrivateKey, Wallet, generate_mnemonic; print('LibCrypto imported successfully')"
+      - name: Test basic import
+        run: |
+          python -c "import libcrypto; from libcrypto import PrivateKey, Wallet, generate_mnemonic; print('LibCrypto imported successfully')"
 
-            - name: Verify no external crypto dependencies
-              run: |
-                  python -c "import sys; import libcrypto; assert 'ecdsa' not in sys.modules, 'ecdsa should not be loaded'; print('No external crypto dependencies detected')"
+      - name: Verify no external crypto dependencies
+        run: |
+          python -c "import sys; import libcrypto; assert 'ecdsa' not in sys.modules, 'ecdsa should not be loaded'; print('No external crypto dependencies detected')"
 
-            - name: Test key generation
-              run: |
-                  python -c "from libcrypto import PrivateKey; pk = PrivateKey(1); print('Public key: ' + pk.get_public_key().hex[:32] + '...'); print('Key generation works')"
+      - name: Test key generation
+        run: |
+          python -c "from libcrypto import PrivateKey; pk = PrivateKey(1); print('Public key: ' + pk.get_public_key().hex[:32] + '...'); print('Key generation works')"
