@@ -40,7 +40,7 @@ jobs:
               run: |
                 git config --global user.name 'github-actions'
                 git config --global user.email 'github-actions@github.com'
-                git fetch origin main
+                git fetch origin main --force
                 git pull origin main --rebase
                 git add setup.py pyproject.toml src/libcrypto/__init__.py
                 git add .
