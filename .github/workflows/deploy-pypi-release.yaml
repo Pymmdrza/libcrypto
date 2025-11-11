@@ -77,12 +77,24 @@ jobs:
 
             - name: Bump version (commit and push)
               run: |
-                  git config --global user.name 'github-actions[bot]'
-                  git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-                  git pull origin main --rebase
-                  git add setup.py pyproject.toml src/libcrypto/__init__.py
-                  git commit -m "chore: bump version to ${{ env.NEW_VERSION }}" || echo "No changes to commit"
+                git config --global user.name 'github-actions[bot]'
+                git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+                
+                # First add and commit changes
+                git add setup.py pyproject.toml src/libcrypto/__init__.py
+                
+                # Check if there are changes to commit
+                if git diff --staged --quiet; then
+                  echo "No changes to commit"
+                else
+                  git commit -m "bump version to ${{ env.NEW_VERSION }}"
+                
+                  # Pull with rebase strategy, auto-stash if needed
+                  git pull origin main --rebase --autostash || true
+                
+                  # Push changes
                   git push origin main
+                fi
 
             - name: Install build tools
               run: |
