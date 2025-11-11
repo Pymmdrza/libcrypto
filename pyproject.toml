@@ -1,0 +1,74 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "libcrypto"
+version = "1.1.9"
+description = "A professional library For Cryptography and Cryptocurrencies in Python."
+readme = "README.md"
+requires-python = ">=3.8"
+license = { text = "MIT" }
+authors = [
+    { name = "Mmdrza", email = "pymmdrza@gmail.com" },
+]
+keywords = [
+    "cryptocurrency", "bitcoin", "ethereum", "wallet", "bip39", "bip32", "bip44",
+    "mnemonic", "private-key", "public-key", "address", "hdwallet", "crypto",
+    "blockchain", "litecoin", "dash", "dogecoin", "bitcoin-cash", "secp256k1",
+    "cryptography", "pure-python",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Topic :: Security :: Cryptography",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Office/Business :: Financial",
+    "Topic :: System :: Systems Administration :: Authentication/Directory",
+    "Typing :: Typed",
+]
+dependencies = [
+    "rich",
+    "wheel",
+    "setuptools",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
+    "black>=22.0.0",
+    "flake8>=5.0.0",
+    "isort>=5.10.0",
+    "mypy>=1.0.0",
+]
+test = [
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
+]
+
+[project.urls]
+Homepage = "https://libcrypto.readthedocs.io/"
+Repository = "https://github.com/Pymmdrza/libcrypto"
+"Bug Tracker" = "https://github.com/Pymmdrza/libcrypto/issues"
+Documentation = "https://libcrypto.readthedocs.io"
+PyPI = "https://pypi.org/project/libcrypto/"
+
+[project.scripts]
+libcrypto = "libcrypto.cli:app"
+
+[tool.setuptools]
+package-dir = { "" = "src" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

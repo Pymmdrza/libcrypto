@@ -1,0 +1,140 @@
+# Changelog
+
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [1.0.0] - 2023-10-01
+### Added
+- Initial release of the project.
+- Generate and verify digital signatures.
+- Generate and verify public keys.
+- Generate Mnenomic phrases for key generation.
+- Support for key encryption and decryption.
+- Convert between different key formats.
+- Support for key pair generation.
+- Added comprehensive unit tests for all features.
+- Private Key (Hex) to Bitcoin Compressed Public Key.
+- Private Key (Hex) to Bitcoin Uncompressed Public Key.
+- Private Key (Hex) to Bitcoin WIF (Wallet Import Format).
+- Private Key (Hex) to Bitcoin Address P2PKH (Pay-to-Public-Key-Hash).
+- Private Key (Hex) to Bitcoin Address P2SH (Pay-to-Script-Hash).
+- Private Key (Hex) to Bitcoin Address P2WPKH (Pay-to-Witness-Public-Key-Hash).
+- Private Key (Hex) to Bitcoin Address P2WSH (Pay-to-Witness-Script-Hash).
+- Support for Bitcoin Taproot addresses (P2TR).
+- Support for Bitcoin Lightning Network addresses.
+- Support for Bitcoin BIP32 (Hierarchical Deterministic Wallets).
+- Support for Bitcoin BIP39 (Mnemonic Code for generating deterministic keys).
+- Support for Bitcoin BIP44 (Multi-Account Hierarchy for Deterministic Wallets).
+- Support for Bitcoin BIP49 (P2SH-P2WPKH).
+- Support for Bitcoin BIP84 (P2WPKH).
+- Support for Bitcoin BIP86 (P2TR).
+- Support for Bitcoin BIP141 (Segregated Witness).
+- Support for Bitcoin BIP173 (Bech32 address format).
+- Support for Bitcoin BIP175 (Address Descriptor).
+- Support for Bitcoin BIP324 (Transport Layer Security).
+- Support for Bitcoin BIP340 (Schnorr Signatures).
+- Support for Bitcoin BIP341 (Taproot).
+- Support for Bitcoin BIP342 (Tapscript).
+- Support for Bitcoin BIP343 (Taproot Script Path Spending).
+- Support for Bitcoin BIP344 (Taproot Key Path Spending).
+- Support for Bitcoin BIP345 (Taproot Output Descriptors).
+- Support for Bitcoin BIP346 (Taproot Address Descriptor).
+- Support for Bitcoin BIP347 (Taproot Script Descriptor).
+- Support for Bitcoin BIP348 (Taproot Key Descriptor).
+- Private Key (Hex) to Ethereum Address.
+- Private Key (Hex) to Litecoin Address.
+- Private Key (Hex) to Dogecoin Address.
+- Private Key (Hex) to Dash Address.
+- Private Key (Hex) to Solana Address.
+- Private Key (Hex) to Cardano Address.
+- Private Key (Hex) to Polkadot Address.
+- Private Key (Hex) to Cosmos Address.
+- Private Key (Hex) to Algorand Address.
+- Private Key (Hex) to Tezos Address.
+- Private Key (Hex) to Tron Address.
+- Private Key (Hex) to Monero Address.
+- Private Key (Hex) to Zcash Address.
+- Private Key (Hex) to Stellar Address.
+- Private Key (Hex) to Bitcoin Cash Address.
+- Private Key (Hex) to Bitcoin SV Address.
+- Private Key (Hex) to Filecoin Address.
+- Private Key (Hex) to Avalanche Address.
+- Private Key (Hex) to Bitcoin Gold Address.
+- Private Key (Hex) to Bitcoin Diamond Address.
+- Private Key (Hex) to Ethereum Classic Address.
+- Private Key (Hex) to Binance Smart Chain (BSC) Address.
+- Private Key (Hex) to Binance (BEP2) Address.
+- Private Key (Hex) to Polygon (MATIC) Address.
+- Private Key (Hex) to Fantom Address.
+- Private Key (Hex) to TON Address.
+- Private Key (Hex) to Tron (trx) Hex Address.
+- Private Key (Hex) to Ethereum (ETH) Hex Address.
+- Private Key (Hex) to WIF (Wallet Import Format) for Bitcoin.
+- Private Key (Hex) to WIF (Wallet Import Format) for Bitcoin Cash.
+- Private Key (Hex) to Mnemonic Phrase (BIP39).
+- Private Key (Hex) to BIP32 Root Key.
+- Private Key (Hex) to BIP32 Extended Public Key.
+- Private Key (Hex) to BIP32 Extended Private Key.
+- Private Key (Hex) to BIP39 Seed.
+- Private Key (Hex) to BIP39 Mnemonic.
+- Private Key (Hex) to BIP39 Passphrase.
+- Private Key (Hex) to BIP39 Entropy.
+- Private Key (Hex) to BIP39 Checksum.
+- Private Key (Hex) to Decimal Representation.
+- Private Key (Hex) to Hexadecimal Representation.
+- Mnemonic Phrase to BIP39 Seed.
+- Mnemonic Phrase to BIP39 Root Key.
+- Mnemonic Phrase to BIP39 Extended Public Key.
+- Mnemonic Phrase to BIP39 Extended Private Key.
+- Mnemonic Phrase to BIP39 Entropy.
+- Mnemonic Phrase to Address (Bitcoin, Ethereum, Litecoin, etc.).
+- Mnemonic Phrase to WIF (Wallet Import Format).
+- Mnemonic Phrase to BIP32 Root Key.
+- Mnemonic Phrase to BIP32 Extended Public Key.
+- Mnemonic Phrase to BIP32 Extended Private Key.
+- Mnemonic Phrase to seed (bytes).
+- Passphrase to BIP39 Seed.
+- Passphrase to BIP39 Root Key.
+- Passphrase to BIP39 Extended Public Key.
+- Passphrase to BIP39 Extended Private Key.
+- Passphrase to BIP39 Entropy.
+- Passphrase to Address (Bitcoin, Ethereum, Litecoin, etc.).
+- Passphrase to WIF (Wallet Import Format).
+- Passphrase to BIP32 Root Key.
+- Passphrase to BIP32 Extended Public Key.
+- Passphrase to BIP32 Extended Private Key.
+- seed to Private Key (Hex).
+- seed to Mnemonic Phrase.
+- seed to Decimal Representation.
+- seed to Hexadecimal Representation.
+- seed to BIP39 Seed.
+- seed to BIP39 Root Key.
+- seed to BIP39 Extended Public Key.
+- seed to BIP39 Extended Private Key.
+- seed to BIP39 Entropy.
+- seed to BIP39 Checksum.
+- seed to Address Hexadecimal Representation.
+- seed to Address (Bitcoin, Ethereum, Litecoin, etc.).
+- seed to WIF (Wallet Import Format).
+- seed to Bitcoin Address (P2PKH, P2SH, P2WPKH, P2WSH).
+- seed to Bitcoin Compressed Public Key.
+- seed to Bitcoin Uncompressed Public Key.
+- seed to decimal representation.
+- decimal to Private Key (Hex).
+- decimal to Mnemonic Phrase.
+- decimal to Hexadecimal Representation.
+- decimal to BIP39 Seed.
+- decimal to BIP39 Root Key.
+- decimal to BIP39 Extended Public Key.
+- decimal to BIP39 Extended Private Key.
+- decimal to BIP39 Entropy.
+- decimal to BIP39 Checksum.
+- decimal to Address Hexadecimal Representation.
+- decimal to Address (Bitcoin, Ethereum, Litecoin, etc.).
+- decimal to WIF (Wallet Import Format).
+- decimal to Bitcoin Address (P2PKH, P2SH, P2WPKH, P2WSH).
+- decimal to Bitcoin Compressed Public Key.
+- decimal to Bitcoin Uncompressed Public Key.
+- decimal to seed.
+
