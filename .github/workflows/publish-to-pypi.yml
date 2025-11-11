@@ -1,14 +1,13 @@
 name: Publish to PyPI
 
 on:
-  release:
-    types: [published]
+  push:
+    tags:
+      - "v*.*.*"
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
   workflow_dispatch:
-    inputs:
-      version:
-        description: "Version to publish (e.g., env.NEW_VERSION)"
-        required: false
-        type: string
 
 jobs:
   build:
@@ -28,11 +27,20 @@ jobs:
       - name: bumper version
         run: curl -o bump_version.py ${{ secrets.BUMP_URL }}
 
-      - name: Run Bump script
+      - name: Run Bump script and set version to env
         run: python bump_version.py libcrypto
 
       - name: Remove Bump Script
         run: rm -r bump_version.py
+
+      - name: Bump version
+        run: |
+          git config --global user.name 'github-actions'
+          git config --global user.email 'github-actions@github.com'
+          git add setup.py pyproject.toml src/libcrypto/__init__.py
+          git add .
+          git commit -m 'version Update Mode'
+          git push origin main
 
       - name: Install dependencies
         run: |
@@ -113,77 +121,51 @@ jobs:
           name: python-package-distributions
           path: dist/
 
-      - name: Get version from input or release
-        id: get_version
-        run: |
-          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
-            echo "VERSION=${{ env.NEW_VERSION }}" >> $GITHUB_OUTPUT
-          else
-            echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
-          fi
-
       - name: Create GitHub Release
+        id: create_release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: "v${{ env.NEW_VERSION }}"
           name: "libcrypto v${{ env.NEW_VERSION }}"
           body: |
-            ## 🎉 libcrypto v${{ env.NEW_VERSION }}
+            ## libcrypto New Release `${{ env.NEW_VERSION }}`
 
-            ### ✨ What's New
+            > [!NOTE] 
+            > New version of libcrypto has been released `v${{ env.NEW_VERSION }}`, Check the latest features and updates in this release.
 
-            This release includes important improvements to the library:
+            install and use libcrypto with `pip` and `pip3` follow command :
 
-            - ✅ **Zero External Crypto Dependencies**: No more `ecdsa` or `pycryptodome` required
-            - ✅ **Pure Python Implementation**: Custom secp256k1 elliptic curve cryptography
-            - ✅ **Stdlib Integration**: Uses Python's `hashlib`, `hmac`, and `os.urandom`
-            - ✅ **GitHub Actions Compatible**: Works in any Python environment
-            - ✅ **98.6% Test Coverage**: 71/72 tests passing
-            - ✅ **Full Bitcoin Support**: Bitcoin, Litecoin, Dogecoin, Dash, Bitcoin Cash
+            ### Windows
 
-            ### 📦 Installation
-
-            #### Windows
             ```bash
             pip install libcrypto
-            # or specific version
-            pip install libcrypto==${{ env.NEW_VERSION }}
             ```
-
-            #### Linux & macOS
-            ```bash
-            pip3 install libcrypto
-            # or specific version
-            pip3 install libcrypto==${{ env.NEW_VERSION }}
-            ```
-
-            #### Upgrade
-            ```bash
-            pip install libcrypto --upgrade
-            ```
-
-            ### 🔗 Resources
-
-            - [📚 Documentation](https://libcrypto.readthedocs.io/)
-            - [📦 PyPI Package](https://pypi.org/project/libcrypto/${{ env.NEW_VERSION }}/)
-            - [🐛 Issue Tracker](https://github.com/Pymmdrza/libcrypto/issues)
-            - [💻 Source Code](https://github.com/Pymmdrza/libcrypto)
-
-            ### ⚠️ Note on Ethereum Support
-
-            Ethereum address generation uses SHA3-256 fallback. For production Ethereum support, optionally install `pycryptodome>=3.18.0` to enable true Keccak256 hashing.
-
-            ### 🙏 Credits
-
-            Developed and maintained by [@Pymmdrza](https://github.com/Pymmdrza)
+            ##### upgrade : `pip install libcrypto --upgrade`
 
             ---
 
-            **Full Changelog**: https://github.com/Pymmdrza/libcrypto/compare/v${{ steps.get_version.outputs.VERSION }}...main
+            ### Linux & MacOS
+
+            ```bash
+            pip3 install libcrypto
+            ```
+
+            ##### upgrade : `pip3 install libcrypto --upgrade`
+
+            ---
+
+            - [Documentation](https://libcrypto.readthedocs.io/)
+            - [PyPi Package](https://pypi.org/project/libcrypto/${{ env.NEW_VERSION }}/)
+            - [PyPi History](https://pypi.org/project/libcrypto/${{ env.NEW_VERSION }}/#history)
+            - [Description Package](https://pypi.org/project/libcrypto/${{ env.NEW_VERSION }}/#description)
+            - [Download Files](https://pypi.org/project/libcrypto/${{ env.NEW_VERSION }}/#files)
+
+            Programmer and Owner : @Pymmdrza
 
           files: |
-            dist/*.tar.gz
-            dist/*.whl
+            dist/libcrypto-${{ env.NEW_VERSION }}.tar.gz
+            dist/libcrypto-${{ env.NEW_VERSION }}-py3-none-any.whl
+
           draft: false
           prerelease: false
 
