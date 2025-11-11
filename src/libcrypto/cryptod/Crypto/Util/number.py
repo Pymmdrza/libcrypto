@@ -400,7 +400,9 @@ def isPrime(N, false_positive_prob=1e-6, randfunc=None):
 
     if _fastmath is not None:
         return _fastmath.isPrime(
-            long(N), false_positive_prob, randfunc  # noqa: F821 - long exists in Python 2
+            long(N),
+            false_positive_prob,
+            randfunc,  # noqa: F821 - long exists in Python 2
         )
 
     if N < 3 or N & 1 == 0:

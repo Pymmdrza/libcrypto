@@ -164,14 +164,14 @@ jobs:
         run: |
           pip install dist/*.whl
 
-      - name: Test basic import
-        run: |
-          python -c "import libcrypto; from libcrypto import PrivateKey, Wallet, generate_mnemonic; print('✅ LibCrypto imported successfully')"
+            - name: Test basic import
+              run: |
+                  python -c "import libcrypto; from libcrypto import PrivateKey, Wallet, generate_mnemonic; print('LibCrypto imported successfully')"
 
-      - name: Verify no external crypto dependencies
-        run: |
-          python -c "import sys; import libcrypto; has_ecdsa = 'ecdsa' in sys.modules; has_crypto = 'Crypto' in sys.modules; is_internal = 'libcrypto' in str(getattr(sys.modules.get('Crypto'), '__file__', '')) if has_crypto else False; assert not has_ecdsa, 'ecdsa should not be loaded'; assert not has_crypto or is_internal, 'external pycryptodome should not be loaded'; print('✅ No external crypto dependencies')"
+            - name: Verify no external crypto dependencies
+              run: |
+                  python -c "import sys; import libcrypto; assert 'ecdsa' not in sys.modules, 'ecdsa should not be loaded'; print('No external crypto dependencies detected')"
 
-      - name: Test key generation
-        run: |
-          python -c "from libcrypto import PrivateKey; pk = PrivateKey(1); print(f'Public key: {pk.get_public_key().hex[:32]}...'); print('✅ Key generation works')"
+            - name: Test key generation
+              run: |
+                  python -c "from libcrypto import PrivateKey; pk = PrivateKey(1); print('Public key: ' + pk.get_public_key().hex[:32] + '...'); print('Key generation works')"

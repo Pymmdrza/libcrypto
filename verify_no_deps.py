@@ -22,18 +22,18 @@ def main():
         crypto_file = getattr(sys.modules.get("Crypto"), "__file__", "")
         is_internal_cryptod = "libcrypto" in crypto_file and "cryptod" in crypto_file
 
-    print(f"   ecdsa loaded: {has_ecdsa} {'❌ FAIL' if has_ecdsa else '✅ PASS'}")
+    print(f"   ecdsa loaded: {has_ecdsa} {'FAIL' if has_ecdsa else 'PASS'}")
     if has_pycryptodome:
         if is_internal_cryptod:
             print(
-                f"   pycryptodome loaded: {has_pycryptodome} ✅ PASS (internal cryptod library)"
+                f"   pycryptodome loaded: {has_pycryptodome} PASS (internal cryptod library)"
             )
         else:
             print(
-                f"   pycryptodome loaded: {has_pycryptodome} ❌ FAIL (external dependency)"
+                f"   pycryptodome loaded: {has_pycryptodome} FAIL (external dependency)"
             )
     else:
-        print(f"   pycryptodome loaded: {has_pycryptodome} ✅ PASS")
+        print(f"   pycryptodome loaded: {has_pycryptodome} PASS")
 
     # Test secp256k1
     print("\n2. Testing secp256k1 (pure Python)...")
@@ -46,14 +46,14 @@ def main():
     print(f"   Private key 1 → Public key")
     print(f"   Expected: {expected_pubkey}")
     print(f"   Actual:   {actual_pubkey}")
-    print(f"   {'✅ PASS' if actual_pubkey == expected_pubkey else '❌ FAIL'}")
+    print(f"   {'PASS' if actual_pubkey == expected_pubkey else 'FAIL'}")
 
     # Test random key generation
     print("\n3. Testing random key generation...")
     pk_random = PrivateKey()
     print(f"   Generated private key: {pk_random.hex[:32]}...")
     print(f"   Public key (compressed): {pk_random.get_public_key().hex[:32]}...")
-    print(f"   ✅ PASS")
+    print(f"   PASS")
 
     # Test BIP39 mnemonic
     print("\n4. Testing BIP39 mnemonic...")
@@ -61,21 +61,21 @@ def main():
     seed = mnemonic_to_seed(mnemonic)
     print(f"   Mnemonic: {' '.join(mnemonic.split()[:4])}...")
     print(f"   Seed: {seed.hex()[:32]}...")
-    print(f"   ✅ PASS")
+    print(f"   PASS")
 
     # Test wallet
     print("\n5. Testing wallet address generation...")
     wallet = Wallet(PrivateKey(1))
     btc_address = wallet.get_address("bitcoin", "p2pkh")
     print(f"   Bitcoin P2PKH address: {btc_address}")
-    print(f"   ✅ PASS")
+    print(f"   PASS")
 
     print("\n" + "=" * 60)
     if not has_ecdsa and (not has_pycryptodome or is_internal_cryptod):
-        print("✅ ALL CHECKS PASSED - No external crypto dependencies!")
+        print("ALL CHECKS PASSED - No external crypto dependencies!")
         print("   (Using internal cryptod library when available)")
     else:
-        print("❌ FAILED - External crypto dependencies detected")
+        print("FAILED - External crypto dependencies detected")
     print("=" * 60)
 
 
