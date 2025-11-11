@@ -71,7 +71,7 @@ jobs:
 
       - name: Check distribution
         run: |
-          twine check dist/*
+          twine check dist/
 
       - name: Upload distributions
         if: success()
@@ -96,18 +96,6 @@ jobs:
         with:
           name: python-package-distributions
           path: dist/
-
-      - name: Installer
-        run: |
-          python -m pip install --upgrade pip
-          pip install setuptools wheel twine
-
-      - name: Publish package to PyPI
-        env:
-          TWINE_USERNAME: __token__
-          TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
-        run: |
-          twine upload dist/*
 
   create-github-release:
     needs: publish-to-pypi
@@ -192,7 +180,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
 
       - name: Wait for PyPI to update
-        run: sleep 60
+        run: sleep 30
 
       - name: Install from PyPI
         run: |
