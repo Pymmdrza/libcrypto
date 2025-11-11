@@ -89,19 +89,20 @@ jobs:
       url: https://pypi.org/p/libcrypto
     permissions:
       id-token: write
-    steps:
-      - name: Download distribution artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: python-package-distributions
-          path: dist/
 
-      - name: Publish to PyPI
-        uses: pypa/gh-action-pypi-publish@release/v1
-        with:
-          password: ${{ secrets.PYPI_TOKEN }}
-          skip-existing: true
-          verbose: true
+    steps:
+      # - name: Download distribution artifacts
+      #  uses: actions/download-artifact@v4
+      #  with:
+      #    name: python-package-distributions
+      #    path: dist/
+
+      - name: Publish package to PyPI
+        env:
+          TWINE_USERNAME: __token__
+          TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
+        run: |
+            twine upload dist/*
 
   create-github-release:
     needs: publish-to-pypi
