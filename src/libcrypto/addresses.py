@@ -146,6 +146,7 @@ class AddressGenerator:
     @classmethod
     def _generate_ethereum_address(cls, public_key: bytes) -> str:
         """Generate Ethereum address (with EIP-55 checksum)."""
+    
         uncompressed_key = cls._get_uncompressed_pubkey(public_key)
 
         keccak_hash = keccak256(uncompressed_key)

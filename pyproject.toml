@@ -39,6 +39,7 @@ classifiers = [
 ]
 dependencies = [
     "rich",
+    "typer",
     "wheel",
     "setuptools",
 ]

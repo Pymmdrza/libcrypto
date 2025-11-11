@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-#  Util/py3compat.py : Compatibility code for handling Py3k / Python 2.x
-#
-# Written in 2010 by Thorsten Behrens
+#  Util/py3compat.py : Python 3 compatibility helpers
 #
 # ===================================================================
 # The contents of this file are dedicated to the public domain.  To
@@ -22,169 +20,109 @@
 # SOFTWARE.
 # ===================================================================
 
-"""Compatibility code for handling string/bytes changes from Python 2.x to Py3k
+"""Python 3 compatibility helpers for bytes/string handling.
 
-In Python 2.x, strings (of type ''str'') contain binary data, including encoded
-Unicode text (e.g. UTF-8).  The separate type ''unicode'' holds Unicode text.
-Unicode literals are specified via the u'...' prefix.  Indexing or slicing
-either type always produces a string of the same type as the original.
-Data read from a file is always of '''str'' type.
-
-In Python 3.x, strings (type ''str'') may only contain Unicode text. The u'...'
-prefix and the ''unicode'' type are now redundant.  A new type (called
-''bytes'') has to be used for binary data (including any particular
-''encoding'' of a string).  The b'...' prefix allows one to specify a binary
-literal.  Indexing or slicing a string produces another string.  Slicing a byte
-string produces another byte string, but the indexing operation produces an
-integer.  Data read from a file is of '''str'' type if the file was opened in
-text mode, or of ''bytes'' type otherwise.
-
-Since PyCrypto aims at supporting both Python 2.x and 3.x, the following helper
-functions are used to keep the rest of the library as independent as possible
-from the actual Python version.
-
-In general, the code should always deal with binary strings, and use integers
-instead of 1-byte character strings.
-
-b(s)
-    Take a text string literal (with no prefix or with u'...' prefix) and
-    make a byte string.
-bchr(c)
-    Take an integer and make a 1-character byte string.
-bord(c)
-    Take the result of indexing on a byte string and make an integer.
-tobytes(s)
-    Take a text string, a byte string, or a sequence of character taken from
-    a byte string and make a byte string.
+This module provides helper functions for consistent handling of bytes and strings.
+Requires Python 3.8+.
 """
 
 import sys
-import abc
+from abc import ABC
+from io import BytesIO, StringIO
+from sys import maxsize as maxint
 
 
-if sys.version_info[0] == 2:
+def b(s):
+    """Convert a text string to bytes."""
+    return s.encode("latin-1")
 
-    def b(s):
+
+def bchr(s):
+    """Convert an integer to a single-byte bytes object."""
+    return bytes([s])
+
+
+def bstr(s):
+    """Convert string or int to bytes."""
+    if isinstance(s, str):
+        return bytes(s, "latin-1")
+    else:
+        return bytes(s)
+
+
+def bord(s):
+    """Return the integer value of a byte (identity function in Python 3)."""
+    return s
+
+
+def tobytes(s, encoding="latin-1"):
+    """Convert various types to bytes."""
+    if isinstance(s, bytes):
         return s
-
-    def bchr(s):
-        return chr(s)
-
-    def bstr(s):
-        return str(s)
-
-    def bord(s):
-        return ord(s)
-
-    def tobytes(s, encoding="latin-1"):
-        if isinstance(s, unicode):  # noqa: F821 - unicode exists in Python 2
-            return s.encode(encoding)
-        elif isinstance(s, str):
-            return s
-        elif isinstance(s, bytearray):
-            return bytes(s)
-        elif isinstance(s, memoryview):
-            return s.tobytes()
-        else:
-            return "".join(s)
-
-    def tostr(bs):
-        return bs
-
-    def byte_string(s):
-        return isinstance(s, str)
-
-    # In Python 2, a memoryview does not support concatenation
-    def concat_buffers(a, b):
-        if isinstance(a, memoryview):
-            a = a.tobytes()
-        if isinstance(b, memoryview):
-            b = b.tobytes()
-        return a + b
-
-    from StringIO import StringIO
-
-    BytesIO = StringIO
-
-    from sys import maxint
-
-    iter_range = xrange  # noqa: F821 - xrange exists in Python 2
-
-    def is_native_int(x):
-        return isinstance(x, (int, long))  # noqa: F821 - long exists in Python 2
-
-    def is_string(x):
-        return isinstance(x, basestring)  # noqa: F821 - basestring exists in Python 2
-
-    def is_bytes(x):
-        return (
-            isinstance(x, str) or isinstance(x, bytearray) or isinstance(x, memoryview)
-        )
-
-    ABC = abc.ABCMeta("ABC", (object,), {"__slots__": ()})
-
-    FileNotFoundError = IOError
-
-else:
-
-    def b(s):
-        return s.encode("latin-1")  # utf-8 would cause some side-effects we don't want
-
-    def bchr(s):
+    elif isinstance(s, bytearray):
+        return bytes(s)
+    elif isinstance(s, str):
+        return s.encode(encoding)
+    elif isinstance(s, memoryview):
+        return s.tobytes()
+    else:
         return bytes([s])
 
-    def bstr(s):
-        if isinstance(s, str):
-            return bytes(s, "latin-1")
-        else:
-            return bytes(s)
 
-    def bord(s):
-        return s
+def tostr(bs):
+    """Convert bytes to string."""
+    return bs.decode("latin-1")
 
-    def tobytes(s, encoding="latin-1"):
-        if isinstance(s, bytes):
-            return s
-        elif isinstance(s, bytearray):
-            return bytes(s)
-        elif isinstance(s, str):
-            return s.encode(encoding)
-        elif isinstance(s, memoryview):
-            return s.tobytes()
-        else:
-            return bytes([s])
 
-    def tostr(bs):
-        return bs.decode("latin-1")
+def byte_string(s):
+    """Check if s is a bytes object."""
+    return isinstance(s, bytes)
 
-    def byte_string(s):
-        return isinstance(s, bytes)
 
-    def concat_buffers(a, b):
-        return a + b
+def concat_buffers(a, b):
+    """Concatenate two buffer-like objects."""
+    return a + b
 
-    from io import BytesIO
-    from io import StringIO
-    from sys import maxsize as maxint
 
-    iter_range = range
+iter_range = range
 
-    def is_native_int(x):
-        return isinstance(x, int)
 
-    def is_string(x):
-        return isinstance(x, str)
+def is_native_int(x):
+    """Check if x is a native integer."""
+    return isinstance(x, int)
 
-    def is_bytes(x):
-        return (
-            isinstance(x, bytes)
-            or isinstance(x, bytearray)
-            or isinstance(x, memoryview)
-        )
 
-    from abc import ABC
+def is_string(x):
+    """Check if x is a string."""
+    return isinstance(x, str)
 
-    FileNotFoundError = FileNotFoundError
+
+def is_bytes(x):
+    """Check if x is bytes-like."""
+    return isinstance(x, (bytes, bytearray, memoryview))
+
+
+FileNotFoundError = FileNotFoundError
+
+__all__ = [
+    "b",
+    "bchr",
+    "bstr",
+    "bord",
+    "tobytes",
+    "tostr",
+    "byte_string",
+    "concat_buffers",
+    "BytesIO",
+    "StringIO",
+    "maxint",
+    "iter_range",
+    "is_native_int",
+    "is_string",
+    "is_bytes",
+    "ABC",
+    "FileNotFoundError",
+]
 
 
 def _copy_bytes(start, end, seq):
@@ -197,7 +135,3 @@ def _copy_bytes(start, end, seq):
         return bytes(seq[start:end])
     else:
         return seq[start:end]
-
-
-del sys
-del abc

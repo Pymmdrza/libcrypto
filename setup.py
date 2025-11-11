@@ -41,6 +41,7 @@ setup(
     python_requires=">=3.8",
     install_requires=[
         "rich>=14.0.0",
+        "typer>=0.9.0",
         "wheel>=0.45.1",
         "setuptools>=80.9.0",
     ],
@@ -101,7 +102,7 @@ setup(
     zip_safe=False,
     entry_points={
         "console_scripts": [
-            # Add any command-line tools here if needed
+            "libcrypto=libcrypto.cli:app",
         ],
     },
 )
