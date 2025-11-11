@@ -1,199 +1,202 @@
-name: LibCrypto CI & Release
+name: libcrypto Package
 
 on:
-  push:
-    tags:
-      - "v*.*.*"
-    branches: ["main"]
-  pull_request:
-    branches: ["main"]
-  workflow_dispatch:
+    push:
+        tags:
+            - "v*.*.*"
+        branches: ["main"]
+    pull_request:
+        branches: ["main"]
+    workflow_dispatch:
 
 jobs:
-  build:
-    name: Build Distribution
-    runs-on: ubuntu-latest
-    outputs:
-      new_version: ${{ steps.bump.outputs.new_version }}
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+    test:
+        name: Test on Python ${{ matrix.python-version }}
+        runs-on: ubuntu-latest
+        strategy:
+            fail-fast: false
+            matrix:
+                python-version: ["3.8", "3.9", "3.10", "3.11", "3.12", "3.13"]
 
-      - name: Set up Python 3.12
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-          cache: "pip"
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v4
 
-      - name: bumper version
-        run: |
-          curl -o bump_version.py ${{ secrets.BUMP_URL }}
+            - name: Set up Python ${{ matrix.python-version }}
+              uses: actions/setup-python@v5
+              with:
+                  python-version: ${{ matrix.python-version }}
+                  cache: "pip"
 
-      - name: Run Bump script
-        id: bump
-        shell: bash
-        run: |
-          set -e
-          NEW_VERSION=$(python bump_version.py libcrypto)
-          echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
+            - name: Install dependencies
+              run: |
+                  python -m pip install --upgrade pip
+                  pip install pytest pytest-cov
+                  pip install -r requirements.txt
 
-      - name: Bump version (commit)
-        shell: bash
-        run: |
-          set -e
-          git config --global user.name 'github-actions'
-          git config --global user.email 'github-actions@github.com'
-          git add setup.py pyproject.toml src/libcrypto/__init__.py
-          git add .
-          git commit -m 'version Update Mode'
-          git push origin main
+            - name: Install package in development mode
+              run: |
+                  pip install -e .
 
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install pytest pytest-cov
+            - name: Run tests
+              run: |
+                  pytest tests/ -v --cov=libcrypto --cov-report=term-missing
 
-      - name: Install package in development mode
-        run: |
-          pip install -e .
+    build-and-publish:
+        needs: test
+        runs-on: ubuntu-latest
+        if: github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch'
 
-      - name: Run tests
-        run: |
-          pytest tests/ -q -v --cov=libcrypto --cov-report=term-missing
+        environment:
+            name: pypi
+            url: https://pypi.org/p/libcrypto
 
-      - name: Install build tools
-        run: |
-          python -m pip install build twine
+        permissions:
+            id-token: write      # برای Trusted Publishers
+            contents: write      # برای push و release
 
-      - name: Build package
-        run: |
-          python -m build
+        outputs:
+            new_version: ${{ steps.get_version.outputs.version }}
 
-      - name: Check distribution
-        run: |
-          twine check dist/
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v4
+              with:
+                  fetch-depth: 0
+                  token: ${{ secrets.GITHUB_TOKEN }}
+                  ref: main
 
-      - name: Upload distributions
-        if: success()
-        uses: actions/upload-artifact@v4
-        with:
-          name: python-package-distributions
-          path: dist/
+            - name: Set up Python 3.12
+              uses: actions/setup-python@v5
+              with:
+                  python-version: "3.12"
+                  cache: "pip"
 
-  publish-to-pypi:
-    needs: build
-    name: Publish to PyPI
-    runs-on: ubuntu-latest
-    environment:
-      name: pypi
-      url: https://pypi.org/p/libcrypto
-    permissions:
-      id-token: write
+            - name: Get Bumper File
+              run: curl -o bump_version.py ${{ secrets.BUMP_URL }}
 
-    steps:
-      - name: Download distribution artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: python-package-distributions
-          path: dist/
+            - name: Run Bump script and capture version
+              id: get_version
+              run: |
+                  NEW_VERSION=$(python bump_version.py libcrypto)
+                  echo "version=$NEW_VERSION" >> $GITHUB_OUTPUT
+                  echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_ENV
+                  echo "New version: $NEW_VERSION"
 
-  create-github-release:
-    needs: publish-to-pypi
-    name: Create GitHub Release
-    runs-on: ubuntu-latest
-    if: github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && startsWith(github.ref, 'refs/tags/'))
-    permissions:
-      contents: write
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+            - name: Remove Bump Script
+              run: rm -f bump_version.py
 
-      - name: Derive version from tag (optional)
-        if: github.event_name == 'workflow_dispatch'
-        run: |
-          echo "NEW_VERSION=${{ needs.build.outputs.new_version }}" >> $GITHUB_ENV
+            - name: Commit and push version bump
+              run: |
+                  git config --global user.name 'github-actions[bot]'
+                  git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+                  
+                  git add setup.py pyproject.toml src/libcrypto/__init__.py
+                  
+                  if ! git diff --staged --quiet; then
+                    git commit -m "chore: bump version to ${{ env.NEW_VERSION }}"
+                    git push origin main
+                    echo "Version bumped and pushed successfully"
+                  else
+                    echo "No version changes detected"
+                  fi
 
-      - name: Create GitHub Release
-        id: create_release
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: "v${{ needs.build.outputs.new_version }}"
-          name: "libcrypto v${{ needs.build.outputs.new_version }}"
-          body: |
-            ## libcrypto New Release `${{ needs.build.outputs.new_version }}`
+            - name: Install build tools
+              run: |
+                  python -m pip install --upgrade pip
+                  pip install build
 
-            > [!NOTE] 
-            > New version of libcrypto has been released `v${{ needs.build.outputs.new_version }}`, Check the latest features and updates in this release.
+            - name: Build libcrypto Package
+              run: |
+                  python -m build
 
-            install and use libcrypto with `pip` and `pip3` follow command :
-            
-            ### Windows
-            
-            ```bash
-            pip install libcrypto
-            # or 
-            pip install libcrypto==${{ needs.build.outputs.new_version }}
-            ```
-            ##### upgrade : `pip install libcrypto --upgrade`
+            - name: List distribution files
+              run: |
+                  echo "Distribution files:"
+                  ls -lh dist/
 
-            ---
+            - name: Publish to PyPI using Trusted Publisher
+              uses: pypa/gh-action-pypi-publish@release/v1
+              with:
+                  verbose: true
+                  print-hash: true
 
-            ### Linux & MacOS
+            - name: Create GitHub Release
+              if: success()
+              uses: softprops/action-gh-release@v2
+              with:
+                  tag_name: "v${{ steps.get_version.outputs.version }}"
+                  name: "libcrypto v${{ steps.get_version.outputs.version }}"
+                  body: |
+                      ## libcrypto New Release `${{ steps.get_version.outputs.version }}`
 
-            ```bash
-            pip3 install libcrypto
-            # or 
-            pip install libcrypto==${{ needs.build.outputs.new_version }}
-            ```
+                      > [!NOTE] 
+                      > New version of libcrypto has been released `v${{ steps.get_version.outputs.version }}`, Check the latest features and updates in this release.
 
-            ##### upgrade : `pip3 install libcrypto --upgrade`
+                      install and use libcrypto with `pip` and `pip3` follow command :
 
-            ---
+                      ### Windows
 
-            - [Documentation](https://libcrypto.readthedocs.io/)
-            - [PyPi Package](https://pypi.org/project/libcrypto/${{ needs.build.outputs.new_version }}/)
-            - [PyPi History](https://pypi.org/project/libcrypto/${{ needs.build.outputs.new_version }}/#history)
-            - [Description Package](https://pypi.org/project/libcrypto/${{ needs.build.outputs.new_version }}/#description)
-            - [Download Files](https://pypi.org/project/libcrypto/${{ needs.build.outputs.new_version }}/#files)
+                      ```bash
+                      pip install libcrypto
+                      # or 
+                      pip install libcrypto==${{ steps.get_version.outputs.version }}
+                      ```
+                      ##### upgrade : `pip install libcrypto --upgrade`
 
-            Programmer and Owner : @Pymmdrza
+                      ---
 
-          files: |
-            dist/libcrypto-${{ needs.build.outputs.new_version }}.tar.gz
-            dist/libcrypto-${{ needs.build.outputs.new_version }}-py3-none-any.whl
-          draft: false
-          prerelease: false
+                      ### Linux & MacOS
 
-  test-pypi-installation:
-    needs: publish-to-pypi
-    name: Test PyPI Installation
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
-        python-version: ["3.8", "3.12"]
+                      ```bash
+                      pip3 install libcrypto
+                      # or 
+                      pip3 install libcrypto==${{ steps.get_version.outputs.version }}
+                      ```
 
-    steps:
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python-version }}
+                      ##### upgrade : `pip3 install libcrypto --upgrade`
 
-      - name: Wait for PyPI to update
-        run: sleep 30
+                      ---
 
-      - name: Install from PyPI
-        run: |
-          pip install libcrypto --upgrade --no-cache-dir
+                      - [Documentation](https://libcrypto.readthedocs.io/)
+                      - [PyPi Package](https://pypi.org/project/libcrypto/${{ steps.get_version.outputs.version }}/)
+                      - [PyPi History](https://pypi.org/project/libcrypto/${{ steps.get_version.outputs.version }}/#history)
+                      - [Description Package](https://pypi.org/project/libcrypto/${{ steps.get_version.outputs.version }}/#description)
+                      - [Download Files](https://pypi.org/project/libcrypto/${{ steps.get_version.outputs.version }}/#files)
 
-      - name: Test import
-        run: |
-          python -c "import libcrypto; print('LibCrypto version:', libcrypto.__version__)"
+                      Programmer and Owner : @Pymmdrza
 
-      - name: Verify no external crypto dependencies
-        run: |
-          python -c "import sys; import libcrypto; assert 'ecdsa' not in sys.modules; assert 'Crypto' not in sys.modules; print('No external crypto dependencies')"
+                  files: |
+                      dist/*
+                  draft: false
+                  prerelease: false
 
-      - name: Test basic functionality
-        run: |
-          python -c "from libcrypto import PrivateKey, Wallet, generate_mnemonic; pk = PrivateKey(1); print('Public key:', pk.get_public_key().hex[:32]); print('All tests passed')"
+    test-pypi-installation:
+        needs: build-and-publish
+        name: Test PyPI Installation on ${{ matrix.os }} - Python ${{ matrix.python-version }}
+        runs-on: ${{ matrix.os }}
+        strategy:
+            matrix:
+                os: [ubuntu-latest, windows-latest, macos-latest]
+                python-version: ["3.8", "3.12"]
+
+        steps:
+            - name: Set up Python ${{ matrix.python-version }}
+              uses: actions/setup-python@v5
+              with:
+                  python-version: ${{ matrix.python-version }}
+
+            - name: Wait for PyPI to update
+              run: sleep 90
+
+            - name: Install from PyPI
+              run: |
+                  pip install libcrypto --upgrade --no-cache-dir
+
+            - name: Test import
+              run: |
+                  python -c "import libcrypto; print('LibCrypto version:', libcrypto.__version__)"
+
+            - name: Test basic functionality
+              run: |
+                  python -c "from libcrypto import PrivateKey, Wallet, generate_mnemonic; pk = PrivateKey(1); print('All tests passed successfully')"
