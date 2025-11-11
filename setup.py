@@ -17,7 +17,7 @@ def get_long_description():
 
 setup(
     name="libcrypto",
-    version="1.4.6",
+    version="1.4.7",
     description="Comprehensive cryptocurrency wallet library with BIP39/BIP32 support using embedded cryptographic primitives",
     long_description=get_long_description(),
     long_description_content_type="text/markdown",
