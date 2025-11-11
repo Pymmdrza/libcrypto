@@ -21,11 +21,11 @@ jobs:
             - name: Checkout repository
               uses: actions/checkout@v4
 
-            - name: Set up Python 3.12
+            - name: Set up Python ${{ matrix.python-version }}
               uses: actions/setup-python@v5
               with:
-                  python-version: "3.12"
-                  cache: "pip"
+                python-version: ${{ matrix.python-version }}
+                cache: "pip"
 
             - name: bumper version
               run: curl -o bump_version.py ${{ secrets.BUMP_URL }}
