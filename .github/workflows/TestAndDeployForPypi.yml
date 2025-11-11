@@ -39,7 +39,7 @@ jobs:
 
       - name: Verify no external crypto dependencies
         run: |
-          python -c "import sys; import libcrypto; assert 'ecdsa' not in sys.modules, 'ecdsa should not be loaded'; assert 'Crypto' not in sys.modules, 'pycryptodome should not be loaded'; print('✅ No external crypto dependencies')"
+          python -c "import sys; import libcrypto; assert 'ecdsa' not in sys.modules, 'ecdsa should not be loaded'; assert 'Crypto' not in sys.modules, 'pycryptodome should not be loaded'; print('No external crypto dependencies')"
 
       - name: Run pytest with coverage
         run: |

@@ -212,12 +212,12 @@ jobs:
 
             - name: Test import
               run: |
-                  python -c "import libcrypto; print('✅ LibCrypto version:', libcrypto.__version__)"
+                  python -c "import libcrypto; print('LibCrypto version:', libcrypto.__version__)"
 
             - name: Verify no external crypto dependencies
               run: |
-                  python -c "import sys; import libcrypto; assert 'ecdsa' not in sys.modules; assert 'Crypto' not in sys.modules; print('✅ No external crypto dependencies')"
+                  python -c "import sys; import libcrypto; assert 'ecdsa' not in sys.modules; assert 'Crypto' not in sys.modules; print('No external crypto dependencies')"
 
             - name: Test basic functionality
               run: |
-                  python -c "from libcrypto import PrivateKey, Wallet, generate_mnemonic; pk = PrivateKey(1); print('Public key:', pk.get_public_key().hex[:32]); print('✅ All tests passed')"
+                  python -c "from libcrypto import PrivateKey, Wallet, generate_mnemonic; pk = PrivateKey(1); print('Public key:', pk.get_public_key().hex[:32]); print('All tests passed')"
