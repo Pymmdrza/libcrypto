@@ -279,9 +279,9 @@ def getStrongPrime(N, e=0, false_positive_prob=1e-6, randfunc=None):
     # Use the accelerator if available
     if _fastmath is not None:
         return _fastmath.getStrongPrime(
-            long(N),
-            long(e),
-            false_positive_prob,  # noqa: F821 - long exists in Python 2
+            long(N),  # noqa: F821 - long exists in Python 2
+            long(e),  # noqa: F821 - long exists in Python 2
+            false_positive_prob,
             randfunc,
         )
 
@@ -400,8 +400,8 @@ def isPrime(N, false_positive_prob=1e-6, randfunc=None):
 
     if _fastmath is not None:
         return _fastmath.isPrime(
-            long(N), false_positive_prob, randfunc
-        )  # noqa: F821 - long exists in Python 2
+            long(N), false_positive_prob, randfunc  # noqa: F821 - long exists in Python 2
+        )
 
     if N < 3 or N & 1 == 0:
         return N == 2
