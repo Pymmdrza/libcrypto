@@ -46,6 +46,15 @@ jobs:
         needs: test
         runs-on: ubuntu-latest
         if: github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch'
+        
+        environment:
+            name: pypi
+            url: https://pypi.org/p/libcrypto
+        
+        permissions:
+            id-token: write      # برای Trusted Publishers
+            contents: write      # برای push و release
+        
         outputs:
             new_version: ${{ steps.get_version.outputs.version }}
 
@@ -55,6 +64,7 @@ jobs:
               with:
                   fetch-depth: 0
                   token: ${{ secrets.GITHUB_TOKEN }}
+                  ref: main
 
             - name: Set up Python 3.12
               uses: actions/setup-python@v5
@@ -71,54 +81,45 @@ jobs:
                   NEW_VERSION=$(python bump_version.py libcrypto)
                   echo "version=$NEW_VERSION" >> $GITHUB_OUTPUT
                   echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_ENV
+                  echo "New version: $NEW_VERSION"
 
             - name: Remove Bump Script
               run: rm -f bump_version.py
 
-            - name: Bump version (commit and push)
+            - name: Commit and push version bump
               run: |
-                git config --global user.name 'github-actions[bot]'
-                git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-                
-                # First add and commit changes
-                git add setup.py pyproject.toml src/libcrypto/__init__.py
-                
-                # Check if there are changes to commit
-                if git diff --staged --quiet; then
-                  echo "No changes to commit"
-                else
-                  git commit -m "bump version to ${{ env.NEW_VERSION }}"
-                
-                  # Pull with rebase strategy, auto-stash if needed
-                  git pull origin main --rebase --autostash || true
-                
-                  # Push changes
-                  git push origin main
-                fi
+                  git config --global user.name 'github-actions[bot]'
+                  git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+                  
+                  git add setup.py pyproject.toml src/libcrypto/__init__.py
+                  
+                  if ! git diff --staged --quiet; then
+                    git commit -m "chore: bump version to ${{ env.NEW_VERSION }}"
+                    git push origin main
+                    echo "Version bumped and pushed successfully"
+                  else
+                    echo "No version changes detected"
+                  fi
 
             - name: Install build tools
               run: |
                   python -m pip install --upgrade pip
-                  pip install build twine
+                  pip install build
 
             - name: Build libcrypto Package
               run: |
                   python -m build
 
-            - name: Check distribution
-              run: |
-                  twine check dist/*
-
             - name: List distribution files
               run: |
+                  echo "Distribution files:"
                   ls -lh dist/
 
-            - name: Publish package to PyPI
-              env:
-                  TWINE_USERNAME: __token__
-                  TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
-              run: |
-                  twine upload dist/*
+            - name: Publish to PyPI using Trusted Publisher
+              uses: pypa/gh-action-pypi-publish@release/v1
+              with:
+                  verbose: true
+                  print-hash: true
 
             - name: Create GitHub Release
               if: success()
@@ -169,12 +170,10 @@ jobs:
                       dist/*
                   draft: false
                   prerelease: false
-              env:
-                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     test-pypi-installation:
         needs: build-and-publish
-        name: Test PyPI Installation
+        name: Test PyPI Installation on ${{ matrix.os }} - Python ${{ matrix.python-version }}
         runs-on: ${{ matrix.os }}
         strategy:
             matrix:
@@ -200,4 +199,4 @@ jobs:
 
             - name: Test basic functionality
               run: |
-                  python -c "from libcrypto import PrivateKey, Wallet, generate_mnemonic; pk = PrivateKey(1); print('All tests passed')"
+                  python -c "from libcrypto import PrivateKey, Wallet, generate_mnemonic; pk = PrivateKey(1); print('All tests passed successfully')"
