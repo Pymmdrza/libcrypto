@@ -30,7 +30,7 @@ from .formats import (
     InvalidFormatError
 )
 
-__version__ = "1.2.6"
+__version__ = "1.2.7"
 __all__ = [
     # Library Version
     '__version__',
