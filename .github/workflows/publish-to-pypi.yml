@@ -70,14 +70,9 @@ jobs:
           twine check dist/*
 
   publish-to-pypi:
-    needs: build
     name: Publish to PyPI
+    needs: build
     runs-on: ubuntu-latest
-    environment:
-      name: pypi
-      url: https://pypi.org/p/libcrypto
-    permissions:
-      id-token: write
     steps:
       - name: Download distribution artifacts
         uses: actions/download-artifact@v4
@@ -93,10 +88,10 @@ jobs:
           verbose: true
 
   create-github-release:
-    needs: publish-to-pypi
     name: Create GitHub Release
+    needs: publish-to-pypi
     runs-on: ubuntu-latest
-    if: github.event_name == 'workflow_dispatch' || github.event_name == 'push'
+    if: github.event_name == 'workflow_dispatch'
     permissions:
       contents: write
     steps:
