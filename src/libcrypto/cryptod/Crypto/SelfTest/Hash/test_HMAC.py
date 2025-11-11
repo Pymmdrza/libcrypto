@@ -518,7 +518,7 @@ class MemoryViewTests(unittest.TestCase):
 
 
 def get_tests(config={}):
-    global test_data
+    global test_data  # noqa: F824 - declared but may be used dynamically
     import types
     from .common import make_mac_tests
 

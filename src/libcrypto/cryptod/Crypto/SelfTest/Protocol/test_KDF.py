@@ -28,7 +28,7 @@ from ...Crypto.Util.py3compat import b, bchr
 
 from ...Crypto.SelfTest.st_common import list_test_cases
 from ...Crypto.SelfTest.loader import load_test_vectors, load_test_vectors_wycheproof
-from ...Crypto.Hash import SHA1, HMAC, SHA256, MD5, SHA224, SHA384, SHA512
+from ...Crypto.Hash import SHA1, HMAC, SHA256, MD5, SHA224, SHA384, SHA512, CMAC
 from ...Crypto.Cipher import AES, DES3
 
 from ...Crypto.Protocol.KDF import (PBKDF1, PBKDF2, _S2V, HKDF, scrypt,

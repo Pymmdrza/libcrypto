@@ -72,7 +72,7 @@ if sys.version_info[0] == 2:
     def bord(s):
         return ord(s)
     def tobytes(s, encoding="latin-1"):
-        if isinstance(s, unicode):
+        if isinstance(s, unicode):  # noqa: F821 - unicode exists in Python 2
             return s.encode(encoding)
         elif isinstance(s, str):
             return s
@@ -101,13 +101,13 @@ if sys.version_info[0] == 2:
 
     from sys import maxint
 
-    iter_range = xrange
+    iter_range = xrange  # noqa: F821 - xrange exists in Python 2
 
     def is_native_int(x):
-        return isinstance(x, (int, long))
+        return isinstance(x, (int, long))  # noqa: F821 - long exists in Python 2
 
     def is_string(x):
-        return isinstance(x, basestring)
+        return isinstance(x, basestring)  # noqa: F821 - basestring exists in Python 2
 
     def is_bytes(x):
         return isinstance(x, str) or \
