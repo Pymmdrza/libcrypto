@@ -31,6 +31,40 @@ Install the library using pip:
 pip install libcrypto
 ```
 
+#### Install On Debian/Ubuntu
+```bash
+sudo apt-get install build-essential python3-dev
+pip3 install libcrypto
+```
+
+#### Install On Fedora
+```bash
+sudo yum install gcc gmp python-devel
+pip3 install libcrypto
+```
+
+#### Windows Installation
+> [!NOTE]
+> **Once only**
+>  Download [Build Tools for Visual Studio 2019](https://visualstudio.microsoft.com/downloads/#build-tools-for-visual-studio-2019).
+   In the installer, select the `C++ build tools`, the `Windows 10 SDK`, and the latest version of `MSVC v142 x64/x86 build tools`.
+
+
+
+
+### Dependencies
+
+The library uses:
+- **Python stdlib**: `hashlib`, `hmac`, `os.urandom` for hashing and random number generation
+- **Pure Python**: Custom secp256k1 elliptic curve implementation
+- 
+### Verification
+
+Verify the library works without external crypto dependencies:
+```bash
+python verify_no_deps.py
+```
+
 ## Quick Start (Library Usage)
 
 ```python
@@ -170,4 +204,5 @@ If you find this library useful, consider supporting its development:
 ## Contact
 
 For support or inquiries, please contact us at [pymmdrza@gmail.com](mailto:pymmdrza@gmail.com).
+
 
