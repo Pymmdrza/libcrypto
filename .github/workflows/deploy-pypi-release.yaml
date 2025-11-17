@@ -167,7 +167,8 @@ jobs:
                       Programmer and Owner : @Pymmdrza
 
                   files: |
-                      dist/*
+                      dist/libcrypto-${{ steps.get_version.outputs.version }}.tar.gz
+                      dist/libcrypto-${{ steps.get_version.outputs.version }}-py3-none-any.whl 
                   draft: false
                   prerelease: false
 
