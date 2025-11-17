@@ -16,7 +16,7 @@ jobs:
         strategy:
             fail-fast: false
             matrix:
-                python-version: ["3.8", "3.9", "3.10", "3.11", "3.12", "3.13"]
+                python-version: ["3.8", "3.9", "3.10", "3.11", "3.12", "3.13", "3.14"]
 
         steps:
             - name: Checkout repository
@@ -179,7 +179,7 @@ jobs:
         strategy:
             matrix:
                 os: [ubuntu-latest, windows-latest, macos-latest]
-                python-version: ["3.8", "3.12"]
+                python-version: ["3.8", "3.9", "3.10", "3.11", "3.12", "3.13", "3.14"]
 
         steps:
             - name: Set up Python ${{ matrix.python-version }}
@@ -201,3 +201,8 @@ jobs:
             - name: Test basic functionality
               run: |
                   python -c "from libcrypto import PrivateKey, Wallet, generate_mnemonic; pk = PrivateKey(1); print('All tests passed successfully')"
+
+            - name: CLI Test
+              run: |
+                  libcrypto -v
+                  libcrypto generate
