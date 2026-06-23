@@ -1,0 +1,113 @@
+name: CI
+
+"on":
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: Python ${{ matrix.python-version }} on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-latest
+        python-version:
+          - "3.8"
+          - "3.9"
+          - "3.10"
+          - "3.11"
+          - "3.12"
+          - "3.13"
+          - "3.14"
+        include:
+          - os: windows-latest
+            python-version: "3.12"
+          - os: macos-latest
+            python-version: "3.12"
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+
+      - name: Install package with test dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e ".[test]"
+
+      - name: Run tests
+        run: |
+          python -m pytest tests -q --cov=libcrypto --cov-report=term-missing
+
+      - name: CLI smoke test
+        run: |
+          libcrypto --version
+          libcrypto generate --coin bitcoin --coin ethereum --coin tron
+
+  package:
+    name: Build and verify package
+    runs-on: ubuntu-latest
+    needs: test
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install build tools
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install build twine
+
+      - name: Build sdist and wheel
+        run: |
+          python -m build
+
+      - name: Verify distributions
+        run: |
+          python -m twine check dist/*
+          python -m pip install --force-reinstall dist/*.whl
+          python - <<'PY'
+          import libcrypto
+          from libcrypto import Wallet
+          wallet = Wallet("0000000000000000000000000000000000000000000000000000000000000001")
+          assert wallet.get_address("ethereum") == "0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf"
+          assert wallet.get_address("tron") == "TMVQGm1qAQYVdetCeGRRkTWYYrLXuHK2HC"
+          assert wallet.get_address("bitcoin", "p2wpkh") == "bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kv8f3t4"
+          print("Package smoke test passed:", libcrypto.__version__)
+          PY
+
+      - name: Upload distributions
+        uses: actions/upload-artifact@v4
+        with:
+          name: libcrypto-dist
+          path: dist/*
+          if-no-files-found: error

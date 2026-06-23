@@ -9,6 +9,5 @@ exclude =
     build,
     dist,
     *.egg-info,
-    src/libcrypto/cryptod,
     .pytest_cache,
     .mypy_cache

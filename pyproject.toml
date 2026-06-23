@@ -1,14 +1,14 @@
 [build-system]
-requires = ["setuptools", "wheel"]
+requires = ["setuptools>=68", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "libcrypto"
-version = "1.5.0"
 description = "A professional library For Cryptography and Cryptocurrencies in Python."
+dynamic = ["version"]
 readme = "README.md"
 requires-python = ">=3.8"
-license = { text = "MIT" }
+license = "MIT"
 authors = [
     { name = "Mmdrza", email = "pymmdrza@gmail.com" },
 ]
@@ -21,7 +21,6 @@ keywords = [
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
-    "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.8",
@@ -37,12 +36,7 @@ classifiers = [
     "Topic :: System :: Systems Administration :: Authentication/Directory",
     "Typing :: Typed",
 ]
-dependencies = [
-    "rich",
-    "typer",
-    "wheel",
-    "setuptools",
-]
+dependencies = []
 
 [project.optional-dependencies]
 dev = [
@@ -73,3 +67,9 @@ package-dir = { "" = "src" }
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.setuptools.package-data]
+libcrypto = ["py.typed"]
+
+[tool.setuptools.dynamic]
+version = { attr = "libcrypto._version.__version__" }

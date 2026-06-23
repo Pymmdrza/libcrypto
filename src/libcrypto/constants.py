@@ -21,45 +21,61 @@ MAX_PRIVATE_KEY = SECP256K1_N - 1
 # Base58 alphabet used in Bitcoin and most cryptocurrencies
 BASE58_ALPHABET = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
 
-# Address version bytes for different networks
+# Address version bytes for different Bitcoin-style networks
 ADDRESS_VERSIONS = {
     'bitcoin': {
-        'p2pkh': 0x00,  # 1...
-        'p2sh': 0x05,  # 3...
-        'private': 0x80,  # 5...K/L (WIF)
+        'p2pkh': 0x00,
+        'p2sh': 0x05,
+        'private': 0x80,
     },
     'testnet': {
-        'p2pkh': 0x6F,  # m/n...
-        'p2sh': 0xC4,  # 2...
-        'private': 0xEF,  # 9/c (WIF)
+        'p2pkh': 0x6F,
+        'p2sh': 0xC4,
+        'private': 0xEF,
     },
     'litecoin': {
-        'p2pkh': 0x30,  # L...
-        'p2sh': 0x32,  # M...
-        'private': 0xB0,  # 6... (WIF)
+        'p2pkh': 0x30,
+        'p2sh': 0x32,
+        'private': 0xB0,
     },
     'dogecoin': {
-        'p2pkh': 0x1E,  # D...
-        'p2sh': 0x16,  # 9/A...
-        'private': 0x9E,  # 6... (WIF)
+        'p2pkh': 0x1E,
+        'p2sh': 0x16,
+        'private': 0x9E,
     },
     'dash': {
-        'p2pkh': 0x4C,  # X...
-        'p2sh': 0x10,  # 7...
-        'private': 0xCC,  # 7... (WIF)
+        'p2pkh': 0x4C,
+        'p2sh': 0x10,
+        'private': 0xCC,
     },
     'bitcoin_cash': {
-        'p2pkh': 0x00,  # 1... (same as Bitcoin)
-        'p2sh': 0x05,  # 3... (same as Bitcoin)
-        'private': 0x80,  # 5...K/L (WIF)
-    }
+        'p2pkh': 0x00,
+        'p2sh': 0x05,
+        'private': 0x80,
+    },
+    'digibyte': {
+        'p2pkh': 0x1E,
+        'p2sh': 0x3F,
+        'private': 0x80,
+    },
+    'namecoin': {
+        'p2pkh': 0x34,
+        'p2sh': 0x0D,
+        'private': 0x80,
+    },
 }
 
-# Bech32 Human Readable Parts for SegWit addresses
+# Bech32 Human Readable Parts for SegWit-style addresses
 BECH32_HRP = {
     'bitcoin': 'bc',
     'testnet': 'tb',
     'litecoin': 'ltc',
+    'digibyte': 'dgb',
+}
+
+# Human Readable Parts for CashAddr networks
+CASHADDR_HRP = {
+    'bitcoin_cash': 'bitcoincash',
 }
 
 # BIP-39 English (2048 words) - List is long, so I'll omit it for brevity. It was correct.
@@ -251,7 +267,7 @@ XPUB_MAINNET = 0x0488B21E
 XPRV_TESTNET = 0x04358394
 XPUB_TESTNET = 0x043587CF
 
-# BIP-44 coin types
+# BIP-44 / SLIP-44 coin types used by HD derivation helpers.
 BIP44_COIN_TYPES = {
     'bitcoin': 0,
     'testnet': 1,
@@ -259,11 +275,16 @@ BIP44_COIN_TYPES = {
     'dogecoin': 3,
     'dash': 5,
     'ethereum': 60,
+    'ethereum_classic': 61,
     'bitcoin_cash': 145,
-    'tron': 195,
     'ripple': 144,
-    'solana': 501,  # Note: Uses Ed25519, not secp256k1
-    'ton': 607,  # Note: Uses Ed25519, not secp256k1
+    'tron': 195,
+    'bsc': 9006,
+    'binance_smart_chain': 9006,
+    'polygon': 966,
+    'avalanche': 9000,
+    'solana': 501,  # Ed25519, not secp256k1.
+    'ton': 607,  # Ed25519, not secp256k1.
 }
 
 # Error messages
@@ -281,7 +302,7 @@ ERROR_MESSAGES = {
 
 __all__ = [
     'SECP256K1_P', 'SECP256K1_N', 'SECP256K1_GX', 'SECP256K1_GY', 'SECP256K1_A', 'SECP256K1_B', 'MAX_PRIVATE_KEY',
-    'BASE58_ALPHABET', 'ADDRESS_VERSIONS', 'BECH32_HRP', 'BIP39_WORD_LIST', 'BIP39_ENTROPY_BITS',
+    'BASE58_ALPHABET', 'ADDRESS_VERSIONS', 'BECH32_HRP', 'CASHADDR_HRP', 'BIP39_WORD_LIST', 'BIP39_ENTROPY_BITS',
     'BIP39_CHECKSUM_BITS', 'VALID_MNEMONIC_LENGTHS', 'PBKDF2_ITERATIONS', 'PBKDF2_HMAC_DKLEN',
     'BIP32_HARDENED_OFFSET', 'BIP32_HMAC_KEY', 'MAX_BIP32_INDEX', 'XPRV_MAINNET', 'XPUB_MAINNET',
     'XPRV_TESTNET', 'XPUB_TESTNET', 'BIP44_COIN_TYPES', 'ERROR_MESSAGES'

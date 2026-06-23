@@ -59,9 +59,9 @@ class PrivateKey:
             return bytes_to_int(key)
         if isinstance(key, str):
             try:
-                # First, try to decode as WIF
-                key_bytes, _, _ = wif_to_private_key(key)
-                self.network = _[2]  # Update network from WIF
+                # First, try to decode as WIF.
+                key_bytes, _is_compressed, decoded_network = wif_to_private_key(key)
+                self.network = decoded_network
                 return bytes_to_int(key_bytes)
             except InvalidFormatError:
                 # If WIF fails, try to decode as hex

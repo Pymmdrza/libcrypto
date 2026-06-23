@@ -7,6 +7,7 @@ This module provides comprehensive cryptocurrency wallet functionality including
 - Key format conversions
 - WIF (Wallet Import Format) support
 """
+from ._version import __version__
 from .wallet import Wallet
 from .bip32 import HDWallet, HDNode, BIP32Error
 from .keys import PrivateKey, PublicKey, KeyError
@@ -30,7 +31,6 @@ from .formats import (
     InvalidFormatError
 )
 
-__version__ = "1.5.0"
 __all__ = [
     # Library Version
     '__version__',

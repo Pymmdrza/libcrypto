@@ -19,7 +19,7 @@ def test_wallet_all_addresses_contains_configured_types(deterministic_private_ke
     wallet = Wallet(deterministic_private_key_hex)
     addresses = wallet.get_all_addresses("bitcoin")
 
-    assert set(addresses) == {"p2pkh", "p2sh-p2wpkh", "p2wpkh"}
+    assert set(addresses) == {"p2pkh", "p2sh-p2wpkh", "p2wpkh", "p2tr"}
     assert all(isinstance(value, str) for value in addresses.values())
 
 

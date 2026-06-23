@@ -78,7 +78,7 @@ def base58_decode(encoded: str, alphabet: str = BASE58_ALPHABET) -> bytes:
             raise InvalidFormatError(f"Invalid character '{char}' in Base58 string")
         num = num * 58 + alphabet.index(char)
 
-    decoded = int_to_bytes(num)
+    decoded = b"" if num == 0 else int_to_bytes(num)
 
     # Add leading zeros
     leading_zeros = len(encoded) - len(encoded.lstrip(alphabet[0]))

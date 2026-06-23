@@ -226,11 +226,11 @@ class TestSecp256k1:
         assert y1 == y2
 
 
-class TestSecp256k1Cryptod:
-    """Test that cryptod integration works correctly."""
+class TestSecp256k1InternalHashes:
+    """Test that internal hash functions work correctly."""
 
-    def test_cryptod_hash_integration(self):
-        """Test that hash functions from cryptod work with secp256k1."""
+    def test_hash160_integration(self):
+        """Test that internal hash functions work with secp256k1."""
         from libcrypto.hash import sha256, hash160
 
         # Generate a public key
@@ -264,7 +264,7 @@ class TestSecp256k1Cryptod:
         # Verify no external crypto imports in source
         assert "from ecdsa" not in source
         assert "import ecdsa" not in source
-        assert "from Crypto" not in source or "from .cryptod.lib.Crypto" in source
+        assert "from Crypto" not in source
 
 
 if __name__ == "__main__":

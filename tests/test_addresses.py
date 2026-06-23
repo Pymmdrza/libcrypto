@@ -18,10 +18,12 @@ def test_bitcoin_address_variants_known_values(
     p2pkh = AddressGenerator.from_public_key(public_key.bytes, "p2pkh", "bitcoin")
     p2sh = AddressGenerator.from_public_key(public_key.bytes, "p2sh-p2wpkh", "bitcoin")
     p2wpkh = AddressGenerator.from_public_key(public_key.bytes, "p2wpkh", "bitcoin")
+    p2tr = AddressGenerator.from_public_key(public_key.bytes, "p2tr", "bitcoin")
 
     assert p2pkh == "1BgGZ9tcN4rm9KBzDn7KprQz87SZ26SAMH"
     assert p2sh == "3JvL6Ymt8MVWiCNHC7oWU6nLeHNJKLZGLN"
     assert p2wpkh == "bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kv8f3t4"
+    assert p2tr == "bc1pmfr3p9j00pfxjh0zmgp99y8zftmd3s5pmedqhyptwy6lm87hf5sspknck9"
 
 
 def test_account_based_addresses_known_values(
@@ -38,19 +40,13 @@ def test_account_based_addresses_known_values(
         uncompressed_public.bytes, "default", "tron"
     )
 
-    # NOTE: Ethereum and Tron use Keccak256 which requires compiled cryptod extensions
-    # Without cryptod, SHA3-256 fallback is used, resulting in different addresses
-    # We test that valid address formats are generated instead
+    assert ethereum == "0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf"
+    assert tron == "TMVQGm1qAQYVdetCeGRRkTWYYrLXuHK2HC"
 
-    # Ethereum address format check
-    assert ethereum.startswith("0x")
-    assert len(ethereum) == 42  # 0x + 40 hex chars
-    # With true Keccak256: assert ethereum == "0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf"
-
-    # Tron address format check
-    assert tron.startswith("T")
-    assert len(tron) == 34  # Tron address length
-    # With true Keccak256: assert tron == "TMVQGm1qAQYVdetCeGRRkTWYYrLXuHK2HC"
+    tron_hash = AddressGenerator.from_public_key(
+        uncompressed_public.bytes, "hex", "tron"
+    )
+    assert tron_hash == "417E5F4552091A69125D5DFCB7B8C2659029395BDF"
 
 
 def test_ripple_address_requires_compressed_key(

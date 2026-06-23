@@ -12,7 +12,7 @@ __description__ = (
 )
 __url__ = "https://github.com/Pymmdrza/libcrypto"
 # version Libcrypto
-__version__ = "1.0.0"
+__version__ = "1.5.0"
 
 # Additional metadata
 __license__ = "MIT"
